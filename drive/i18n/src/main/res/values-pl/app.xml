@@ -47,6 +47,7 @@
   <string name="folder_option_take_a_photo">Zrób nowe zdjęcie</string>
   <string name="folder_option_create_document">Utwórz dokument</string>
   <string name="folder_option_create_spreadsheet">Utwórz arkusz kalkulacyjny</string>
+  <string name="folder_option_import_folder">Upload a folder</string>
   <string name="settings_theme_system_default">Domyślny systemu</string>
   <string name="settings_theme_dark">Ciemny</string>
   <string name="settings_theme_light">Jasny</string>

@@ -172,6 +172,7 @@ sealed class Option(
         setOf(ApplicableTo.FILE_PHOTO),
         setOf(State.NOT_TRASHED) + State.ANY_SHARED,
     ) {
+        @Suppress("UNCHECKED_CAST")
         fun build(
             runAction: RunAction,
             toggleFavorite: suspend (DriveLink.File) -> Unit,
@@ -233,6 +234,7 @@ sealed class Option(
         setOf(ApplicableTo.FILE_PROTON_CLOUD),
         setOf(State.NOT_TRASHED) + State.ANY_SHARED,
     ) {
+        @Suppress("UNCHECKED_CAST")
         fun build(
             runAction: RunAction,
             openInBrowser: suspend (DriveLink.File) -> Unit,
@@ -285,6 +287,7 @@ sealed class Option(
         ),
         setOf(State.NOT_TRASHED) + State.ANY_SHARED,
     ) {
+        @Suppress("UNCHECKED_CAST")
         fun build(
             runAction: RunAction,
             saveSharePhoto: (link: DriveLink.File) -> Unit,
@@ -430,6 +433,7 @@ sealed class Option(
             runAction { navigateToAddToAlbumsOptions() }
         }
 
+        @Suppress("UNCHECKED_CAST")
         fun build(
             runAction: RunAction,
             addToAlbums: (DriveLink.File) -> Unit,
@@ -443,6 +447,7 @@ sealed class Option(
         setOf(ApplicableTo.FILE_PHOTO),
         setOf(State.NOT_TRASHED) + State.ANY_SHARED
     ) {
+        @Suppress("UNCHECKED_CAST")
         fun build(
             runAction: RunAction,
             setAsAlbumCover: (DriveLink.File) -> Unit,
@@ -456,6 +461,7 @@ sealed class Option(
         setOf(ApplicableTo.FILE_PHOTO),
         setOf(State.NOT_TRASHED) + State.ANY_SHARED
     ) {
+        @Suppress("UNCHECKED_CAST")
         fun build(
             runAction: RunAction,
             removeFromAlbum: (DriveLink.File) -> Unit,
@@ -495,6 +501,7 @@ sealed class Option(
         setOf(ApplicableTo.FILE_PHOTO),
         setOf(State.NOT_TRASHED) + State.ANY_SHARED,
     ) {
+        @Suppress("UNCHECKED_CAST")
         fun build(
             runAction: RunAction,
             tagPhoto: suspend (DriveLink.File) -> Unit,
@@ -503,6 +510,7 @@ sealed class Option(
                 tagPhoto(photoFile)
             }
         } as FileOptionEntry<DriveLink>
+
         fun build(
             runAction: RunAction,
             tagPhotos: suspend () -> Unit,

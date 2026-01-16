@@ -21,12 +21,13 @@ package me.proton.core.drive.observability.domain.metrics
 import io.swagger.v3.oas.annotations.media.Schema
 import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
+import me.proton.core.drive.observability.domain.metrics.common.NoLabels
 import me.proton.core.observability.domain.entity.SchemaId
 
 @Serializable
 @Schema(description = "File size of the errored upload")
 @SchemaId("https://proton.me/drive_upload_errors_file_size_histogram_v1.schema.json")
 data class UploadErrorsFileSizeHistogram(
-    @Required override val Labels: String = "",
+    @Required override val Labels: NoLabels = NoLabels,
     override val Value: Long,
 ) : DriveObservabilityData()

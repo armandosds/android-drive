@@ -75,4 +75,24 @@
     <item quantity="other">%1$d elementer</item>
   </plurals>
   <string name="files_upload_verification_failed">Opplastingen mislyktes: verifisering av data mislyktes.</string>
+  <!--
+        Variable %1$d is a quantity of folders that were created
+        Example:
+            "Created 1 folder"
+            "Created 15 folders"
+    -->
+  <plurals name="folder_upload_created_subfolders">
+    <item quantity="one">Opprettet %1$d mappe</item>
+    <item quantity="other">Opprettet %1$d mapper</item>
+  </plurals>
+  <!--
+        Variable %1$d is a quantity of files scheduled for upload
+        Example:
+            "Scheduled 1 file for upload"
+            "Scheduled 102 files for upload"
+    -->
+  <plurals name="folder_upload_scheduled_files_for_upload">
+    <item quantity="one">Planlagt %1$d fil for opplasting</item>
+    <item quantity="other">Planlagt %1$d filer for opplasting</item>
+  </plurals>
 </resources>

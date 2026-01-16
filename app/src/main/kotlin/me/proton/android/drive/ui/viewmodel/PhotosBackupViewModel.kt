@@ -24,6 +24,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emitAll
@@ -68,18 +69,19 @@ import me.proton.core.drive.i18n.R as I18N
 
 @Suppress("StaticFieldLeak")
 @HiltViewModel
+@OptIn(ExperimentalCoroutinesApi::class)
 class PhotosBackupViewModel @Inject constructor(
-    @ApplicationContext private val appContext: Context,
+    @param:ApplicationContext private val appContext: Context,
     savedStateHandle: SavedStateHandle,
     isPhotosEnabled: IsPhotosEnabled,
     getPhotosConfiguration: GetPhotosConfiguration,
+    getOldestActiveVolume: GetOldestActiveVolume,
     private val togglePhotosNetworkConfiguration: TogglePhotosNetworkConfiguration,
     private val getPhotosDriveLink: GetPhotosDriveLink,
     private val broadcastMessages: BroadcastMessages,
     private val isIgnoringBatteryOptimizations: IsIgnoringBatteryOptimizations,
     private val configurationProvider: ConfigurationProvider,
     private val getGetTagsMigrationStatistics: GetTagsMigrationStatistics,
-    private val getOldestActiveVolume: GetOldestActiveVolume,
     val backupPermissionsViewModel: BackupPermissionsViewModel,
 ) : ViewModel(), UserViewModel by UserViewModel(savedStateHandle) {
 

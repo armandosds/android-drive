@@ -51,7 +51,6 @@ import me.proton.core.compose.theme.defaultStrongNorm
 import me.proton.core.drive.base.domain.entity.Bytes
 import me.proton.core.drive.base.presentation.component.NavigationDrawerAppVersion
 import me.proton.core.drive.base.presentation.component.ProtonListItem
-import me.proton.core.drive.base.presentation.extension.driveCustomCitrusGreen
 import me.proton.core.drive.user.presentation.storage.StorageIndicator
 import me.proton.core.drive.user.presentation.user.PREVIEW_USER
 import me.proton.core.drive.user.presentation.user.UserSelector
@@ -113,15 +112,11 @@ fun NavigationDrawer(
                         .testTag(NavigationDrawerTestTag.content),
                     verticalArrangement = Arrangement.Top
                 ) {
-                    if (viewState.isBlackFridayPromoEnabled) {
-                        BlackFridayPromo(closeDrawerAction, viewEvent)
-                    } else {
-                        UpgradeStorageInfo(
-                            onUpgradeClicked = { viewEvent.onSubscription() },
-                            withTopDivider = true,
-                            withBottomDivider = true
-                        )
-                    }
+                    UpgradeStorageInfo(
+                        onUpgradeClicked = { viewEvent.onSubscription() },
+                        withTopDivider = true,
+                        withBottomDivider = true
+                    )
 
                     MyFilesListItem(closeDrawerAction, viewEvent)
 
@@ -175,24 +170,6 @@ fun NavigationDrawer(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun BlackFridayPromo(
-    closeDrawerAction: (() -> Unit) -> Unit,
-    viewEvent: NavigationDrawerViewEvent,
-    modifier: Modifier = Modifier,
-) {
-    NavigationDrawerListItem(
-        title = I18N.string.bf_promo_drawer_title,
-        icon = BasePresentation.drawable.ic_black_friday_promo,
-        iconTintColor = driveCustomCitrusGreen,
-        textStyle = ProtonTheme.typography.defaultNorm.copy(color = driveCustomCitrusGreen),
-        closeDrawerAction = closeDrawerAction,
-        modifier = modifier,
-    ) {
-        viewEvent.onBlackFridayPromo()
     }
 }
 
@@ -374,7 +351,6 @@ fun PreviewDrawerWithUser() {
                 override val onBugReport = {}
                 override val onSubscription = {}
                 override val onGetFreeStorage = {}
-                override val onBlackFridayPromo = {}
             }
         )
     }
@@ -396,7 +372,6 @@ private fun PreviewDrawerWithoutUser() {
                 override val onBugReport = {}
                 override val onSubscription = {}
                 override val onGetFreeStorage = {}
-                override val onBlackFridayPromo = {}
             }
         )
     }

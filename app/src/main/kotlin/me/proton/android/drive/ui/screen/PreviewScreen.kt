@@ -25,13 +25,13 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import me.proton.android.drive.ui.MainActivity
@@ -40,7 +40,6 @@ import me.proton.android.drive.ui.viewmodel.PreviewViewModel
 import me.proton.core.compose.activity.KeepScreenOn
 import me.proton.core.compose.component.bottomsheet.ModalBottomSheetViewState
 import me.proton.core.compose.component.bottomsheet.rememberModalBottomSheetContentState
-import me.proton.core.compose.flow.rememberFlowWithLifecycle
 import me.proton.core.drive.base.presentation.component.Deferred
 import me.proton.core.drive.base.presentation.component.ModalBottomSheet
 import me.proton.core.drive.files.preview.presentation.component.Preview
@@ -73,8 +72,9 @@ fun PreviewScreen(
     modifier: Modifier = Modifier,
 ) {
     KeepScreenOn()
-    val viewState by rememberFlowWithLifecycle(flow = viewModel.viewState)
-        .collectAsState(initial = viewModel.initialViewState)
+    val viewState by viewModel.viewState.collectAsStateWithLifecycle(
+        initialValue = viewModel.initialViewState
+    )
     val modalBottomSheetContentState = rememberModalBottomSheetContentState()
     val mainActivity = LocalContext.current as? MainActivity
     LaunchedEffect(LocalContext.current) {
@@ -95,7 +95,9 @@ fun PreviewScreen(
             }
             .launchIn(this)
     }
-    val isFullScreen by rememberFlowWithLifecycle(viewState.isFullscreen).collectAsState(false)
+    val isFullScreen by viewState.isFullscreen.collectAsStateWithLifecycle(
+        initialValue = false
+    )
     BackHandler(enabled = isFullScreen) {
         viewModel.toggleFullscreen()
     }

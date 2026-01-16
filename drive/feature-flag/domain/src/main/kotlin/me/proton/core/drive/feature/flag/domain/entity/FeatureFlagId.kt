@@ -46,15 +46,15 @@ sealed class FeatureFlagId(open val userId: UserId, open val id: String) {
         const val DOCS_SHEETS_ENABLED = "DocsSheetsEnabled"
         const val DOCS_CREATE_NEW_SHEET_ON_MOBILE_ENABLED = "DocsCreateNewSheetOnMobileEnabled"
         const val DOCS_SHEETS_DISABLED = "DocsSheetsDisabled"
-        const val DRIVE_PHOTOS_TAGS_MIGRATION = "DrivePhotosTagsMigration"
         const val DRIVE_PHOTOS_TAGS_MIGRATION_DISABLED = "DrivePhotosTagsMigrationDisabled"
-        const val DRIVE_ANDROID_DOWNLOAD_MANAGER = "DriveAndroidDownloadManager"
-        const val DRIVE_ANDROID_BLACK_FRIDAY_2025 = "DriveAndroidBlackFriday2025"
         const val DRIVE_ANDROID_SDK_UPLOAD_MAIN = "DriveAndroidSDKUploadMain"
         const val DRIVE_ANDROID_SDK_UPLOAD_PHOTO = "DriveAndroidSDKUploadPhoto"
         const val DRIVE_ANDROID_SDK_DOWNLOAD_MAIN = "DriveAndroidSDKDownloadMain"
         const val DRIVE_ANDROID_SDK_DOWNLOAD_PHOTO = "DriveAndroidSDKDownloadPhoto"
+        const val DRIVE_ANDROID_SDK_THUMBNAIL_MAIN = "DriveAndroidSDKThumbnailMain"
+        const val DRIVE_ANDROID_SDK_THUMBNAIL_PHOTO = "DriveAndroidSDKThumbnailPhoto"
         const val DRIVE_ANDROID_UPLOAD_FOLDER = "DriveAndroidUploadFolder"
+        const val DRIVE_ANDROID_PHOTO_LISTING_WITH_FILE_PROPERTIES = "DriveAndroidPhotoListingWithFileProperties"
 
         internal var developments : List<String> = listOf(
         )
@@ -79,14 +79,14 @@ sealed class FeatureFlagId(open val userId: UserId, open val id: String) {
         fun docsSheetsEnabled(userId: UserId) = Unleash(userId, DOCS_SHEETS_ENABLED)
         fun docsCreateNewSheetOnMobileEnabled(userId: UserId) = Unleash(userId, DOCS_CREATE_NEW_SHEET_ON_MOBILE_ENABLED)
         fun docsSheetsDisabled(userId: UserId) = Unleash(userId, DOCS_SHEETS_DISABLED)
-        fun drivePhotosTagsMigration(userId: UserId) = Unleash(userId, DRIVE_PHOTOS_TAGS_MIGRATION)
         fun drivePhotosTagsMigrationDisabled(userId: UserId) = Unleash(userId, DRIVE_PHOTOS_TAGS_MIGRATION_DISABLED)
-        fun driveAndroidDownloadManager(userId: UserId) = Unleash(userId, DRIVE_ANDROID_DOWNLOAD_MANAGER)
-        fun driveAndroidBlackFriday2025(userId: UserId) = Unleash(userId, DRIVE_ANDROID_BLACK_FRIDAY_2025)
         fun driveAndroidSDKUploadMain(userId: UserId) = Unleash(userId, DRIVE_ANDROID_SDK_UPLOAD_MAIN)
         fun driveAndroidSDKUploadPhoto(userId: UserId) = Unleash(userId, DRIVE_ANDROID_SDK_UPLOAD_PHOTO)
         fun driveAndroidSDKDownloadMain(userId: UserId) = Unleash(userId, DRIVE_ANDROID_SDK_DOWNLOAD_MAIN)
         fun driveAndroidSDKDownloadPhoto(userId: UserId) = Unleash(userId, DRIVE_ANDROID_SDK_DOWNLOAD_PHOTO)
+        fun driveAndroidSDKThumbnailMain(userId: UserId) = Unleash(userId, DRIVE_ANDROID_SDK_THUMBNAIL_MAIN)
+        fun driveAndroidSDKThumbnailPhoto(userId: UserId) = Unleash(userId, DRIVE_ANDROID_SDK_THUMBNAIL_PHOTO)
         fun driveAndroidUploadFolder(userId: UserId) = Unleash(userId, DRIVE_ANDROID_UPLOAD_FOLDER)
+        fun driveAndroidPhotoListingWithFileProperties(userId: UserId) = Unleash(userId, DRIVE_ANDROID_PHOTO_LISTING_WITH_FILE_PROPERTIES)
     }
 }

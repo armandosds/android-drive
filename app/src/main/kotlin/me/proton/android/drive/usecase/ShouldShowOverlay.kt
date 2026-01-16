@@ -21,6 +21,7 @@ package me.proton.android.drive.usecase
 import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.drive.android.settings.domain.UiSettingsRepository
+import me.proton.drive.android.settings.domain.entity.HomeTab
 import me.proton.drive.android.settings.domain.entity.UserOverlay
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -33,7 +34,10 @@ class ShouldShowOverlay @Inject constructor(
     private val shouldShowSubscriptionPromo: ShouldShowSubscriptionPromo,
     private val repository: UiSettingsRepository,
 ) {
-    suspend operator fun invoke(userId: UserId): Result<UserOverlay?> = coRunCatching {
+    suspend operator fun invoke(
+        userId: UserId,
+        currentHomeTab: HomeTab? = null,
+    ): Result<UserOverlay?> = coRunCatching {
         if (repository.hasShownOverlay()) {
             return@coRunCatching null
         }
@@ -44,7 +48,7 @@ class ShouldShowOverlay @Inject constructor(
         if (subscriptionPromo != null) {
             return@coRunCatching subscriptionPromo
         }
-        val whatsNewKey = shouldShowWhatsNew(userId).getOrThrow()
+        val whatsNewKey = shouldShowWhatsNew(userId, currentHomeTab).getOrThrow()
         if (whatsNewKey != null) {
             UserOverlay.WhatsNew(whatsNewKey)
         } else if (shouldShowRatingBooster(userId).getOrThrow()) {

@@ -77,6 +77,6 @@ class TestUiSettingsRepository : UiSettingsRepository {
 
     override suspend fun hasShownOverlay(): Boolean =
         hasShownOnboarding() ||
-                hasShownWhatsNew(key = WhatsNewKey.ALBUMS) ||
+                hasShownWhatsNew(key = WhatsNewKey.UPLOAD_FOLDER) ||
                 hasShownRatingBooster()
 }

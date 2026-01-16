@@ -19,21 +19,12 @@ package me.proton.core.drive.drivelink.download.domain.usecase
 
 import me.proton.core.drive.drivelink.domain.entity.DriveLink
 import me.proton.core.drive.drivelink.download.domain.manager.DownloadManager
-import me.proton.core.drive.drivelink.download.domain.manager.DownloadWorkManager
-import me.proton.core.drive.feature.flag.domain.usecase.IsDownloadManagerEnabled
-import me.proton.core.drive.link.domain.extension.userId
 import javax.inject.Inject
 
 class CancelDownload @Inject constructor(
-    private val downloadWorkManager: DownloadWorkManager,
     private val downloadManager: DownloadManager,
-    private val isDownloadManagerEnabled: IsDownloadManagerEnabled,
 ){
     suspend operator fun invoke(driveLink: DriveLink) {
-        if (isDownloadManagerEnabled(driveLink.id.userId)) {
-            downloadManager.cancel(driveLink)
-        } else {
-            downloadWorkManager.cancel(driveLink)
-        }
+        downloadManager.cancel(driveLink)
     }
 }

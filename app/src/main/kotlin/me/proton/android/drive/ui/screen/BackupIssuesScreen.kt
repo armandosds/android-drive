@@ -21,14 +21,13 @@ package me.proton.android.drive.ui.screen
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import me.proton.android.drive.photos.presentation.component.BackupIssues
 import me.proton.android.drive.ui.viewmodel.BackupIssuesViewModel
-import me.proton.core.compose.flow.rememberFlowWithLifecycle
 
 @Composable
 fun BackupIssuesScreen(
@@ -37,8 +36,9 @@ fun BackupIssuesScreen(
     navigateToSkipIssues: () -> Unit,
 ) {
     val viewModel = hiltViewModel<BackupIssuesViewModel>()
-    val viewState by rememberFlowWithLifecycle(flow = viewModel.viewState)
-        .collectAsState(initial = viewModel.initialViewState)
+    val viewState by viewModel.viewState.collectAsStateWithLifecycle(
+        initialValue = viewModel.initialViewState
+    )
     val viewEvent = remember {
         viewModel.viewEvent(
             navigateBack = navigateBack,

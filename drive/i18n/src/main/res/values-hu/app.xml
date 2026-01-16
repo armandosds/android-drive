@@ -47,6 +47,7 @@
   <string name="folder_option_take_a_photo">Új fénykép készítése</string>
   <string name="folder_option_create_document">Dokumentum létrehozása</string>
   <string name="folder_option_create_spreadsheet">Táblázat létrehozása</string>
+  <string name="folder_option_import_folder">Mappa feltöltése</string>
   <string name="settings_theme_system_default">Rendszer alapértelmezett</string>
   <string name="settings_theme_dark">Sötét</string>
   <string name="settings_theme_light">Világos</string>

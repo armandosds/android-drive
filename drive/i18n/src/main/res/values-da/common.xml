@@ -50,7 +50,7 @@
   <string name="common_rename_action">Omdøb</string>
   <string name="common_send_action">Send</string>
   <string name="common_create_action">Opret</string>
-  <string name="common_cancel_action">Annullér</string>
+  <string name="common_cancel_action">Annuller</string>
   <string name="common_cancel_all_action">Annuller alle</string>
   <string name="common_got_it_action">Forstået</string>
   <string name="common_next_action">Næste</string>
@@ -60,7 +60,7 @@
   <string name="common_delete_permanently_action">Slet permanent</string>
   <string name="common_make_available_offline_action">Gør tilgængelig offline</string>
   <string name="common_remove_from_offline_available_action">Fjern fra offline-tilgængelige</string>
-  <string name="common_get_link_action">Få link</string>
+  <string name="common_get_link_action">Få et link</string>
   <string name="common_manage_link_action">Administrer link</string>
   <string name="common_manage_access_action">Administrer adgang</string>
   <string name="common_copy_link_action">Kopiér link</string>
@@ -74,7 +74,7 @@
   <string name="common_leave_album_action">Forlad album</string>
   <string name="common_start_action">Start</string>
   <string name="common_save_all_action">Gem alle</string>
-  <string name="common_add_to_albums_action">Føj til albummer</string>
+  <string name="common_add_to_albums_action">Føj til albums</string>
   <string name="common_tag_photo_action">Scan foto efter tags</string>
   <!-- endregion -->
   <!-- region Common file types -->

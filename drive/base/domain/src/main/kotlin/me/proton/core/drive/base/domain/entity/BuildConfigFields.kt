@@ -19,5 +19,6 @@
 package me.proton.core.drive.base.domain.entity
 
 data class BuildConfigFields(
-    val appVersionName: String
+    val appVersionName: String,
+    val sdkVersionName: String,
 )

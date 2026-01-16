@@ -23,8 +23,10 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import dagger.multibindings.IntoSet
 import me.proton.android.drive.BuildConfig
 import me.proton.android.drive.network.DriveApiClient
+import me.proton.android.drive.network.DriveHttpLoggingInterceptor
 import me.proton.core.configuration.EnvironmentConfiguration
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.network.data.client.ExtraHeaderProviderImpl
@@ -35,10 +37,12 @@ import me.proton.core.network.data.di.Constants
 import me.proton.core.network.data.di.DohProviderUrls
 import me.proton.core.network.domain.ApiClient
 import me.proton.core.network.domain.client.ExtraHeaderProvider
+import me.proton.core.network.domain.interceptor.InterceptorInfo
 import me.proton.core.network.domain.serverconnection.DohAlternativesListener
 import me.proton.core.util.kotlin.takeIfNotBlank
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
+import okhttp3.Interceptor
 import javax.inject.Singleton
 
 @Module
@@ -78,6 +82,19 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideDohAlternativesListener(): DohAlternativesListener? = null
+
+
+    @Provides
+    @Singleton
+    fun provideDriveHttpLoggingInterceptor(): DriveHttpLoggingInterceptor = DriveHttpLoggingInterceptor()
+
+    @Provides
+    @Singleton
+    @IntoSet
+    fun provideInterceptor(
+        interceptor: DriveHttpLoggingInterceptor,
+    ): Pair<InterceptorInfo, Interceptor> =
+        InterceptorInfo() to interceptor
 }
 
 @Module

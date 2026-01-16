@@ -47,6 +47,7 @@
   <string name="folder_option_take_a_photo">Βγάλε μία νέα φωτογραφία</string>
   <string name="folder_option_create_document">Δημιουργία εγγράφου</string>
   <string name="folder_option_create_spreadsheet">Δημιουργία υπολογιστικού φύλλου</string>
+  <string name="folder_option_import_folder">Ανέβασμα φακέλου</string>
   <string name="settings_theme_system_default">Προεπιλογή συστήματος</string>
   <string name="settings_theme_dark">Σκοτεινό</string>
   <string name="settings_theme_light">Φωτεινό</string>

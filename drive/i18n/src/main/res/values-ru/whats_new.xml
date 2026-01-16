@@ -18,6 +18,4 @@
   -->
 <resources>
   <string name="whats_new_title">Что нового</string>
-  <string name="whats_new_albums_title">Фотоальбомы здесь!</string>
-  <string name="whats_new_albums_description">Упорядочивайте свои воспоминания с помощью нашей новой функции «Альбомы». Фильтруйте по видео, избранному и другим параметрам со сквозным шифрованием, которому вы доверяете.</string>
 </resources>

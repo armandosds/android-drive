@@ -20,9 +20,12 @@ package me.proton.core.drive.linkdownload.data.db
 import androidx.sqlite.db.SupportSQLiteDatabase
 import me.proton.core.data.room.db.Database
 import me.proton.core.data.room.db.migration.DatabaseMigration
+import me.proton.core.drive.linkdownload.data.db.dao.LinkDownloadDao
+import me.proton.core.drive.linkdownload.data.db.dao.LinkDownloadFileSignatureVerificationFailedDao
 
 interface LinkDownloadDatabase : Database {
     val linkDownloadDao: LinkDownloadDao
+    val linkDownloadFileSignatureVerificationFailedDao: LinkDownloadFileSignatureVerificationFailedDao
 
     companion object {
         val MIGRATION_0 = object : DatabaseMigration {
@@ -33,6 +36,23 @@ interface LinkDownloadDatabase : Database {
                 database.execSQL("""
                     CREATE INDEX IF NOT EXISTS `index_LinkDownloadStateEntity_user_id_share_id_link_id_revision_id` ON `LinkDownloadStateEntity` (`user_id`, `share_id`, `link_id`, `revision_id`)
                 """.trimIndent())
+            }
+        }
+
+        val MIGRATION_1 = object : DatabaseMigration {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    """
+                        CREATE TABLE IF NOT EXISTS `LinkDownloadFileSignatureVerificationFailedEntity` (
+                        `user_id` TEXT NOT NULL,
+                        `share_id` TEXT NOT NULL,
+                        `link_id` TEXT NOT NULL,
+
+                        PRIMARY KEY(`user_id`, `share_id`, `link_id`),
+                        FOREIGN KEY(`user_id`, `share_id`, `link_id`) REFERENCES `LinkEntity`(`user_id`, `share_id`, `id`)
+                        ON UPDATE NO ACTION ON DELETE CASCADE )
+                    """.trimIndent()
+                )
             }
         }
     }

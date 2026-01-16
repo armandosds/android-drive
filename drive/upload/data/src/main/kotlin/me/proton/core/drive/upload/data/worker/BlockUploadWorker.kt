@@ -36,10 +36,10 @@ import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.base.data.entity.LoggerLevel.WARNING
 import me.proton.core.drive.base.data.extension.log
 import me.proton.core.drive.base.data.workmanager.addTags
-import me.proton.core.drive.base.data.workmanager.onProtonHttpException
 import me.proton.core.drive.base.domain.api.ProtonApiCode.ALREADY_EXISTS
 import me.proton.core.drive.base.domain.api.ProtonApiCode.INVALID_VALUE
 import me.proton.core.drive.base.domain.api.ProtonApiCode.NOT_EXISTS
+import me.proton.core.drive.base.domain.extension.onProtonHttpException
 import me.proton.core.drive.base.domain.extension.size
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.usecase.BroadcastMessages

@@ -24,6 +24,7 @@ import java.io.InputStream
 interface UriResolver {
     val schemes: Set<String> get() = emptySet()
     suspend fun <T> useInputStream(uriString: String, block: suspend (InputStream) -> T): T?
+    suspend fun inputStream(uriString: String): InputStream?
     suspend fun exists(uriString: String): Boolean
     suspend fun getName(uriString: String): String?
     suspend fun getSize(uriString: String): Bytes?

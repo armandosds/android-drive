@@ -28,5 +28,6 @@ class AppBuildConfigFieldsProvider @Inject constructor() : BuildConfigFieldsProv
     override val buildConfigFields: BuildConfigFields
         get() = BuildConfigFields(
             appVersionName = BuildConfig.VERSION_NAME,
+            sdkVersionName = BuildConfig.SDK_VERSION_NAME,
         )
 }

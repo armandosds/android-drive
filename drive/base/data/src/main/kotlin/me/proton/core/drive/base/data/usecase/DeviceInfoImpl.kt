@@ -35,6 +35,7 @@ class DeviceInfoImpl @Inject constructor(
         block("ABI:         ${Build.SUPPORTED_ABIS.joinToString(",")}")
         block("LOCALE(S):   ${LocaleList.getDefault().toLanguageTags()}")
         block("APP VERSION: ${buildConfigFieldsProvider.buildConfigFields.appVersionName}")
+        block("SDK VERSION: ${buildConfigFieldsProvider.buildConfigFields.sdkVersionName}")
         block("-----------------------------------------")
     }
 }

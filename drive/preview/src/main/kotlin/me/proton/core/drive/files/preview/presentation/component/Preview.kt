@@ -354,15 +354,16 @@ fun PreviewContent(
     onDoubleTap : () -> Unit = { transformationState.scale = 2F },
 ) {
     val dragEnable = transformationState.hasScale()
+    val protonCloud = setOf(PreviewComposable.ProtonDoc, PreviewComposable.ProtonSheet)
 
     if (isFocused) {
         DisposableEffect(dragEnable) {
             userScrollEnabled.value = when {
-                previewComposable == PreviewComposable.ProtonDoc -> false
+                previewComposable in protonCloud -> false
                 else -> !dragEnable
             }
             onDispose {
-                userScrollEnabled.value = previewComposable != PreviewComposable.ProtonDoc
+                userScrollEnabled.value = previewComposable !in protonCloud
             }
         }
     }

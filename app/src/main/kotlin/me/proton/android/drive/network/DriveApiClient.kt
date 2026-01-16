@@ -32,7 +32,7 @@ class DriveApiClient @Inject constructor(
     override val appVersionHeader: String
         get() = configurationProvider.appVersionHeader
     override val enableDebugLogging: Boolean
-        get() = BuildConfig.DEBUG || BuildConfig.FLAVOR == BuildConfig.FLAVOR_ALPHA
+        get() = false
     override suspend fun shouldUseDoh(): Boolean = false
     override val userAgent: String
         get() = StringBuilder()

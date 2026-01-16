@@ -30,5 +30,4 @@ data class NavigationDrawerViewState(
     val currentUser: User? = null,
     val showGetFreeStorage: Boolean = false,
     val showSubscription: Boolean = false,
-    val isBlackFridayPromoEnabled: Boolean = false,
 )

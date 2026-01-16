@@ -24,7 +24,7 @@ import dagger.hilt.components.SingletonComponent
 import me.proton.core.drive.announce.event.domain.usecase.AsyncAnnounceEvent
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.util.StopWatch
-import me.proton.core.drive.linkdownload.data.db.LinkDownloadDao
+import me.proton.core.drive.linkdownload.data.db.dao.LinkDownloadDao
 import me.proton.core.drive.linkdownload.data.db.LinkDownloadDatabase
 import me.proton.core.drive.linkdownload.data.repository.LinkDownloadRepositoryImpl
 import me.proton.core.drive.linkdownload.domain.manager.DownloadSpeedManager
@@ -44,10 +44,10 @@ object LinkDownloadModule {
     @Singleton
     @Provides
     fun provideLinkDownloadRepository(
-        linkDownloadDao: LinkDownloadDao,
+        linkDownloadDatabase: LinkDownloadDatabase,
         configurationProvider: ConfigurationProvider,
     ): LinkDownloadRepository = LinkDownloadRepositoryImpl(
-        db = linkDownloadDao,
+        db = linkDownloadDatabase,
         configurationProvider = configurationProvider,
     )
 

@@ -20,6 +20,7 @@ package me.proton.core.drive.thumbnail.domain.usecase
 
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.crypto.domain.usecase.DecryptThumbnail
+import me.proton.core.drive.drivelink.domain.usecase.UseSdkForThumbnail
 import me.proton.core.drive.file.base.domain.entity.ThumbnailId
 import me.proton.core.drive.link.domain.entity.FileId
 import me.proton.core.drive.link.domain.extension.userId
@@ -29,9 +30,11 @@ import javax.inject.Inject
 
 class GetThumbnailCachedInputStream @Inject constructor(
     private val getThumbnailInputStream: GetThumbnailInputStream,
+    private val getThumbnailSdk: GetThumbnailSdk,
     private val getThumbnailFile: GetThumbnailFile,
     private val getThumbnailDecryptedFile: GetThumbnailDecryptedFile,
     private val decryptThumbnail: DecryptThumbnail,
+    private val useSdkForThumbnail: UseSdkForThumbnail,
 ) {
 
     suspend operator fun invoke(
@@ -69,8 +72,18 @@ class GetThumbnailCachedInputStream @Inject constructor(
         } else {
             decryptedThumbnailFile.createNewFile()
             decryptedThumbnailFile.outputStream().use { outputStream ->
-                getThumbnailInputStream(thumbnailId).getOrThrow().use { inputStream ->
-                    outputStream.write(decryptThumbnail(fileId, inputStream).getOrThrow())
+                if (useSdkForThumbnail(fileId).getOrThrow()) {
+                    getThumbnailSdk(
+                        volumeId = volumeId,
+                        fileId = fileId,
+                        thumbnailType = thumbnailId.type
+                    ).getOrThrow().use { inputStream ->
+                        inputStream.copyTo(outputStream)
+                    }
+                } else {
+                    getThumbnailInputStream(thumbnailId).getOrThrow().use { inputStream ->
+                        outputStream.write(decryptThumbnail(fileId, inputStream).getOrThrow())
+                    }
                 }
             }
             decryptedThumbnailFile.inputStream()

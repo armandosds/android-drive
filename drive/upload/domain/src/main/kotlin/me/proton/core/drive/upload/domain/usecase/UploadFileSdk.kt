@@ -25,45 +25,32 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import me.proton.core.drive.base.domain.entity.Bytes
 import me.proton.core.drive.base.domain.entity.FileTypeCategory
-import me.proton.core.drive.base.domain.entity.TimestampS
 import me.proton.core.drive.base.domain.entity.toFileTypeCategory
-import me.proton.core.drive.base.domain.entity.toTimestampS
 import me.proton.core.drive.base.domain.extension.bytes
 import me.proton.core.drive.base.domain.extension.toResult
-import me.proton.core.drive.base.domain.log.LogTag
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
-import me.proton.core.drive.base.domain.provider.DriveClientProvider
 import me.proton.core.drive.base.domain.util.coRunCatching
-import me.proton.core.drive.crypto.domain.usecase.file.GetFileName
 import me.proton.core.drive.eventmanager.base.domain.usecase.UpdateEventAction
 import me.proton.core.drive.file.base.domain.entity.ThumbnailType
 import me.proton.core.drive.linkupload.domain.entity.UploadFileLink
 import me.proton.core.drive.linkupload.domain.entity.UploadState
-import me.proton.core.drive.linkupload.domain.usecase.UpdateUploadFileCreationTime
 import me.proton.core.drive.linkupload.domain.usecase.UpdateUploadState
 import me.proton.core.drive.share.domain.entity.Share
 import me.proton.core.drive.share.domain.usecase.GetShare
 import me.proton.core.drive.thumbnail.domain.usecase.CreateThumbnail
+import me.proton.core.drive.upload.domain.manager.UploadSdkManager
 import me.proton.core.drive.upload.domain.resolver.UriResolver
-import me.proton.core.util.kotlin.CoreLogger
-import me.proton.drive.sdk.DriveClient
-import me.proton.drive.sdk.entity.FileUploaderRequest
-import me.proton.drive.sdk.entity.UploadResult
-import me.proton.drive.sdk.extension.withCancellable
-import me.proton.drive.sdk.internal.Uid
-import me.proton.drive.sdk.uploader
-import java.io.InputStream
+import me.proton.drive.sdk.UploadController
+import okio.FileNotFoundException
 import javax.inject.Inject
 import me.proton.drive.sdk.entity.ThumbnailType as SdkThumbnailType
 
 class UploadFileSdk @Inject constructor(
-    private val driveClientProvider: DriveClientProvider,
+    private val uploadSdkManager: UploadSdkManager,
     private val uriResolver: UriResolver,
     private val updateEventAction: UpdateEventAction,
     private val createThumbnail: CreateThumbnail,
     private val updateUploadState: UpdateUploadState,
-    private val getFileName: GetFileName,
-    private val updateUploadFileCreationTime: UpdateUploadFileCreationTime,
     private val configurationProvider: ConfigurationProvider,
     private val getShare: GetShare,
 ) {
@@ -72,33 +59,39 @@ class UploadFileSdk @Inject constructor(
         uriString: String,
         block: suspend (Bytes) -> Unit,
     ) = coRunCatching {
-        val driveClient = driveClientProvider.getOrCreate(uploadFileLink.userId).getOrThrow()
+        coroutineScope {
+            var controller: UploadController? = null
+            try {
+                updateUploadState(uploadFileLink.id, UploadState.UPLOADING_BLOCKS).getOrThrow()
 
-        updateUploadState(uploadFileLink.id, UploadState.CREATING_NEW_FILE).getOrThrow()
-        updateUploadFileCreationTime(uploadFileLink.id, TimestampS()).getOrThrow()
-        val fileName = getFileName(
-            name = uploadFileLink.name,
-            folderId = uploadFileLink.parentLinkId,
-        ).getOrThrow()
-        val size = requireNotNull(uriResolver.getSize(uriString)) {
-            "Cannot get size of $uriString"
+                controller = uploadSdkManager.controller(uploadFileLink) { uploader ->
+                    uploader.uploadFromStream(
+                        coroutineScope = this,
+                        inputStream = uriResolver.inputStream(uriString)
+                            ?: throw FileNotFoundException("Cannot open stream for upload${uploadFileLink.id}"),
+                        thumbnails = uploadFileLink.createThumbnails(uriString),
+                        progress = { bytesCompleted, bytesInTotal ->
+                            block(bytesCompleted.bytes)
+                        }
+                    )
+                }
+                //controller.resume()
+                val result = controller.awaitCompletion()
+                updateEventAction(uploadFileLink.userId, uploadFileLink.volumeId) {
+                    uploadSdkManager.close(uploadFileLink)
+                    result
+                }
+            } finally {
+                if (!isActive) {
+                    withContext(NonCancellable) {
+                        //controller?.pause()
+                        // replace cancel by pause when implemented
+                        uploadSdkManager.cancel(uploadFileLink)
+                        updateUploadState(uploadFileLink.id, UploadState.IDLE)
+                    }
+                }
+            }
         }
-        val lastModified = requireNotNull(uriResolver.getLastModified(uriString)) {
-            "Cannot get last modified of $uriString"
-        }.toTimestampS()
-        uriResolver.useInputStream(uriString) { inputStream ->
-            driveClient.upload(
-                uploadFileLink = uploadFileLink,
-                name = fileName,
-                size = size,
-                lastModified = lastModified,
-                inputStream = inputStream,
-                thumbnails = uploadFileLink.createThumbnails(uriString),
-                block = block,
-            )
-        }
-    }.onFailure {
-        updateUploadState(uploadFileLink.id, UploadState.IDLE)
     }
 
     private suspend fun UploadFileLink.createThumbnails(
@@ -121,66 +114,6 @@ class UploadFileSdk @Inject constructor(
         return buildMap {
             defaultThumbnail?.let { put(SdkThumbnailType.THUMBNAIL, defaultThumbnail) }
             photoThumbnail?.let { put(SdkThumbnailType.PREVIEW, photoThumbnail) }
-        }
-    }
-
-    private suspend fun DriveClient.upload(
-        uploadFileLink: UploadFileLink,
-        name: String,
-        size: Bytes,
-        lastModified: TimestampS,
-        inputStream: InputStream,
-        thumbnails: Map<SdkThumbnailType, ByteArray>,
-        block: suspend (Bytes) -> Unit
-    ): UploadResult = updateEventAction(uploadFileLink.userId, uploadFileLink.volumeId) {
-        coroutineScope {
-            try {
-                withCancellable(
-                    uploader(
-                        FileUploaderRequest(
-                            parentFolderUid = Uid.makeNodeUid(
-                                volumeId = uploadFileLink.volumeId.id,
-                                nodeId = uploadFileLink.parentLinkId.id,
-                            ),
-                            name = name,
-                            mediaType = uploadFileLink.mimeType,
-                            fileSize = size.value,
-                            lastModificationTime = lastModified.value,
-                            overrideExistingDraftByOtherClient = false,
-                        ),
-                    )
-                ) { uploader ->
-                    var uploading = false
-                    withCancellable(
-                        uploader.uploadFromStream(
-                            coroutineScope = this,
-                            inputStream = inputStream,
-                            thumbnails = thumbnails,
-                            progress = { bytesCompleted, bytesInTotal ->
-                                CoreLogger.i(
-                                    LogTag.DRIVE_SDK,
-                                    "upload progress: $bytesCompleted/$bytesInTotal"
-                                )
-                                if (!uploading) {
-                                    uploading = true
-                                    updateUploadState(
-                                        uploadFileLink.id,
-                                        UploadState.UPLOADING_BLOCKS
-                                    ).getOrThrow()
-                                }
-                                block(bytesCompleted.bytes)
-                            }
-                        )) { controller ->
-                        controller.awaitCompletion()
-                    }
-                }
-            } finally {
-                if (!isActive) {
-                    withContext(NonCancellable) {
-                        updateUploadState(uploadFileLink.id, UploadState.IDLE)
-                    }
-                }
-            }
         }
     }
 

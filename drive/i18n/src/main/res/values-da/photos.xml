@@ -37,7 +37,7 @@
             "...available across all your devices.
              Proton Drive takes your privacy seriously..."
     -->
-  <string name="photos_permission_rational_description">Dette er nødvendigt for at sikre, at alle dine fotos er sikkerhedskopieret og tilgængelige på alle dine enheder.\n%1$s tager dit privatliv alvorligt og tilgå dine fotos med henblik på synkronisering og sikkerhedskopiering.</string>
+  <string name="photos_permission_rational_description">Dette er nødvendigt for at sikre, at alle dine fotos er sikkerhedskopieret og tilgængelige på alle dine enheder.\n%1$s tager dit privatliv alvorligt og tilgår udelukkende dine fotos med henblik på synkronisering og sikkerhedskopiering.</string>
   <string name="photos_permission_rational_confirm_action">Indstillinger</string>
   <string name="photos_permission_rational_dismiss_action">Ikke nu</string>
   <string name="photos_empty_loading_label_encrypted">End-to-end krypteret</string>
@@ -144,14 +144,14 @@
   <string name="photos_bursts_empty_title">Ingen fotoserier</string>
   <string name="photos_bursts_empty_description">Dine foto-serier vises her</string>
   <string name="photos_panoramas_empty_title">Ingen panoramaer</string>
-  <string name="photos_panoramas_empty_description">Dine panoramabilleder vises her</string>
+  <string name="photos_panoramas_empty_description">Dine panoramafotos vises her</string>
   <string name="photos_raws_empty_title">Ingen RAW</string>
   <string name="photos_raws_empty_description">Dine RAW-fotos vises her</string>
   <string name="photos_share_migration_in_progress_title">Opsætning af albummer og filtre</string>
   <string name="photos_share_migration_in_progress_description">Hvis du har et stort fotobibliotek, kan det tage noget tid. Du kan lukke appen. Vi arbejder på det i baggrunden.</string>
   <string name="photos_share_migration_needed_banner_title">Datamigrering nødvendig</string>
   <string name="photos_share_migration_needed_banner_description">Efter migrering kan du bruge nye funktioner som filtre og fotoalbum</string>
-  <string name="photos_tags_migration_title">Migration af tags</string>
+  <string name="photos_tags_migration_title">Migrering af tags</string>
   <!--
         Variable %1$s is a quantity (formatted) of photos migrates
         Example:

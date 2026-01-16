@@ -47,6 +47,7 @@
   <string name="folder_option_take_a_photo">Urobiť novú fotografiu</string>
   <string name="folder_option_create_document">Vytvoriť dokument</string>
   <string name="folder_option_create_spreadsheet">Vytvoriť tabuľku</string>
+  <string name="folder_option_import_folder">Nahrať priečinok</string>
   <string name="settings_theme_system_default">Podľa systému</string>
   <string name="settings_theme_dark">Tmavý</string>
   <string name="settings_theme_light">Svetlý</string>

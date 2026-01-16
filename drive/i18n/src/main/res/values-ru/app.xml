@@ -47,6 +47,7 @@
   <string name="folder_option_take_a_photo">Сделать новое фото</string>
   <string name="folder_option_create_document">Создать документ</string>
   <string name="folder_option_create_spreadsheet">Создать электронную таблицу</string>
+  <string name="folder_option_import_folder">Upload a folder</string>
   <string name="settings_theme_system_default">Настройки по умолчанию</string>
   <string name="settings_theme_dark">Тёмная</string>
   <string name="settings_theme_light">Светлая</string>

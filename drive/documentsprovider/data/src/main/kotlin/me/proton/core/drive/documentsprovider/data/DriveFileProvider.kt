@@ -38,6 +38,7 @@ import me.proton.core.drive.documentsprovider.domain.usecase.WithDriveLinkFile
 import me.proton.core.drive.link.domain.entity.FileId
 import me.proton.core.drive.share.domain.entity.ShareId
 import me.proton.core.util.kotlin.CoreLogger
+import me.proton.drive.sdk.ProtonDriveSdk
 
 class DriveFileProvider : ContentProvider() {
 
@@ -87,6 +88,10 @@ class DriveFileProvider : ContentProvider() {
     }
 
     companion object {
+        init {
+            // Loading the sdk first and the app don't crash
+            ProtonDriveSdk
+        }
         private val COLUMNS = arrayOf(OpenableColumns.DISPLAY_NAME, OpenableColumns.SIZE)
 
         private val Context.AUTHORITY get() = "$packageName.files"

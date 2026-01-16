@@ -52,9 +52,13 @@ class ContentUriResolver(
 
     @Suppress("BlockingMethodInNonBlockingContext")
     override suspend fun <T> useInputStream(uriString: String, block: suspend (InputStream) -> T): T? =
-        applicationContext.contentResolver.openInputStream(Uri.parse(uriString))?.use { inputStream ->
+        inputStream(uriString)?.use { inputStream ->
             block(inputStream)
         }
+
+    override suspend fun inputStream(uriString: String): InputStream? {
+        return applicationContext.contentResolver.openInputStream(Uri.parse(uriString))
+    }
 
     override suspend fun exists(uriString: String) = withContentResolver(uriString) { uri ->
         query(

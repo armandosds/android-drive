@@ -51,8 +51,7 @@ import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.drivelink.domain.usecase.GetDriveLink
 import me.proton.core.drive.drivelink.download.domain.entity.NetworkType
-import me.proton.core.drive.drivelink.download.domain.manager.DownloadWorkManager
-import me.proton.core.drive.feature.flag.domain.entity.FeatureFlagId.Companion.drivePhotosTagsMigration
+import me.proton.core.drive.drivelink.download.domain.usecase.Download
 import me.proton.core.drive.feature.flag.domain.entity.FeatureFlagId.Companion.drivePhotosTagsMigrationDisabled
 import me.proton.core.drive.feature.flag.domain.extension.on
 import me.proton.core.drive.feature.flag.domain.usecase.GetFeatureFlagFlow
@@ -86,18 +85,8 @@ class TagsMigrationInitializer : Initializer<Unit> {
                     val scope = scopes.getOrPut(userId) {
                         CoroutineScope(Dispatchers.IO + Job())
                     }
-                    val enabledFlow = combine(
-                        getFeatureFlagFlow(drivePhotosTagsMigrationDisabled(userId)),
-                        getFeatureFlagFlow(drivePhotosTagsMigration(userId)),
-                    ) { killSwitch, flag ->
-                        if (killSwitch.on) {
-                            false
-                        } else if (flag.on) {
-                            true
-                        } else {
-                            null
-                        }
-                    }
+                    val enabledFlow = getFeatureFlagFlow(drivePhotosTagsMigrationDisabled(userId))
+                        .map { killSwitch -> !killSwitch.on }
                     val volumeIdFlow = getOldestActiveVolume(userId, Volume.Type.PHOTO)
                         .mapSuccessValueOrNull()
                         .filterNotNull()
@@ -140,7 +129,7 @@ class TagsMigrationInitializer : Initializer<Unit> {
                         .onEach { fileId ->
                             coRunCatching {
                                 CoreLogger.d(PHOTO, "Starting download for ${fileId.id.logId()}")
-                                downloadWorkManager.download(
+                                download(
                                     driveLink = getDriveLink(fileId).toResult().getOrThrow(),
                                     retryable = true,
                                     networkType = NetworkType.UNMETERED,
@@ -199,10 +188,10 @@ class TagsMigrationInitializer : Initializer<Unit> {
         val getTagsMigrationDownloadedFile: GetTagsMigrationDownloadedFile
         val getOldestActiveVolume: GetOldestActiveVolume
         val getDriveLink: GetDriveLink
-        val downloadWorkManager: DownloadWorkManager
         val continueTagsMigrationAfterDownload: ContinueTagsMigrationAfterDownload
         val startTagsMigration: StartTagsMigration
         val stopTagsMigration: StopTagsMigration
         val getFeatureFlagFlow: GetFeatureFlagFlow
+        val download: Download
     }
 }

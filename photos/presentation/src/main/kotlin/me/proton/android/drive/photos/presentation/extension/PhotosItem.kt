@@ -35,7 +35,7 @@ suspend fun List<PhotosItem>.getFastScrollAnchors(
         tag = LogTag.PHOTO,
         message = "getFastScrollAnchors(anchors=$anchors, anchorsInLabel=$anchorsInLabel) total photo items: $size",
     )
-    if (anchors <= 0) return emptyList()
+    if (anchors <= 0 || isEmpty()) return emptyList()
     val fastScrollAnchors: MutableList<FastScrollAnchor> = mutableListOf()
     val separators = this
         .asSequence()

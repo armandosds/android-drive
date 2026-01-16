@@ -24,6 +24,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -43,7 +44,6 @@ import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
 import me.proton.android.drive.photos.domain.usecase.GetPhotosDriveLink
-import me.proton.android.drive.photos.presentation.R
 import me.proton.android.drive.photos.presentation.state.AlbumsItem
 import me.proton.android.drive.photos.presentation.viewevent.AlbumsViewEvent
 import me.proton.android.drive.photos.presentation.viewstate.AlbumsFilter
@@ -84,14 +84,16 @@ import me.proton.core.drive.share.domain.entity.Share
 import me.proton.core.drive.share.user.domain.usecase.GetUserInvitationCountFlow
 import me.proton.core.util.kotlin.CoreLogger
 import javax.inject.Inject
+import me.proton.core.drive.base.presentation.R as BasePresentation
 import me.proton.core.drive.i18n.R as I18N
 import me.proton.core.presentation.R as CorePresentation
-import me.proton.core.drive.base.presentation.R as BasePresentation
 
 @HiltViewModel
+@OptIn(ExperimentalCoroutinesApi::class)
 class AlbumsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    @ApplicationContext private val appContext: Context,
+    getUserInvitationCountFlow: GetUserInvitationCountFlow,
+    @param:ApplicationContext private val appContext: Context,
     private val getAllAlbumListings: GetAllAlbumListings,
     private val fetchAndStoreAllAlbumListings: FetchAndStoreAllAlbumListings,
     private val configurationProvider: ConfigurationProvider,
@@ -99,7 +101,6 @@ class AlbumsViewModel @Inject constructor(
     private val getPhotosDriveLink: GetPhotosDriveLink,
     private val onFilesDriveLinkError: OnFilesDriveLinkError,
     private val broadcastMessages: BroadcastMessages,
-    private val getUserInvitationCountFlow: GetUserInvitationCountFlow,
 ) : ViewModel(), UserViewModel by UserViewModel(savedStateHandle), HomeTabViewModel {
     private var fetchingJob: Job? = null
     private val _homeEffect = MutableSharedFlow<HomeEffect>()

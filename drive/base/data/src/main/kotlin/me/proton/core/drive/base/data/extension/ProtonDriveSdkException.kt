@@ -19,7 +19,11 @@ package me.proton.core.drive.base.data.extension
 
 import android.content.Context
 import me.proton.core.drive.base.data.entity.LoggerLevel
+import me.proton.core.drive.base.domain.extension.toProtonData
+import me.proton.core.network.domain.ApiException
+import me.proton.core.network.domain.ApiResult
 import me.proton.drive.sdk.ProtonDriveSdkException
+import me.proton.drive.sdk.ProtonSdkError
 import me.proton.core.drive.i18n.R as I18N
 
 fun ProtonDriveSdkException.getDefaultMessage(

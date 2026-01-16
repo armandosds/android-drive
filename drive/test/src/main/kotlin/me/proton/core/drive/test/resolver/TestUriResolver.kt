@@ -33,10 +33,12 @@ class TestUriResolver @Inject constructor() : UriResolver {
     override suspend fun <T> useInputStream(
         uriString: String,
         block: suspend (InputStream) -> T,
-    ): T? = when (uriString) {
+    ): T? = inputStream(uriString)?.let { inputStream -> block(inputStream) }
+
+    override suspend fun inputStream(uriString: String): InputStream? = when (uriString) {
         "test://missing" -> throw FileNotFoundException("Cannot found file with uri: $uriString")
-        "test://empty" -> block(ByteArrayInputStream(byteArrayOf()))
-        else -> block(ByteArrayInputStream(uriString.toByteArray()))
+        "test://empty" -> ByteArrayInputStream(byteArrayOf())
+        else -> ByteArrayInputStream(uriString.toByteArray())
     }
 
     override suspend fun exists(uriString: String): Boolean = true

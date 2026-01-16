@@ -47,6 +47,7 @@
   <string name="folder_option_take_a_photo">新しい写真を撮る</string>
   <string name="folder_option_create_document">ドキュメントを作成</string>
   <string name="folder_option_create_spreadsheet">スプレッドシートを作成</string>
+  <string name="folder_option_import_folder">フォルダをアップロードする</string>
   <string name="settings_theme_system_default">システム標準</string>
   <string name="settings_theme_dark">ダーク</string>
   <string name="settings_theme_light">ライト</string>

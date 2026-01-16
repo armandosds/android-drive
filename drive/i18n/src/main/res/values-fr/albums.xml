@@ -37,7 +37,7 @@
   <string name="albums_delete_album_dialog_description_with_children">Certaines photos de cet album ne sont pas enregistrées dans votre fil d’actualité. La suppression de cet album supprimera définitivement ces photos.\nSouhaitez-vous les enregistrer avant de les supprimer ?</string>
   <string name="albums_delete_album_dialog_delete_without_saving_action">Supprimer sans enregistrer</string>
   <string name="albums_delete_album_dialog_save_and_delete_action">Enregistrer les photos et supprimer</string>
-  <string name="albums_leave_album_dialog_title">Abandonner l\'album ?</string>
+  <string name="albums_leave_album_dialog_title">Quitter l\'album ?</string>
   <!--
         Variable %1$s is an album name
         Example:

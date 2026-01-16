@@ -83,4 +83,28 @@
     <item quantity="other">%1$d predmetov</item>
   </plurals>
   <string name="files_upload_verification_failed">Nalaganje ni uspelo: preverjanje podatkov ni uspelo</string>
+  <!--
+        Variable %1$d is a quantity of folders that were created
+        Example:
+            "Created 1 folder"
+            "Created 15 folders"
+    -->
+  <plurals name="folder_upload_created_subfolders">
+    <item quantity="one">Created %1$d folder</item>
+    <item quantity="two">Created %1$d folders</item>
+    <item quantity="few">Created %1$d folders</item>
+    <item quantity="other">Created %1$d folders</item>
+  </plurals>
+  <!--
+        Variable %1$d is a quantity of files scheduled for upload
+        Example:
+            "Scheduled 1 file for upload"
+            "Scheduled 102 files for upload"
+    -->
+  <plurals name="folder_upload_scheduled_files_for_upload">
+    <item quantity="one">Scheduled %1$d file for upload</item>
+    <item quantity="two">Scheduled %1$d files for upload</item>
+    <item quantity="few">Scheduled %1$d files for upload</item>
+    <item quantity="other">Scheduled %1$d files for upload</item>
+  </plurals>
 </resources>

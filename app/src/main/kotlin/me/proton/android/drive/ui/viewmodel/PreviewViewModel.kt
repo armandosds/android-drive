@@ -136,7 +136,7 @@ import me.proton.core.presentation.R as CorePresentation
 @Suppress("StaticFieldLeak", "LongParameterList")
 @OptIn(ExperimentalCoroutinesApi::class)
 class PreviewViewModel @Inject constructor(
-    @ApplicationContext private val appContext: Context,
+    @param:ApplicationContext private val appContext: Context,
     private val configurationProvider: ConfigurationProvider,
     getDriveLink: GetDriveLink,
     getDecryptedDriveLink: GetDecryptedDriveLink,
@@ -756,6 +756,7 @@ class OfflineContentProvider(
     }
 }
 
+@ExperimentalCoroutinesApi
 class PhotoContentProvider(
     private val getDecryptedDriveLink: GetDecryptedDriveLink,
     getPhotoShare: GetPhotoShare,
@@ -812,6 +813,7 @@ class PhotoContentProvider(
     }
 }
 
+@ExperimentalCoroutinesApi
 class AlbumContentProvider(
     private val getDecryptedDriveLink: GetDecryptedDriveLink,
     getShare: GetShare,
@@ -874,7 +876,7 @@ private fun PhotoListing.placeholderDriveLink(
     photoShare: Share,
 ): DriveLink.File = DriveLink.File(
     link = Link.File(
-        id = linkId as FileId,
+        id = linkId,
         parentId = photoShare.rootFolderId,
         name = "",
         size = 0.bytes,

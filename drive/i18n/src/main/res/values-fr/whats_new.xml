@@ -18,6 +18,4 @@
   -->
 <resources>
   <string name="whats_new_title">Nouveautés</string>
-  <string name="whats_new_albums_title">Les albums photo sont arrivés !</string>
-  <string name="whats_new_albums_description">Organisez vos souvenirs grâce à notre nouvelle fonctionnalité Albums. Filtrez par vidéos, favoris, et plus encore : le tout avec le même chiffrement de bout en bout auquel vous faites confiance.</string>
 </resources>

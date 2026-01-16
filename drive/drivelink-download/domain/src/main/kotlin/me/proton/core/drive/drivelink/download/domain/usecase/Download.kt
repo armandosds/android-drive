@@ -23,17 +23,12 @@ import me.proton.core.drive.drivelink.domain.usecase.GetDriveLink
 import me.proton.core.drive.drivelink.download.domain.entity.DownloadFileLink
 import me.proton.core.drive.drivelink.download.domain.entity.NetworkType
 import me.proton.core.drive.drivelink.download.domain.manager.DownloadManager
-import me.proton.core.drive.drivelink.download.domain.manager.DownloadWorkManager
-import me.proton.core.drive.feature.flag.domain.usecase.IsDownloadManagerEnabled
 import me.proton.core.drive.link.domain.entity.LinkId
-import me.proton.core.drive.link.domain.extension.userId
 import javax.inject.Inject
 
 class Download @Inject constructor(
-    private val downloadWorkManager: DownloadWorkManager,
     private val downloadManager: DownloadManager,
     private val getDriveLink: GetDriveLink,
-    private val isDownloadManagerEnabled: IsDownloadManagerEnabled,
 ) {
 
     suspend operator fun invoke(
@@ -58,15 +53,11 @@ class Download @Inject constructor(
         networkType: NetworkType = NetworkType.ANY,
     ) =
         driveLinks.forEach { driveLink ->
-            if (isDownloadManagerEnabled(driveLink.id.userId)) {
-                val priority = if (retryable) {
-                    DownloadFileLink.AVAILABLE_OFFLINE_PRIORITY
-                } else {
-                    DownloadFileLink.USER_PRIORITY
-                }
-                downloadManager.download(driveLink, priority, retryable, networkType)
+            val priority = if (retryable) {
+                DownloadFileLink.AVAILABLE_OFFLINE_PRIORITY
             } else {
-                downloadWorkManager.download(driveLink, retryable, networkType)
+                DownloadFileLink.USER_PRIORITY
             }
+            downloadManager.download(driveLink, priority, retryable, networkType)
         }
 }

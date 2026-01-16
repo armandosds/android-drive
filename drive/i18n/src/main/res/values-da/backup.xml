@@ -20,7 +20,7 @@
   <string name="backup_issues_title">Problemer med sikkerhedskopiering</string>
   <string name="backup_issues_retry_all_action">Prøv alt igen</string>
   <string name="backup_issues_skip_action">Spring over</string>
-  <string name="backup_issues_skip_confirmation_title">Spring sikkerhedskopiering af disse fotos over?</string>
+  <string name="backup_issues_skip_confirmation_title">Skal sikkerhedskopiering af disse fotos springes over?</string>
   <string name="backup_issues_skip_confirmation_description">Er du sikker på, at du vil springe fotos over, som ikke er blevet sikkerhedskopieret? De vil ikke blive sikkerhedskopieret.</string>
   <string name="backup_issues_skip_confirmation_action">Spring over</string>
 </resources>

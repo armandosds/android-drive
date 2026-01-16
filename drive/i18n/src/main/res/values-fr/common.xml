@@ -39,7 +39,7 @@
   <string name="common_on">Activé</string>
   <string name="common_off">Désactivé</string>
   <string name="common_all">Tout</string>
-  <string name="common_unknown">Non identifié</string>
+  <string name="common_unknown">Inconnu</string>
   <string name="common_month">Mois</string>
   <!-- endregion -->
   <!-- region Common actions -->

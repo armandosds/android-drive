@@ -47,6 +47,7 @@
   <string name="folder_option_take_a_photo">Fotografie nouă</string>
   <string name="folder_option_create_document">Creare document</string>
   <string name="folder_option_create_spreadsheet">Creare foaie de calcul</string>
+  <string name="folder_option_import_folder">Încărcare folder</string>
   <string name="settings_theme_system_default">Implicit din sistem</string>
   <string name="settings_theme_dark">Neagră</string>
   <string name="settings_theme_light">Albă</string>
@@ -134,9 +135,9 @@
         "12 345 items left"
     -->
   <plurals name="notification_content_text_backup_in_progress">
-    <item quantity="one">Articole rămase: %1$s</item>
-    <item quantity="few">Articole rămase: %1$s</item>
-    <item quantity="other">Articole rămase: %1$s</item>
+    <item quantity="one">Rămase: %1$s</item>
+    <item quantity="few">Rămase: %1$s</item>
+    <item quantity="other">Rămase: %1$s</item>
   </plurals>
   <string name="notification_content_text_backup_complete">Conservare finalizată.</string>
   <string name="notification_content_text_backup_uncompleted">Conservare finalizată cu probleme.</string>

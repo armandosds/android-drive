@@ -20,6 +20,12 @@ package me.proton.drive.android.settings.domain.entity
 
 import me.proton.core.drive.base.domain.entity.TimestampS
 
-enum class WhatsNewKey(val limit: TimestampS) {
-    ALBUMS(limit = TimestampS(1753920000)), // end of July 2025
+enum class WhatsNewKey(
+    val limit: TimestampS,
+    val applicableHomeTabs: List<HomeTab> = HomeTab.entries,
+) {
+    UPLOAD_FOLDER(
+        limit = TimestampS(1772319599), // end of February 2026
+        applicableHomeTabs = listOf(HomeTab.FILES),
+    ),
 }

@@ -23,17 +23,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import me.proton.android.drive.ui.viewmodel.LauncherViewModel
 import me.proton.android.drive.ui.viewstate.LauncherViewState
 import me.proton.android.drive.ui.viewstate.PrimaryAccountState
 import me.proton.core.compose.component.DeferredCircularProgressIndicator
-import me.proton.core.compose.flow.rememberFlowWithLifecycle
 import me.proton.core.domain.entity.UserId
 
 @Composable
@@ -64,8 +63,9 @@ internal fun Launcher(
     navigateToHomeScreen: (userId: UserId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val viewState by rememberFlowWithLifecycle(viewModel.viewState)
-        .collectAsState(initial = LauncherViewState.initialValue)
+    val viewState by viewModel.viewState.collectAsStateWithLifecycle(
+        initialValue = LauncherViewState.initialValue
+    )
     val foreground by foregroundState
     Launcher(
         foreground = foreground,

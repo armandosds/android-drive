@@ -29,7 +29,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.RadioButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,11 +36,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import me.proton.android.drive.ui.viewevent.AppAccessViewEvent
 import me.proton.android.drive.ui.viewmodel.AppAccessViewModel
 import me.proton.android.drive.ui.viewstate.AccessOption
 import me.proton.android.drive.ui.viewstate.AppAccessViewState
-import me.proton.core.compose.flow.rememberFlowWithLifecycle
 import me.proton.core.compose.theme.ProtonDimens.DefaultSpacing
 import me.proton.core.compose.theme.ProtonTheme
 import me.proton.core.drive.base.presentation.component.ProtonListItem
@@ -57,8 +56,9 @@ fun AppAccessScreen(
     navigateBack: () -> Unit,
 ) {
     val viewModel = hiltViewModel<AppAccessViewModel>()
-    val viewState by rememberFlowWithLifecycle(flow = viewModel.viewState)
-        .collectAsState(initial = viewModel.initialViewState)
+    val viewState by viewModel.viewState.collectAsStateWithLifecycle(
+        initialValue = viewModel.initialViewState
+    )
     AppAccess(
         viewState = viewState,
         viewEvent = viewModel.viewEvent(navigateToSystemAccess, navigateBack),

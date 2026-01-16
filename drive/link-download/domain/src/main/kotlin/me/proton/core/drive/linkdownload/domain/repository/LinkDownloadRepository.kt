@@ -22,6 +22,7 @@ import me.proton.core.domain.arch.DataResult
 import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.file.base.domain.entity.Block
 import me.proton.core.drive.link.domain.entity.AlbumId
+import me.proton.core.drive.link.domain.entity.FileId
 import me.proton.core.drive.link.domain.entity.FolderId
 import me.proton.core.drive.link.domain.entity.LinkId
 import me.proton.core.drive.linkdownload.domain.entity.DownloadState
@@ -75,4 +76,10 @@ interface LinkDownloadRepository {
     ): List<Block>
 
     fun getDownloadingCountFlow(userId: UserId): Flow<Long>
+
+    suspend fun hasSignatureVerificationFailed(fileId: FileId): Boolean
+
+    suspend fun setSignatureVerificationFailed(fileId: FileId)
+
+    suspend fun removeSignatureVerificationFailed(fileId: FileId)
 }

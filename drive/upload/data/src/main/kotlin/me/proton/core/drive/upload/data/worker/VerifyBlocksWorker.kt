@@ -34,8 +34,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import me.proton.android.drive.verifier.domain.exception.VerifierException
 import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.base.data.workmanager.addTags
-import me.proton.core.drive.base.data.workmanager.onProtonHttpException
 import me.proton.core.drive.base.domain.api.ProtonApiCode.NOT_EXISTS
+import me.proton.core.drive.base.domain.extension.onProtonHttpException
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.usecase.BroadcastMessages
 import me.proton.core.drive.linkupload.domain.entity.NetworkTypeProviderType

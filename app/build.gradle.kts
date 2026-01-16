@@ -18,6 +18,7 @@
 
 import com.android.build.api.dsl.ApplicationBuildType
 import com.android.build.api.dsl.ApplicationProductFlavor
+import com.android.build.gradle.internal.dsl.BaseAppModuleExtension
 import configuration.extensions.protonEnvironment
 import java.util.Properties
 
@@ -74,6 +75,7 @@ driveModule(
     implementation(libs.lottie.compose)
     implementation(libs.material)
     implementation(libs.okhttp)
+    implementation(libs.okhttpLoggingInterceptor)
     implementation(libs.sentry)
     implementation(libs.timber)
     implementation(libs.treessence)
@@ -156,6 +158,7 @@ android {
                 "arm64-v8a",
             )
         }
+        androidLocales(Config.resourceConfigurations)
 
         buildConfigField("String", "APP_VERSION_HEADER", "\"android-drive@$versionName\"")
         buildConfigField("String", "FLAVOR_DEVELOPMENT", "\"dev\"")
@@ -165,6 +168,7 @@ android {
         buildConfigField("String", "SENTRY_DSN", "\"${System.getenv("DRIVE_SENTRY_DSN").orEmpty()}\"")
         buildConfigField("String", "ACCOUNT_SENTRY_DSN", "\"${System.getenv("ACCOUNT_SENTRY_DSN").orEmpty()}\"")
         buildConfigField("String", "GIT_HASH", "\"$gitHash\"")
+        buildConfigField("String", "SDK_VERSION_NAME", "\"${libs.versions.drive.sdk.get()}\"")
 
         setAssetLinksResValue("proton.me")
 
@@ -208,14 +212,14 @@ android {
             if (!System.getenv("CI_SERVER_NAME").isNullOrEmpty()) {
                 generateEnvFile(buildTypes.getByName("debug"))
             }
-            resourceConfigurations.addAll(Config.supportedResourceConfigurations)
+            androidLocales(Config.supportedResourceConfigurations)
 
             setAssetLinksResValue(environment)
         }
         create("alpha") {
             versionCode = (versionCodeFromGitCommitCount * 10) + 1
             versionNameSuffix = "-alpha ($gitCommitCount)"
-            resourceConfigurations.addAll(Config.incubatingResourceConfigurations)
+            androidLocales(Config.incubatingResourceConfigurations)
         }
         create("beta") {
             versionCode = (versionCodeFromGitCommitCount * 10) + 2
@@ -254,13 +258,11 @@ android {
 }
 
 dependencies {
-    add("devImplementation", files("$rootDir/gopenpgp-v2-v3/gopenpgp.aar"))
-    add("alphaImplementation", files("$rootDir/gopenpgp-v2-v3/gopenpgp.aar"))
-    add("betaImplementation", files("$rootDir/gopenpgp-v2-v3/gopenpgp.aar"))
-    add("prodImplementation", files("../../proton-libs/gopenpgp/gopenpgp.aar"))
+    implementation(files("$rootDir/gopenpgp-v2-v3/gopenpgp.aar"))
+    androidTestImplementation(files("$rootDir/gopenpgp-v2-v3/gopenpgp.aar"))
 }
 
-tasks.create("publishGeneratedReleaseNotes") {
+tasks.register("publishGeneratedReleaseNotes") {
     doLast {
         val releaseNotesDir = File("${project.projectDir}/src/main/play/release-notes/en-US")
         releaseNotesDir.mkdirs()
@@ -275,7 +277,7 @@ tasks.create("publishGeneratedReleaseNotes") {
     }
 }
 
-tasks.create("printGeneratedChangelog") {
+tasks.register("printGeneratedChangelog") {
     doLast {
         println(generateChangelog(rootDir, since = System.getProperty("since")))
     }
@@ -317,5 +319,11 @@ fun ApplicationProductFlavor.generateEnvFile(buildType: ApplicationBuildType) {
         variables.forEach {
             appendText("${it.key}=${it.value}\n")
         }
+    }
+}
+
+fun BaseAppModuleExtension.androidLocales(locales: List<String>) {
+    androidResources {
+        localeFilters.addAll(locales)
     }
 }

@@ -18,7 +18,7 @@
   -->
 <resources>
   <string name="onboarding_action_skip">Nyní ne</string>
-  <string name="onboarding_title">Automatické ukládání a šifrování fotografií a videí</string>
+  <string name="onboarding_title">Automatické ukládání a šifrování fotek a videí</string>
   <string name="onboarding_description_part_one">Uchovávejte své vzpomínky v bezpečí pomocí</string>
   <string name="onboarding_description_part_two">koncově šifrovaného úložiště</string>
   <string name="onboarding_description_free">zdarma</string>

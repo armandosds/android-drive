@@ -34,11 +34,12 @@ import me.proton.core.drive.observability.domain.constraint.MinimumIntervalConst
 import me.proton.core.drive.observability.domain.metrics.DownloadErroringUsersTotal
 import me.proton.core.drive.observability.domain.metrics.DownloadErrorsTotal
 import me.proton.core.drive.observability.domain.metrics.DownloadInitiator
+import me.proton.core.drive.observability.domain.metrics.common.Plan
 import me.proton.core.drive.observability.domain.metrics.common.ShareType
 import me.proton.core.drive.observability.domain.usecase.EnqueueObservabilityEvent
 import me.proton.core.drive.share.domain.entity.ShareId
 import me.proton.core.drive.share.domain.usecase.GetShare
-import me.proton.core.drive.user.domain.extension.isFree
+import me.proton.core.drive.user.domain.extension.isWithoutProtonSubscription
 import me.proton.core.user.domain.usecase.GetUser
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.minutes
@@ -104,7 +105,11 @@ class ObservabilityDownloadErrorHandler @Inject constructor(
             downloadError.isCancelledByUser.not()
         ) {
             val user = getUser(downloadError.fileId.userId, refresh = false)
-            notifyDownloadErroringUsersTotalMetric(downloadError, shareType, user.isFree)
+            notifyDownloadErroringUsersTotalMetric(
+                downloadError = downloadError,
+                shareType = shareType,
+                isFreeUser = user.isWithoutProtonSubscription,
+            )
         }
     }
 
@@ -116,7 +121,7 @@ class ObservabilityDownloadErrorHandler @Inject constructor(
         enqueueObservabilityEvent(
             DownloadErroringUsersTotal(
                 Labels = DownloadErroringUsersTotal.LabelsData(
-                    plan = if (isFreeUser) DownloadErroringUsersTotal.Plan.free else DownloadErroringUsersTotal.Plan.paid,
+                    plan = if (isFreeUser) Plan.free else Plan.paid,
                     shareType = shareType,
                 )
             ),

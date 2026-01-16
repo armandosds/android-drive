@@ -34,7 +34,7 @@ import me.proton.core.compose.component.bottomsheet.RunAction
 import me.proton.core.compose.theme.ProtonDimens.DefaultBottomSheetHeaderMinHeight
 import me.proton.core.compose.theme.ProtonDimens.DefaultSpacing
 import me.proton.core.compose.theme.ProtonTheme
-import me.proton.core.compose.theme.headlineSmall
+import me.proton.core.compose.theme.headlineSmallNorm
 import me.proton.core.drive.sorting.presentation.SortingList
 import me.proton.core.drive.sorting.presentation.entity.toSortingOptions
 import me.proton.core.drive.i18n.R as I18N
@@ -70,7 +70,7 @@ fun SortingHeader(
     ) {
         Text(
             text = stringResource(id = I18N.string.title_sort_by),
-            style = ProtonTheme.typography.headlineSmall
+            style = ProtonTheme.typography.headlineSmallNorm
         )
     }
 }

@@ -44,9 +44,10 @@
   <string name="move_file_error_cannot_move_folder_into_itself">Složku nelze přesunout do sebe</string>
   <string name="folder_option_import_file">Nahrát soubor</string>
   <string name="folder_option_create_folder">Vytvořit složku</string>
-  <string name="folder_option_take_a_photo">Pořídit novou fotografii</string>
+  <string name="folder_option_take_a_photo">Pořídit novou fotku</string>
   <string name="folder_option_create_document">Vytvořit dokument</string>
   <string name="folder_option_create_spreadsheet">Vytvořit tabulku</string>
+  <string name="folder_option_import_folder">Nahrát složku</string>
   <string name="settings_theme_system_default">Výchozí</string>
   <string name="settings_theme_dark">Tmavý</string>
   <string name="settings_theme_light">Světlý</string>
@@ -202,7 +203,7 @@
   <string name="error_share_locked">Sdílení je uzamčeno.</string>
   <string name="error_main_share_not_found">Hlavní sdílení nebylo nalezeno.</string>
   <string name="error_share_not_found">Sdílení nebylo nalezeno.</string>
-  <string name="error_creating_photo_share_not_allowed">Zálohování fotografií je dočasně deaktivováno.</string>
+  <string name="error_creating_photo_share_not_allowed">Zálohování fotek je dočasně deaktivováno.</string>
   <string name="error_creating_share_not_allowed">Vytváření sdílení je dočasně vypnuto.</string>
   <string name="error_camera_permission">Je vyžadováno oprávnění k fotoaparátu.</string>
   <string name="operation_open_document">otevřít dokument</string>
@@ -216,7 +217,7 @@
     -->
   <string name="get_more_free_storage_title">Odemkněte %1$s úložiště zdarma</string>
   <string name="get_more_free_storage_description">Dokončete tyto kroky během prvních 30 dnů a získejte bezplatné navýšení úložiště.</string>
-  <string name="get_more_free_storage_action_upload_title">Nahrejte soubor NEBO povolte zálohování fotografií</string>
+  <string name="get_more_free_storage_action_upload_title">Nahrajte soubor NEBO povolte zálohování fotek</string>
   <string name="get_more_free_storage_action_upload_subtitle">Všechny vaše soubory budou šifrovány.</string>
   <string name="get_more_free_storage_action_link_title">Vytvořte odkaz pro sdílení</string>
   <!--

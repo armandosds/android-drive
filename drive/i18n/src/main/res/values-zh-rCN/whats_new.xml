@@ -18,6 +18,4 @@
   -->
 <resources>
   <string name="whats_new_title">新增功能</string>
-  <string name="whats_new_albums_title">相册在这里！</string>
-  <string name="whats_new_albums_description">用我们全新的相册功能整理您的回忆。通过视频、收藏夹等进行筛选，所有这些都采用您值得信赖的端到端加密。</string>
 </resources>

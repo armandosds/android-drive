@@ -117,6 +117,7 @@ class UpdateRevision @Inject constructor(
                             mediaDuration = mediaDuration,
                             creationDateTime = fileCreationDateTime,
                             digests = digests.values,
+                            location = location,
                             cameraExifTags = cameraExifTags,
                         ),
                     ).getOrThrow(),

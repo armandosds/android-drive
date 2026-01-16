@@ -56,6 +56,17 @@ class StorageLocationProviderImpl @Inject constructor(
         }
     }.getOrThrow()
 
+    override suspend fun getPermanentTempFolder(userId: UserId, path: String): File = coRunCatching(coroutineContext) {
+        with (userId.getTempFolder(appContext.filesDir)) {
+            mkdirs()
+            if (path.isBlank()) {
+                this
+            } else {
+                File(this, path).apply { mkdirs() }
+            }
+        }
+    }.getOrThrow()
+
     override suspend fun getCacheTempFolder(userId: UserId): File = coRunCatching(coroutineContext) {
         userId.getTempFolder(appContext.cacheDir)
     }.getOrThrow()
@@ -66,6 +77,7 @@ class StorageLocationProviderImpl @Inject constructor(
 
     override suspend fun getCameraFolder(): File =
         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
+
 
     private fun UserId.getFolder(parent: File) = File(parent, id).apply { mkdirs() }
     private fun UserId.getTempFolder(parent: File) = File(parent, "$TEMP_FOLDER/$id/").apply { mkdirs() }

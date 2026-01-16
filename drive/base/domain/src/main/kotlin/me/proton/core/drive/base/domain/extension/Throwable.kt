@@ -21,18 +21,31 @@ package me.proton.core.drive.base.domain.extension
 import me.proton.core.network.domain.ApiException
 import me.proton.core.network.domain.ApiResult
 import me.proton.core.network.domain.hasProtonErrorCode
+import me.proton.drive.sdk.ProtonDriveSdkException
 
 
 fun ApiException.hasHttpCode(code: Int): Boolean =
     (error as? ApiResult.Error.Http)?.httpCode == code
 
-fun Throwable.hasHttpCode(code: Int): Boolean =
-    (this as? ApiException)?.hasHttpCode(code) ?: false
+fun Throwable.hasHttpCode(code: Int): Boolean = when (this) {
+    is ProtonDriveSdkException -> when (val error = toApiException()) {
+        is ApiException -> error.hasHttpCode(code)
+        else -> false
+    }
+    is ApiException -> hasHttpCode(code)
+    else -> false
+}
 
-inline fun <T> Throwable.onProtonHttpException(block: (protonData: ApiResult.Error.ProtonData) -> T): T? =
-    ((this as? ApiException)?.error as? ApiResult.Error.Http)?.proton?.let { protonData ->
+inline fun <T> Throwable.onProtonHttpException(
+    block: (protonData: ApiResult.Error.ProtonData) -> T
+): T? = when {
+    this is ProtonDriveSdkException -> onProtonHttpException(block)
+    else -> ((this as? ApiException)?.error as? ApiResult.Error.Http)?.proton?.let { protonData ->
         block(protonData)
     }
+}
 
-fun Throwable.hasThrowableOrCauseProtonErrorCode(code: Int): Boolean =
-    hasProtonErrorCode(code) || cause?.hasProtonErrorCode(code) == true
+fun Throwable.hasThrowableOrCauseProtonErrorCode(code: Int): Boolean = when (this) {
+    is ProtonDriveSdkException -> hasProtonErrorCode(code) || cause?.hasProtonErrorCode(code) == true
+    else -> hasProtonErrorCode(code) || cause?.hasProtonErrorCode(code) == true
+}

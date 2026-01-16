@@ -102,9 +102,9 @@
             "12 345 items left"
     -->
   <plurals name="photos_backup_state_uploading_items_left">
-    <item quantity="one">Articole rămase: %1$s</item>
-    <item quantity="few">Articole rămase: %1$s</item>
-    <item quantity="other">Articole rămase: %1$s</item>
+    <item quantity="one">Rămase: %1$s</item>
+    <item quantity="few">Rămase: %1$s</item>
+    <item quantity="other">Rămase: %1$s</item>
   </plurals>
   <!--
         Variable %1$s is a quantity (formatted) of photos saved

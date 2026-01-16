@@ -40,7 +40,7 @@
   <string name="common_off">끔</string>
   <string name="common_all">전체</string>
   <string name="common_unknown">알 수 없음</string>
-  <string name="common_month">Month</string>
+  <string name="common_month">월간</string>
   <!-- endregion -->
   <!-- region Common actions -->
   <string name="common_ok_action">확인</string>
@@ -137,13 +137,13 @@
             "Security error occurred: password required or incorrect password"
     -->
   <string name="common_error_security_with_message">보안 오류 발생: %1$s</string>
-  <string name="common_error_sdk">SDK error occurred</string>
+  <string name="common_error_sdk">SDK 오류가 발생했습니다</string>
   <!--
         Variable %1$s is the non-null message from SDK exception
         Example:
             "SDK error occurred:  file or folder with that name already exists"
     -->
-  <string name="common_error_sdk_with_message">SDK error occurred: %1$s</string>
+  <string name="common_error_sdk_with_message">SDK 오류 발생: %1$s</string>
   <!-- endregion -->
   <!--
         Variable %1$s is a percentage

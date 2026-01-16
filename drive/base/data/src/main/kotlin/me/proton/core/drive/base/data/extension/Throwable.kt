@@ -27,6 +27,7 @@ import me.proton.core.drive.base.domain.api.ProtonApiCode.FEATURE_DISABLED
 import me.proton.core.drive.base.domain.exception.BackupStopException
 import me.proton.core.drive.base.domain.exception.BackupSyncException
 import me.proton.core.drive.base.domain.exception.InvalidFieldException
+import me.proton.core.drive.base.domain.extension.toApiException
 import me.proton.core.network.data.ProtonErrorException
 import me.proton.core.network.domain.ApiException
 import me.proton.core.network.domain.ApiResult
@@ -63,12 +64,17 @@ fun Throwable.getDefaultMessage(
             cause?.getDefaultMessage(context, useExceptionMessage)
                 ?: getDefaultMessage(context)
         }
+
         is ProtonDriveSdkException -> getDefaultMessage(context)
         else -> unhandled
     }
 }
 
-fun Throwable.log(tag: String, message: String? = null, level: LoggerLevel? = null): Throwable = this.also {
+fun Throwable.log(
+    tag: String,
+    message: String? = null,
+    level: LoggerLevel? = null,
+): Throwable = this.also {
     when (this) {
         is ApiException -> log(tag, message, level)
         is BackupStopException -> log(tag, message, level)
@@ -89,7 +95,7 @@ fun Throwable.log(tag: String, message: String? = null, level: LoggerLevel? = nu
     }
 }
 
-fun <T : Throwable>T.logDefaultMessage(
+fun <T : Throwable> T.logDefaultMessage(
     context: Context,
     tag: String,
     useExceptionMessage: Boolean = false,
@@ -111,6 +117,8 @@ val Throwable.isRetryable: Boolean
             }
         }
 
+        is ProtonDriveSdkException -> toApiException()?.isDriveRetryable()?: false
+
         is ApiException -> isDriveRetryable()
         else -> false
     }
@@ -122,7 +130,7 @@ private fun ApiException.isDriveRetryable() =
         this.error.isRetryable() || when (val error = this.error) {
             is ApiResult.Error.Timeout,
             is ApiResult.Error.NoInternet,
-            -> true
+                -> true
 
             is ApiResult.Error.Http -> error.httpCode == 424 && error.proton?.code == FEATURE_DISABLED
 
@@ -130,8 +138,8 @@ private fun ApiException.isDriveRetryable() =
         }
     }
 
-fun Throwable.isErrno(errno: Int): Boolean = if (cause is ErrnoException) {
-    errno == (cause as ErrnoException).errno
+fun Throwable.isErrno(errno: Int): Boolean = if (this is ErrnoException) {
+    errno == this.errno
 } else {
     cause?.isErrno(errno) ?: false
 }

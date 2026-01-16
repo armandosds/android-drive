@@ -20,15 +20,16 @@ package me.proton.core.drive.backup.data.extension
 
 import android.system.OsConstants
 import me.proton.core.drive.backup.domain.entity.BackupError
-import me.proton.core.drive.base.domain.api.ProtonApiCode.EXCEEDED_QUOTA
 import me.proton.core.drive.base.data.extension.isErrno
+import me.proton.core.drive.base.domain.extension.toApiException
 import me.proton.core.network.domain.ApiException
-import me.proton.core.network.domain.hasProtonErrorCode
+import me.proton.drive.sdk.ProtonDriveSdkException
 
 fun Throwable.toBackupError(retryable: Boolean = true): BackupError = when (this) {
     is SecurityException -> BackupError.Permissions()
-    is ApiException -> when {
-        hasProtonErrorCode(EXCEEDED_QUOTA) -> BackupError.DriveStorage()
+    is ApiException -> toBackupError(retryable)
+    is ProtonDriveSdkException -> when (val error = toApiException()) {
+        is ApiException -> error.toBackupError(retryable)
         else -> BackupError.Other(retryable)
     }
 

@@ -121,7 +121,7 @@
   <string name="photos_filter_screenshots">Captures de pantalla</string>
   <string name="photos_filter_videos">Vídeos</string>
   <string name="photos_filter_livephotos">Fotos en directe</string>
-  <string name="photos_filter_motionphotos">Fotos en moviment</string>
+  <string name="photos_filter_motionphotos">Fotografies en moviment</string>
   <string name="photos_filter_selfies">Selfies</string>
   <string name="photos_filter_portraits">Retrats</string>
   <string name="photos_filter_bursts">Ràfegues</string>
@@ -132,7 +132,7 @@
   <string name="photos_screenshots_empty_title">Cap captura de pantalla</string>
   <string name="photos_screenshots_empty_description">Les vostres captures de pantalla apareixeran aquí.</string>
   <string name="photos_videos_empty_title">Sense vídeos</string>
-  <string name="photos_videos_empty_description">Els vostres vídeos apareixeran aquí.</string>
+  <string name="photos_videos_empty_description">Els vídeos apareixeran aquí.</string>
   <string name="photos_livephotos_empty_title">Cap foto en directe</string>
   <string name="photos_livephotos_empty_description">Les vostres fotos en directe apareixeran aquí.</string>
   <string name="photos_motionphotos_empty_title">Sense fotos en moviment</string>

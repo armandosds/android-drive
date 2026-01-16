@@ -75,4 +75,24 @@
     <item quantity="other">%1$d öge</item>
   </plurals>
   <string name="files_upload_verification_failed">Yüklenemedi: Veriler doğrulanamadı</string>
+  <!--
+        Variable %1$d is a quantity of folders that were created
+        Example:
+            "Created 1 folder"
+            "Created 15 folders"
+    -->
+  <plurals name="folder_upload_created_subfolders">
+    <item quantity="one">%1$d klasör oluşturuldu</item>
+    <item quantity="other">%1$d klasör oluşturuldu</item>
+  </plurals>
+  <!--
+        Variable %1$d is a quantity of files scheduled for upload
+        Example:
+            "Scheduled 1 file for upload"
+            "Scheduled 102 files for upload"
+    -->
+  <plurals name="folder_upload_scheduled_files_for_upload">
+    <item quantity="one">%1$d dosya yüklenmek üzere zamanlandı</item>
+    <item quantity="other">%1$d dosya yüklenmek üzere zamanlandı</item>
+  </plurals>
 </resources>

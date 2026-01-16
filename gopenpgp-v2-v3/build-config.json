@@ -12,7 +12,7 @@
     "commit_message":"feat(gopenpgp): Update to GopenPGP v2.9.0-proton.1 with Go 1.23.12.",
     "upload_branch":"update-2.9.0-proton-go-1.23.12",
     "java_pkg":"com.proton.gopenpgp",
-    "maven_pkg_version":"2.9.0-2",
+    "maven_pkg_version":"2.9.0-3",
     "min_android_api_version":"21",
     "targets":[
         "android"
@@ -46,8 +46,8 @@
         }
     ],
     "cgo_api":{
-            "path":"github.com/ProtonMail/v3-api",
-            "version":"v0.0.0",
-            "local_path": "../v3-api"
+            "path":"github.com/ProtonMail/gopenpgp-v3-c-api",
+            "version":"v1.1.0",
+            "local_path": "../cgo-api"
      }
 }

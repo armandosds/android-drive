@@ -31,7 +31,6 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -40,6 +39,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -52,10 +52,9 @@ import me.proton.core.compose.component.bottomsheet.BottomSheetContent
 import me.proton.core.compose.component.bottomsheet.BottomSheetEntry
 import me.proton.core.compose.component.bottomsheet.ModalBottomSheetViewState
 import me.proton.core.compose.component.bottomsheet.rememberModalBottomSheetContentState
-import me.proton.core.compose.flow.rememberFlowWithLifecycle
 import me.proton.core.compose.theme.ProtonDimens.ExtraSmallSpacing
 import me.proton.core.compose.theme.ProtonTheme
-import me.proton.core.compose.theme.defaultSmallStrong
+import me.proton.core.compose.theme.defaultSmallStrongNorm
 import me.proton.core.drive.base.presentation.component.ActionButton
 import me.proton.core.drive.base.presentation.component.ModalBottomSheet
 import me.proton.core.drive.base.presentation.component.ProtonPullToRefresh
@@ -80,8 +79,9 @@ fun TrashScreen(
     navigateToSortingDialog: (Sorting) -> Unit,
 ) {
     val viewModel = hiltViewModel<TrashViewModel>()
-    val viewState by rememberFlowWithLifecycle(flow = viewModel.viewState)
-        .collectAsState(initial = viewModel.initialViewState)
+    val viewState by viewModel.viewState.collectAsStateWithLifecycle(
+        initialValue = viewModel.initialViewState
+    )
     val viewEvent = remember {
         viewModel.viewEvent(
             navigateBack = navigateBack,
@@ -91,8 +91,9 @@ fun TrashScreen(
     }
     val snackbarHostState = remember { ProtonSnackbarHostState() }
     val modalBottomSheetContentState = rememberModalBottomSheetContentState()
-    val trashIconState by rememberFlowWithLifecycle(flow = viewModel.emptyTrashState)
-        .collectAsState(EmptyTrashIconState.HIDDEN)
+    val trashIconState by viewModel.emptyTrashState.collectAsStateWithLifecycle(
+        initialValue = EmptyTrashIconState.HIDDEN
+    )
     LaunchedEffect(viewModel, LocalContext.current) {
         viewModel.trashEffect
             .onEach { effect ->
@@ -188,7 +189,7 @@ fun TrashMoreOptions(
             Text(
                 text = stringResource(I18N.string.trash_more_options),
                 color = ProtonTheme.colors.textWeak,
-                style = ProtonTheme.typography.defaultSmallStrong,
+                style = ProtonTheme.typography.defaultSmallStrongNorm,
             )
         },
         content = {

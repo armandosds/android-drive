@@ -22,6 +22,7 @@ import android.net.Uri
 import android.os.Parcelable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptionsBuilder
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -69,6 +70,7 @@ import me.proton.core.drive.sorting.domain.entity.Direction
 import me.proton.core.drive.volume.domain.entity.VolumeId
 import me.proton.drive.android.settings.domain.entity.WhatsNewKey
 
+@OptIn(ExperimentalCoroutinesApi::class)
 sealed class Screen(val route: String) {
     open fun deepLink(baseUrl: String): String? = "$baseUrl/$route"
 
@@ -822,13 +824,6 @@ sealed class Screen(val route: String) {
 
         const val USER_ID = Screen.USER_ID
         const val RATIONALE_CONTEXT = NotificationPermissionRationaleViewModel.RATIONALE_CONTEXT
-    }
-
-    data object BlackFridayPromo : Screen("promo/{userId}/blackFriday2025") {
-
-        operator fun invoke(userId: UserId) = "promo/${userId.id}/blackFriday2025"
-
-        const val USER_ID = Screen.USER_ID
     }
 
     companion object {

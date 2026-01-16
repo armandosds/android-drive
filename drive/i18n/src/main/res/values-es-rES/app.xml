@@ -47,6 +47,7 @@
   <string name="folder_option_take_a_photo">Tomar una nueva foto</string>
   <string name="folder_option_create_document">Crear un documento</string>
   <string name="folder_option_create_spreadsheet">Crear hoja de cálculo</string>
+  <string name="folder_option_import_folder">Cargar una carpeta</string>
   <string name="settings_theme_system_default">Valor por defecto del sistema</string>
   <string name="settings_theme_dark">Oscuro</string>
   <string name="settings_theme_light">Claro</string>

@@ -37,7 +37,7 @@
             "...available across all your devices.
              Proton Drive takes your privacy seriously..."
     -->
-  <string name="photos_permission_rational_description">To je nutné, abyste měli všechny fotografie zálohované a dostupné ve všech zařízeních.\n[%1$s bere vaše soukromí vážně a k vašim fotkám bude přistupovat pouze za účelem synchronizace a zálohování.</string>
+  <string name="photos_permission_rational_description">To je nutné, abyste měli všechny fotky zálohované a dostupné ve všech zařízeních.\n[%1$s bere vaše soukromí vážně a k vašim fotkám bude přistupovat pouze za účelem synchronizace a zálohování.</string>
   <string name="photos_permission_rational_confirm_action">Nastavení</string>
   <string name="photos_permission_rational_dismiss_action">Nyní ne</string>
   <string name="photos_empty_loading_label_encrypted">Koncově šifrováno</string>

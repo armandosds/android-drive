@@ -23,6 +23,7 @@ import me.proton.core.drive.base.domain.entity.Percentage
 import me.proton.core.drive.base.domain.extension.getOrNull
 import me.proton.core.drive.base.domain.log.LogTag.DOWNLOAD
 import me.proton.core.drive.base.domain.util.coRunCatching
+import me.proton.core.drive.drivelink.domain.usecase.UseSdkForDownload
 import me.proton.core.drive.link.domain.entity.FileId
 import me.proton.core.drive.volume.domain.entity.VolumeId
 import javax.inject.Inject

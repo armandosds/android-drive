@@ -82,8 +82,6 @@ import me.proton.core.drive.drivelink.download.domain.usecase.GetDownloadProgres
 import me.proton.core.drive.drivelink.list.domain.usecase.GetPagedDriveLinksList
 import me.proton.core.drive.drivelink.selection.domain.usecase.GetSelectedDriveLinks
 import me.proton.core.drive.drivelink.selection.domain.usecase.SelectAll
-import me.proton.core.drive.feature.flag.domain.usecase.IsBlackFridayPromoEnabled
-import me.proton.core.drive.feature.flag.domain.usecase.IsDownloadManagerEnabled
 import me.proton.core.drive.files.domain.usecase.ToFirstItemMetricsNotifier
 import me.proton.core.drive.files.presentation.event.FilesViewEvent
 import me.proton.core.drive.files.presentation.state.FilesViewState
@@ -132,7 +130,7 @@ class FilesViewModel @Inject constructor(
     getUserDataStore: GetUserDataStore,
     userManager: UserManager,
     getSubscriptionAction: GetSubscriptionAction,
-    @ApplicationContext private val appContext: Context,
+    @param:ApplicationContext private val appContext: Context,
     private val getDownloadProgress: GetDownloadProgress,
     private val cancelUploadFile: CancelUploadFile,
     private val toggleLayoutType: ToggleLayoutType,
@@ -142,9 +140,7 @@ class FilesViewModel @Inject constructor(
     private val onFilesDriveLinkError: OnFilesDriveLinkError,
     private val openProtonDocumentInBrowser: OpenProtonDocumentInBrowser,
     private val configurationProvider: ConfigurationProvider,
-    private val isDownloadManagerEnabled: IsDownloadManagerEnabled,
     private val toFirstItemMetricsNotifier: ToFirstItemMetricsNotifier,
-    private val isBlackFridayPromoEnabled: IsBlackFridayPromoEnabled,
 ) : SelectionViewModel(savedStateHandle, selectLinks, deselectLinks, selectAll, getSelectedDriveLinks),
     HomeTabViewModel,
     NotificationDotViewModel by NotificationDotViewModel(shouldUpgradeStorage) {
@@ -153,9 +149,6 @@ class FilesViewModel @Inject constructor(
     private val folderId = savedStateHandle.get<String>(Screen.Files.FOLDER_ID)?.let { folderId ->
         shareId?.let { FolderId(ShareId(userId, shareId), folderId) }
     }
-    private val isDownloadEnabled: StateFlow<Boolean> = flowOf {
-        isDownloadManagerEnabled(userId)
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
     private val retryTrigger = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
     val driveLink: StateFlow<DriveLink.Folder?> = retryTrigger.transformLatest {
         emitAll(
@@ -216,7 +209,7 @@ class FilesViewModel @Inject constructor(
     private val selectedOptionsAction get() = selectedOptionsAction {
         viewEvent?.onSelectedOptions?.invoke()
     }
-    private val createDocumentNotificationDotViewModel = CreateDocumentNotificationDotViewModel(
+    private val uploadFolderNotificationDotViewModel = UploadFolderNotificationDotViewModel(
         userId = userId,
         getUserDataStore = getUserDataStore,
     )
@@ -247,10 +240,9 @@ class FilesViewModel @Inject constructor(
         layoutType,
         selected,
         notificationDotRequested,
-        createDocumentNotificationDotViewModel.notificationDotRequested,
+        uploadFolderNotificationDotViewModel.notificationDotRequested,
         userManager.observeUser(userId),
-        flowOf { isBlackFridayPromoEnabled(userId) },
-    ) { driveLink, sorting, contentState, appendingState, layoutType, selected, notificationDotRequested, createDocumentNotificationDotRequested, user, isBlackFridayPromoEnabled ->
+    ) { driveLink, sorting, contentState, appendingState, layoutType, selected, notificationDotRequested, uploadFolderNotificationDotRequested, user ->
         val listContentState = when (contentState) {
             is ListContentState.Empty -> contentState.copy(
                 imageResId = emptyStateImageResId,
@@ -263,12 +255,12 @@ class FilesViewModel @Inject constructor(
                 setOfNotNull(
                     takeIf { user != null && user.isFree && isRootFolder }
                         ?.let {
-                            getSubscriptionAction(isBlackFridayPromoEnabled) {
+                            getSubscriptionAction() {
                                 viewEvent?.onSubscription?.invoke()
                             }
                         },
                     addFilesAction.copy(
-                        notificationDotVisible = createDocumentNotificationDotRequested,
+                        notificationDotVisible = uploadFolderNotificationDotRequested,
                     )
                 )
             } else {
@@ -352,7 +344,6 @@ class FilesViewModel @Inject constructor(
         navigateToMultipleFileOrFolderOptions: (selectionId: SelectionId) -> Unit,
         navigateToParentFolderOptions: (folderId: FolderId) -> Unit,
         navigateToSubscription: () -> Unit,
-        navigateToBlackFridayPromo: () -> Unit,
         navigateBack: () -> Unit,
         lifecycle: Lifecycle,
     ): FilesViewEvent = object : FilesViewEvent {
@@ -414,7 +405,7 @@ class FilesViewModel @Inject constructor(
         override val onSelectDriveLink = { driveLink: DriveLink -> onSelectDriveLink(driveLink) }
         override val onDeselectDriveLink = { driveLink: DriveLink -> onDeselectDriveLink(driveLink) }
         override val onBack = { onBack() }
-        override val onSubscription = { onSubscription(navigateToSubscription, navigateToBlackFridayPromo) }
+        override val onSubscription = { navigateToSubscription() }
         override val onRenderThumbnail = { driveLink: DriveLink ->
             val stopTime = TimestampMs(SystemClock.elapsedRealtime())
             viewModelScope.launch {
@@ -432,7 +423,7 @@ class FilesViewModel @Inject constructor(
 
     fun getDownloadProgressFlow(link: DriveLink): Flow<Percentage>? =
         if (link is DriveLink.File) {
-            getDownloadProgress(link, isDownloadEnabled.value)
+            getDownloadProgress(link)
         } else {
             null
         }
@@ -450,19 +441,6 @@ class FilesViewModel @Inject constructor(
                 retryDriveLink()
             } else {
                 retryList()
-            }
-        }
-    }
-
-    private fun onSubscription(
-        navigateToSubscription: () -> Unit,
-        navigateToBlackFridayPromo: () -> Unit
-    ) {
-        viewModelScope.launch {
-            if (isBlackFridayPromoEnabled(userId)) {
-                navigateToBlackFridayPromo()
-            } else {
-                navigateToSubscription()
             }
         }
     }

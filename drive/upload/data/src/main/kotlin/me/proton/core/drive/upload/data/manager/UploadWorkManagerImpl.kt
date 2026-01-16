@@ -36,7 +36,6 @@ import me.proton.core.drive.announce.event.domain.entity.Event
 import me.proton.core.drive.base.data.extension.log
 import me.proton.core.drive.base.data.workmanager.getLong
 import me.proton.core.drive.base.domain.entity.Percentage
-import me.proton.core.drive.base.domain.extension.bytes
 import me.proton.core.drive.base.domain.log.LogTag.NOTIFICATION
 import me.proton.core.drive.base.domain.log.LogTag.UPLOAD
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
@@ -56,6 +55,7 @@ import me.proton.core.drive.linkupload.domain.usecase.RemoveAllUploadFileLinks
 import me.proton.core.drive.linkupload.domain.usecase.UpdateUploadState
 import me.proton.core.drive.messagequeue.domain.entity.BroadcastMessage
 import me.proton.core.drive.share.domain.entity.ShareId
+import me.proton.core.drive.upload.data.extension.logTag
 import me.proton.core.drive.upload.data.extension.uniqueUploadWorkName
 import me.proton.core.drive.upload.data.usecase.BroadcastFilesBeingUploaded
 import me.proton.core.drive.upload.data.worker.CreateUploadFileLinkWorker
@@ -197,6 +197,7 @@ class UploadWorkManagerImpl @Inject constructor(
     override suspend fun cancel(uploadFileLink: UploadFileLink): Unit = with(uploadFileLink) {
         workManager.cancelAllWorkByTag(id.uniqueUploadWorkName).await()
         if (!linkId.isNullOrEmpty()) {
+            CoreLogger.i(uploadFileLink.logTag(), "Cancelling")
             workManager.enqueue(
                 UploadCleanupWorker.getWorkRequest(
                     userId = userId,
@@ -205,6 +206,7 @@ class UploadWorkManagerImpl @Inject constructor(
                 )
             ).await()
         } else {
+            CoreLogger.i(uploadFileLink.logTag(), "Cleaning")
             removeUploadFileAndAnnounceCancelled(uploadFileLink).getOrThrow()
         }
     }

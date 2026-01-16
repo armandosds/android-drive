@@ -28,6 +28,8 @@ import me.proton.core.drive.backup.domain.usecase.DeleteFile
 import me.proton.core.drive.backup.domain.usecase.HasFolders
 import me.proton.core.drive.backup.domain.usecase.MarkAsFailed
 import me.proton.core.drive.base.data.extension.log
+import me.proton.core.drive.base.domain.extension.firstErrorDomainOrNull
+import me.proton.core.drive.base.domain.extension.toApiException
 import me.proton.core.drive.base.domain.log.LogTag.BACKUP
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.linkupload.domain.entity.UploadFileLink
@@ -35,6 +37,8 @@ import me.proton.core.drive.upload.domain.handler.UploadErrorHandler
 import me.proton.core.drive.upload.domain.manager.UploadErrorManager
 import me.proton.core.network.domain.ApiException
 import me.proton.core.util.kotlin.CoreLogger
+import me.proton.drive.sdk.ProtonDriveSdkException
+import me.proton.drive.sdk.ProtonSdkError
 import java.io.FileNotFoundException
 import java.io.IOException
 import javax.inject.Inject
@@ -116,6 +120,18 @@ private fun Throwable.hasEffectOnBackup(): Boolean {
         is SecurityException,
         is VerifierException,
         -> true
+
+        is ProtonDriveSdkException -> {
+            val apiException = toApiException()
+            val cryptoError = error?.firstErrorDomainOrNull(ProtonSdkError.ErrorDomain.Cryptography)
+            val integrityError = error?.firstErrorDomainOrNull(ProtonSdkError.ErrorDomain.DataIntegrity)
+            when {
+                apiException != null -> apiException.hasEffectOnBackup()
+                cryptoError != null -> true
+                integrityError != null -> true
+                else -> false
+            }
+        }
 
         else -> false
     }

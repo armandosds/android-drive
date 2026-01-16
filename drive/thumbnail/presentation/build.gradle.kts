@@ -30,6 +30,7 @@ driveModule(
 ) {
     api(project(":drive:base:presentation"))
     api(project(":drive:crypto:domain"))
+    api(project(":drive:drivelink:domain"))
     api(project(":drive:thumbnail:domain"))
     api(libs.androidx.core.core.ktx)
 

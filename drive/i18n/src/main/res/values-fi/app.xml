@@ -47,6 +47,7 @@
   <string name="folder_option_take_a_photo">Ota uusi kuva</string>
   <string name="folder_option_create_document">Luo asiakirja</string>
   <string name="folder_option_create_spreadsheet">Luo laskentataulukko</string>
+  <string name="folder_option_import_folder">Tallenna kansio</string>
   <string name="settings_theme_system_default">Seuraa järjestelmää</string>
   <string name="settings_theme_dark">Tumma</string>
   <string name="settings_theme_light">Vaalea</string>

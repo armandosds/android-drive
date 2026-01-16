@@ -24,15 +24,14 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import me.proton.android.drive.ui.viewmodel.FileInfoViewModel
 import me.proton.android.drive.ui.viewstate.FileInfoViewState
-import me.proton.core.compose.flow.rememberFlowWithLifecycle
 import me.proton.core.compose.theme.ProtonDimens.DefaultSpacing
 import me.proton.core.drive.base.presentation.component.TopAppBar
 import me.proton.core.drive.file.info.presentation.FileInfoContent
@@ -45,7 +44,9 @@ fun FileInfoScreen(
     navigateBack: () -> Unit,
 ) {
     val viewModel = hiltViewModel<FileInfoViewModel>()
-    val viewState by rememberFlowWithLifecycle(viewModel.viewState).collectAsState(initial = null)
+    val viewState by viewModel.viewState.collectAsStateWithLifecycle(
+        initialValue = null
+    )
     FileInfo(
         viewState = viewState,
         modifier = modifier.fillMaxSize(),

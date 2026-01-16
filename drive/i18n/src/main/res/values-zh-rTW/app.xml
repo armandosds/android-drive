@@ -47,6 +47,7 @@
   <string name="folder_option_take_a_photo">拍攝新照片</string>
   <string name="folder_option_create_document">建立文件</string>
   <string name="folder_option_create_spreadsheet">建立試算表</string>
+  <string name="folder_option_import_folder">上傳資料夾</string>
   <string name="settings_theme_system_default">系統預設</string>
   <string name="settings_theme_dark">深色</string>
   <string name="settings_theme_light">淺色</string>

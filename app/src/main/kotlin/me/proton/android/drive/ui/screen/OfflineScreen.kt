@@ -21,16 +21,15 @@ package me.proton.android.drive.ui.screen
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import me.proton.android.drive.ui.navigation.PagerType
 import me.proton.android.drive.ui.viewmodel.OfflineViewModel
-import me.proton.core.compose.flow.rememberFlowWithLifecycle
 import me.proton.core.drive.files.presentation.component.DriveLinksFlow
 import me.proton.core.drive.files.presentation.component.Files
 import me.proton.core.drive.link.domain.entity.AlbumId
@@ -52,8 +51,9 @@ fun OfflineScreen(
     modifier: Modifier = Modifier,
 ) {
     val viewModel = hiltViewModel<OfflineViewModel>()
-    val viewState by rememberFlowWithLifecycle(flow = viewModel.viewState)
-        .collectAsState(initial = viewModel.initialViewState)
+    val viewState by viewModel.viewState.collectAsStateWithLifecycle(
+        initialValue = viewModel.initialViewState
+    )
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val viewEvent = remember(lifecycle) {
         viewModel.viewEvent(

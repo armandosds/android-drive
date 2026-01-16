@@ -31,7 +31,6 @@ import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -45,6 +44,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -54,12 +54,11 @@ import me.proton.android.drive.ui.viewmodel.UploadToViewModel
 import me.proton.android.drive.ui.viewstate.UploadToViewState
 import me.proton.core.compose.component.ProtonSnackbarHost
 import me.proton.core.compose.component.ProtonSnackbarHostState
-import me.proton.core.compose.flow.rememberFlowWithLifecycle
 import me.proton.core.compose.theme.ProtonDimens.DefaultSpacing
 import me.proton.core.compose.theme.ProtonDimens.SmallSpacing
 import me.proton.core.compose.theme.ProtonTheme
 import me.proton.core.compose.theme.captionWeak
-import me.proton.core.compose.theme.default
+import me.proton.core.compose.theme.defaultNorm
 import me.proton.core.drive.base.presentation.component.ActionButton
 import me.proton.core.drive.base.presentation.component.TopAppBar
 import me.proton.core.drive.files.presentation.component.DriveLinksFlow
@@ -77,8 +76,9 @@ fun UploadToScreen(
     modifier: Modifier = Modifier,
 ) {
     val viewModel = hiltViewModel<UploadToViewModel>()
-    val viewState by rememberFlowWithLifecycle(flow = viewModel.viewState)
-        .collectAsState(initial = viewModel.initialViewState)
+    val viewState by viewModel.viewState.collectAsStateWithLifecycle(
+        initialValue = viewModel.initialViewState
+    )
     val viewEvent = remember(viewModel) {
         viewModel.viewEvent(navigateToStorageFull, navigateToCreateFolder, exitApp)
     }
@@ -200,7 +200,7 @@ fun SingleRowLinkNames(
                 text = linkNames.filter { name -> name.isNotBlank() }.joinToString(),
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
-                style = ProtonTheme.typography.default,
+                style = ProtonTheme.typography.defaultNorm,
                 modifier = Modifier.weight(1f)
             )
             Text(
@@ -219,7 +219,7 @@ fun SingleRowLinkNames(
             text = linkNames.joinToString(),
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
-            style = ProtonTheme.typography.default,
+            style = ProtonTheme.typography.defaultNorm,
             modifier = modifier.fillMaxWidth()
         )
     }

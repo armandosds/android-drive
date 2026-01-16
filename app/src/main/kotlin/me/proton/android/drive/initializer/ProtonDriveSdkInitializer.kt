@@ -40,9 +40,8 @@ class ProtonDriveSdkInitializer : Initializer<Unit> {
 
     override fun create(context: Context) {
         // Loading the sdk first and the app don't crash
-        //CoroutineScope(Dispatchers.IO).launch {
-        //    ProtonDriveSdk
-        //}
+        ProtonDriveSdk
+
         EntryPointAccessors.fromApplication(
             context.applicationContext,
             SdkInitializerEntryPoint::class.java

@@ -161,11 +161,11 @@
   <string name="albums_empty_album_screen_title">Brez fotografij</string>
   <string name="albums_empty_album_screen_description">Photos that you or other members add will appear here</string>
   <string name="albums_empty_albums_list_screen_title">Ni albumov</string>
-  <string name="albums_empty_albums_list_screen_description">Albums that you create or join will appear here</string>
-  <string name="albums_empty_albums_my_albums_screen_description">Albums that you create will appear here</string>
+  <string name="albums_empty_albums_list_screen_description">Albumi, ki jih ustvarite ali se jim pridružite, bodo prikazani tukaj</string>
+  <string name="albums_empty_albums_my_albums_screen_description">Albumi, ki jih ustvarite, bodo prikazani tukaj</string>
   <string name="albums_empty_albums_shared_by_me_screen_title">Ni albumov v skupni rabi</string>
   <string name="albums_empty_albums_shared_by_me_screen_description">Albumi, ki ste jih dali v skupno rabo, bodo prikazani tukaj</string>
-  <string name="albums_empty_albums_shared_with_me_screen_title">No albums shared with me</string>
+  <string name="albums_empty_albums_shared_with_me_screen_title">Ni albumov, ki bi bili deljeni z mano</string>
   <string name="albums_empty_albums_shared_with_me_screen_description">Albumi, ki so bili dani v skupno rabo z vami, bodo prikazani tukaj</string>
   <!--
         Variable %1$d is a quantity of albums shared

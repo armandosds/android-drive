@@ -32,6 +32,9 @@ class AggregatedUriResolver @Inject constructor(
     override suspend fun <T> useInputStream(uriString: String, block: suspend (InputStream) -> T): T? =
         uriResolvers.forScheme(uriString).useInputStream(uriString, block)
 
+    override suspend fun inputStream(uriString: String): InputStream? =
+        uriResolvers.forScheme(uriString).inputStream(uriString)
+
     override suspend fun exists(uriString: String): Boolean =
         uriResolvers.forScheme(uriString).exists(uriString)
 

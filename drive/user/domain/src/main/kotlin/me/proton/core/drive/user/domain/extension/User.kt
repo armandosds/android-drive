@@ -19,8 +19,10 @@
 package me.proton.core.drive.user.domain.extension
 
 import me.proton.core.user.domain.entity.User
+import me.proton.core.user.domain.extension.hasSubscription
 import me.proton.core.user.domain.extension.hasSubscriptionForDrive
 import me.proton.core.user.domain.extension.hasSubscriptionForMail
 
 val User.isFree get() = hasSubscriptionForDrive().not()
 val User.hasSubscriptionWithMoreStorage get() = hasSubscriptionForDrive() or hasSubscriptionForMail()
+val User.isWithoutProtonSubscription get() = hasSubscription().not()

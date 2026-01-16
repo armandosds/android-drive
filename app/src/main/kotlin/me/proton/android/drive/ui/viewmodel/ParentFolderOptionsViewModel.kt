@@ -21,6 +21,7 @@ package me.proton.android.drive.ui.viewmodel
 import android.content.Context
 import android.net.Uri
 import androidx.annotation.StringRes
+import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -45,6 +46,7 @@ import me.proton.android.drive.usecase.GetUriForFile
 import me.proton.android.drive.usecase.NotifyActivityNotFound
 import me.proton.core.compose.component.bottomsheet.RunAction
 import me.proton.core.domain.arch.mapSuccessValueOrNull
+import me.proton.core.drive.base.data.datastore.GetUserDataStore
 import me.proton.core.drive.base.data.extension.getDefaultMessage
 import me.proton.core.drive.base.domain.extension.combine
 import me.proton.core.drive.base.domain.extension.mapWithPrevious
@@ -96,6 +98,7 @@ class ParentFolderOptionsViewModel @Inject constructor(
     private val createNewDocument: CreateNewDocument,
     private val broadcastMessages: BroadcastMessages,
     private val configurationProvider: ConfigurationProvider,
+    private val getUserDataStore: GetUserDataStore,
 ) : ViewModel(), UserViewModel by UserViewModel(savedStateHandle) {
     private val simpleDateFormat: SimpleDateFormat by lazy { SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US) }
     private val now: String get() = simpleDateFormat.format(Date())
@@ -124,6 +127,10 @@ class ParentFolderOptionsViewModel @Inject constructor(
         .stateIn(viewModelScope, Eagerly, FeatureFlag(FeatureFlagId.docsCreateNewSheetOnMobileEnabled(userId), NOT_FOUND))
     private val uploadFolderFeatureFlag = getFeatureFlagFlow(FeatureFlagId.driveAndroidUploadFolder(userId))
         .stateIn(viewModelScope, Eagerly, FeatureFlag(FeatureFlagId.driveAndroidUploadFolder(userId), NOT_FOUND))
+    private val uploadFolderNotificationDotViewModel = UploadFolderNotificationDotViewModel(
+        userId = userId,
+        getUserDataStore = getUserDataStore,
+    )
 
     fun entries(
         runAction: RunAction,
@@ -140,7 +147,8 @@ class ParentFolderOptionsViewModel @Inject constructor(
         sheetsFeatureFlag,
         createSheetOnMobileFeatureFlag,
         uploadFolderFeatureFlag,
-    ) { folder, protonDocsKillSwitch, _, _, _, uploadFolder ->
+        uploadFolderNotificationDotViewModel.notificationDotRequested,
+    ) { folder, protonDocsKillSwitch, _, _, _, uploadFolder, uploadFolderNotificationDotRequested ->
         options
             .filter(folder)
             .filterProtonDocs(protonDocsKillSwitch)
@@ -163,8 +171,18 @@ class ParentFolderOptionsViewModel @Inject constructor(
                     is Option.UploadFile -> option.build {
                         showFilePicker { handleActivityNotFound(I18N.string.operation_open_document) }
                     }
-                    is Option.UploadFolder -> option.build {
-                        showFolderPicker { handleActivityNotFound(I18N.string.operation_open_document) }
+                    is Option.UploadFolder -> option.build(
+                        notificationDotVisible = uploadFolderNotificationDotRequested,
+                    ) {
+                        showFolderPicker { handleActivityNotFound(I18N.string.operation_open_document) }.also {
+                            viewModelScope.launch {
+                                getUserDataStore(folderId.userId)
+                                    .edit { preferences ->
+                                        preferences[GetUserDataStore.Keys.uploadFolderActionInvoked] =
+                                            true
+                                    }
+                            }
+                        }
                     }
                     else -> throw IllegalStateException(
                         "Option ${option.javaClass.simpleName} is not found. Did you forget to add it?"

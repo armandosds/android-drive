@@ -18,4 +18,7 @@
 
 package me.proton.core.drive.upload.domain.exception
 
-class InconsistencyException : RuntimeException ()
+class InconsistencyException(
+    message: String? = null,
+    cause: Throwable? = null,
+) : RuntimeException(message, cause)

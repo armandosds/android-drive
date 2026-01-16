@@ -47,6 +47,7 @@
   <string name="folder_option_take_a_photo">Neues Foto aufnehmen</string>
   <string name="folder_option_create_document">Dokument erstellen</string>
   <string name="folder_option_create_spreadsheet">Tabellenkalkulation erstellen</string>
+  <string name="folder_option_import_folder">Ordner hochladen</string>
   <string name="settings_theme_system_default">Systemstandard</string>
   <string name="settings_theme_dark">Dunkel</string>
   <string name="settings_theme_light">Hell</string>

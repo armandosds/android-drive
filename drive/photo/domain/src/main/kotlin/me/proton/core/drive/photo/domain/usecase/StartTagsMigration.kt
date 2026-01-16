@@ -19,6 +19,7 @@
 package me.proton.core.drive.photo.domain.usecase
 
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.base.domain.entity.ClientUid
 import me.proton.core.drive.base.domain.entity.TimestampS
@@ -28,9 +29,7 @@ import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.usecase.GetOrCreateClientUid
 import me.proton.core.drive.base.domain.util.coRunCatching
-import me.proton.core.drive.feature.flag.domain.entity.FeatureFlagId.Companion.drivePhotosTagsMigration
 import me.proton.core.drive.feature.flag.domain.entity.FeatureFlagId.Companion.drivePhotosTagsMigrationDisabled
-import me.proton.core.drive.feature.flag.domain.extension.off
 import me.proton.core.drive.feature.flag.domain.extension.on
 import me.proton.core.drive.feature.flag.domain.usecase.GetFeatureFlag
 import me.proton.core.drive.link.domain.entity.FileId
@@ -47,6 +46,7 @@ import javax.inject.Inject
 class StartTagsMigration @Inject constructor(
     private val getFeatureFlag: GetFeatureFlag,
     private val fetchAllPhotoListings: FetchAllPhotoListings,
+    private val getOldestTagsMigrationFile: GetOldestTagsMigrationFile,
     private val configurationProvider: ConfigurationProvider,
     private val insertTagsMigrationFiles: InsertTagsMigrationFiles,
     private val getTagsMigrationStatus: GetTagsMigrationStatus,
@@ -59,10 +59,6 @@ class StartTagsMigration @Inject constructor(
     suspend operator fun invoke(userId: UserId, volumeId: VolumeId) = coRunCatching {
         if (getFeatureFlag(drivePhotosTagsMigrationDisabled(userId)).on) {
             CoreLogger.i(PHOTO, "Kill switch for migration enabled, aborting")
-            return@coRunCatching
-        }
-        if (getFeatureFlag(drivePhotosTagsMigration(userId)).off) {
-            CoreLogger.i(PHOTO, "Feature flag for migration not enabled, aborting")
             return@coRunCatching
         }
         val status = getTagsMigrationStatus(userId, volumeId).getOrThrow()
@@ -85,7 +81,11 @@ class StartTagsMigration @Inject constructor(
             userId = userId,
             volumeId = volumeId,
             pageSize = configurationProvider.apiListingPageSize,
-            linkId = statusAnchor?.lastProcessedLinkId
+            linkId = (getOldestTagsMigrationFile(
+                userId = userId,
+                volumeId = volumeId,
+                state = TagsMigrationFile.State.IDLE,
+            ).firstOrNull()?.fileId ?: statusAnchor?.lastProcessedLinkId)
         ).getOrThrow().let { photoListings ->
             val lastProcessedCaptureTime = statusAnchor?.lastProcessedCaptureTime
             if (lastProcessedCaptureTime != null) {
@@ -138,7 +138,7 @@ class StartTagsMigration @Inject constructor(
         userId: UserId,
         volumeId: VolumeId,
         applicationClientUid: ClientUid,
-        currentTimestamp:TimestampS = TimestampS(),
+        currentTimestamp: TimestampS = TimestampS(),
     ): TagsMigrationAnchor {
         return if (this == null) {
             val volume = getVolume(userId, volumeId).toResult().getOrThrow()

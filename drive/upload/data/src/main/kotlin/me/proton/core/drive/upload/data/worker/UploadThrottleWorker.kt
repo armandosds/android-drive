@@ -36,6 +36,7 @@ import me.proton.core.drive.base.data.extension.log
 import me.proton.core.drive.base.data.workmanager.addTags
 import me.proton.core.drive.base.domain.extension.getOrNull
 import me.proton.core.drive.base.domain.log.LogTag.UPLOAD
+import me.proton.core.drive.drivelink.domain.usecase.UseSdkForUpload
 import me.proton.core.drive.linkupload.domain.entity.NetworkTypeProviderType
 import me.proton.core.drive.linkupload.domain.entity.UploadFileLink
 import me.proton.core.drive.linkupload.domain.entity.UploadState
@@ -69,14 +70,7 @@ class UploadThrottleWorker @AssistedInject constructor(
                 val useSdk = useSdkForUpload(uploadFileLink.parentLinkId)
                     .getOrNull(UPLOAD, "Cannot check for sdk usage")
                 if (useSdk == true) {
-                    workManager.enqueue(
-                        UploadFileSdkWorker.getWorkRequest(
-                            userId = userId,
-                            uploadFileLinkId = uploadFileLink.id,
-                            uriString = requireNotNull(uploadFileLink.uriString),
-                            tags = listOf("sdk", uploadFileLink.id.uniqueUploadWorkName),
-                        )
-                    )
+                    uploadFileLink.enqueueWithSdk()
                 } else {
                     uploadFileLink.enqueue(userId).await()
                 }
@@ -109,6 +103,7 @@ class UploadThrottleWorker @AssistedInject constructor(
                     error.log(UPLOAD, "Cannot enqueue files to be uploaded, will retry", WARNING)
                     Result.retry()
                 }
+
                 else -> {
                     error.log(UPLOAD, "Cannot enqueue files to be uploaded")
                     Result.failure()
@@ -116,6 +111,23 @@ class UploadThrottleWorker @AssistedInject constructor(
             }
         }
     )
+
+    private suspend fun UploadFileLink.enqueueWithSdk() {
+        requireNotNull(networkTypeProviders[networkTypeProviderType])
+            .get(parentLinkId)
+            .let { networkType ->
+                FileUploadFlow.Sdk(
+                    workManager = workManager,
+                    userId = this@UploadThrottleWorker.userId,
+                    uploadFileLinkId = id,
+                    networkType = networkType,
+                    cleanupWorkers = cleanupWorkers,
+                ).enqueueWork(
+                    uploadTags = listOf("sdk", id.uniqueUploadWorkName),
+                    uriString = requireNotNull(uriString),
+                )
+            }
+    }
 
     private suspend fun UploadFileLink.isNotEnqueued(): Boolean {
         val workInfos = workManager
@@ -131,7 +143,7 @@ class UploadThrottleWorker @AssistedInject constructor(
             val isFileAlreadyCreated = draftRevisionId.isNotEmpty()
             when {
                 isFileAlreadyCreated && isFileEmpty
-                -> FileUploadFlow.EmptyFileAlreadyCreated(
+                    -> FileUploadFlow.EmptyFileAlreadyCreated(
                     workManager = workManager,
                     userId = userId,
                     uploadFileLinkId = id,
@@ -140,7 +152,7 @@ class UploadThrottleWorker @AssistedInject constructor(
                 )
 
                 isFileAlreadyCreated
-                -> FileUploadFlow.FileAlreadyCreated(
+                    -> FileUploadFlow.FileAlreadyCreated(
                     workManager = workManager,
                     userId = userId,
                     uploadFileLinkId = id,
@@ -149,7 +161,7 @@ class UploadThrottleWorker @AssistedInject constructor(
                 )
 
                 !isFileAlreadyCreated && isFileEmpty
-                -> FileUploadFlow.EmptyFileFromScratch(
+                    -> FileUploadFlow.EmptyFileFromScratch(
                     workManager = workManager,
                     userId = userId,
                     uploadFileLinkId = id,
@@ -158,7 +170,7 @@ class UploadThrottleWorker @AssistedInject constructor(
                 )
 
                 !isFileAlreadyCreated
-                -> FileUploadFlow.FromScratch(
+                    -> FileUploadFlow.FromScratch(
                     workManager = workManager,
                     userId = userId,
                     uploadFileLinkId = id,

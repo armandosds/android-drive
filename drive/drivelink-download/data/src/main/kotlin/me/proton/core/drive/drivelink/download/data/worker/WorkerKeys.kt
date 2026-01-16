@@ -19,19 +19,5 @@ package me.proton.core.drive.drivelink.download.data.worker
 
 object WorkerKeys {
     const val KEY_USER_ID = "key.userId"
-    const val KEY_VOLUME_ID = "key.volumeId"
-    const val KEY_REVISION_ID = "key.revisionId"
-    const val KEY_SHARE_ID = "key.shareId"
-    const val KEY_FOLDER_ID = "key.folderId"
     const val KEY_SIZE = "key.size"
-    const val KEY_BLOCK_HASH = "key.blockHash"
-    const val KEY_BLOCK_INDEX = "key.blockIndex"
-    const val KEY_BLOCK_URL = "key.blockUrl"
-    const val KEY_FILE_ID = "key.fileId"
-    const val KEY_RETRYABLE = "key.retryable"
-    const val KEY_IS_DOWNLOAD_FINISHED = "key.isDownloadFinished"
-    const val KEY_FILE_TAGS = "key.fileTags"
-    const val KEY_ROOT_FOLDER_ID = "key.rootFolderId"
-    const val KEY_ALBUM_ID = "key.albumId"
-    const val KEY_NETWORK_TYPE = "key.networkType"
 }

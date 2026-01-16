@@ -75,4 +75,24 @@
     <item quantity="other">%1$d elementos</item>
   </plurals>
   <string name="files_upload_verification_failed">Error de carga: no se pudieron verificar los datos</string>
+  <!--
+        Variable %1$d is a quantity of folders that were created
+        Example:
+            "Created 1 folder"
+            "Created 15 folders"
+    -->
+  <plurals name="folder_upload_created_subfolders">
+    <item quantity="one">%1$d carpeta creada</item>
+    <item quantity="other">%1$d carpetas creadas</item>
+  </plurals>
+  <!--
+        Variable %1$d is a quantity of files scheduled for upload
+        Example:
+            "Scheduled 1 file for upload"
+            "Scheduled 102 files for upload"
+    -->
+  <plurals name="folder_upload_scheduled_files_for_upload">
+    <item quantity="one">Programada la carga de %1$d archivo</item>
+    <item quantity="other">Programada la carga de %1$d archivos</item>
+  </plurals>
 </resources>

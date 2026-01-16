@@ -50,12 +50,10 @@ import me.proton.core.drive.base.domain.usecase.BroadcastMessages
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.base.presentation.component.NavigationTab
 import me.proton.core.drive.base.presentation.viewmodel.UserViewModel
-import me.proton.core.drive.feature.flag.domain.usecase.IsBlackFridayPromoEnabled
 import me.proton.core.drive.messagequeue.domain.entity.BroadcastMessage
 import me.proton.core.drive.navigationdrawer.presentation.NavigationDrawerViewEvent
 import me.proton.core.drive.navigationdrawer.presentation.NavigationDrawerViewState
 import me.proton.core.drive.share.user.domain.usecase.HasUserInvitationFlow
-import me.proton.core.drive.user.domain.extension.isFree
 import me.proton.core.payment.domain.PaymentManager
 import me.proton.core.user.domain.UserManager
 import me.proton.core.user.domain.entity.User
@@ -65,11 +63,12 @@ import me.proton.drive.android.settings.domain.entity.UserOverlay
 import me.proton.drive.android.settings.domain.entity.WhatsNewKey
 import javax.inject.Inject
 import me.proton.core.drive.i18n.R as I18N
+import me.proton.drive.android.settings.domain.entity.HomeTab as HomeTabEntity
 
 @HiltViewModel
 @ExperimentalCoroutinesApi
 class HomeViewModel @Inject constructor(
-    @ApplicationContext private val appContext: Context,
+    @param:ApplicationContext private val appContext: Context,
     userManager: UserManager,
     savedStateHandle: SavedStateHandle,
     private val canGetMoreFreeStorage: CanGetMoreFreeStorage,
@@ -78,7 +77,6 @@ class HomeViewModel @Inject constructor(
     private val broadcastMessages: BroadcastMessages,
     private val shouldShowOverlay: ShouldShowOverlay,
     private val paymentManager: PaymentManager,
-    private val isBlackFridayPromoEnabled: IsBlackFridayPromoEnabled,
 ) : ViewModel(), NotificationDotViewModel, UserViewModel by UserViewModel(savedStateHandle) {
     private var navigateToTab: ((route: String) -> Unit)? = null
 
@@ -143,12 +141,11 @@ class HomeViewModel @Inject constructor(
         navigateToWhatsNew: (WhatsNewKey) -> Unit,
         navigateToRatingBooster: () -> Unit,
         navigateToSubscriptionPromo: (String) -> Unit,
-        navigateToBlackFridayPromo: () -> Unit,
     ): HomeViewEvent = object : HomeViewEvent {
         override val onTab = { tab: NavigationTab -> navigateToTab(tab.screen(userId)) }
-        override val onFirstLaunch: () -> Unit = {
+        override val onFirstLaunch: (NavigationTab?) -> Unit = { navigationTab ->
             viewModelScope.launch {
-                when (val overlay = shouldShowOverlay()) {
+                when (val overlay = shouldShowOverlay(navigationTab?.homeTabEntity)) {
                     UserOverlay.Onboarding -> navigateToOnboarding()
                     is UserOverlay.WhatsNew -> navigateToWhatsNew(overlay.key)
                     UserOverlay.RatingBooster -> navigateToRatingBooster()
@@ -167,18 +164,27 @@ class HomeViewModel @Inject constructor(
                 override val onBugReport = navigateToBugReport
                 override val onSubscription = navigateToSubscription
                 override val onGetFreeStorage = navigateToGetMoreFreeStorage
-                override val onBlackFridayPromo = navigateToBlackFridayPromo
             }
     }.also {
         this.navigateToTab = navigateToTab
     }
 
-    suspend fun shouldShowOverlay(): UserOverlay? =
-        shouldShowOverlay(userId).getOrNull(VIEW_MODEL, "Should show overlay failed")
+    suspend fun shouldShowOverlay(currentHomeTab: HomeTabEntity?): UserOverlay? =
+        shouldShowOverlay(userId, currentHomeTab).getOrNull(VIEW_MODEL, "Should show overlay failed")
             ?.also { overlay -> CoreLogger.i(VIEW_MODEL, "Showing overlay: $overlay") }
 
     private val NavigationTab.screen: HomeTab
         get() = tabs.value.firstNotNullOf { (screen, value) -> screen.takeIf { value == this } }
+
+    private val NavigationTab.homeTabEntity: HomeTabEntity
+        get() = when (this.screen) {
+            is Screen.Files -> HomeTabEntity.FILES
+            is Screen.Photos -> HomeTabEntity.PHOTOS
+            is Screen.PhotosAndAlbums -> HomeTabEntity.PHOTOS
+            is Screen.Computers -> HomeTabEntity.COMPUTERS
+            is Screen.SharedTabs -> HomeTabEntity.SHARED
+            else -> error("Unexpected screen: $screen")
+        }
 
     private val DynamicHomeTab.screen: HomeTab
         get() = when (route) {
@@ -210,7 +216,6 @@ class HomeViewModel @Inject constructor(
                         paymentManager.isSubscriptionAvailable(userId)
                     }.getOrNull(VIEW_MODEL, "Failed to read subscriptions")
                 } ?: false,
-                isBlackFridayPromoEnabled = user != null && user.isFree && isBlackFridayPromoEnabled(userId),
             )
         )
 

@@ -26,6 +26,8 @@ import me.proton.core.drive.base.data.extension.isErrno
 import me.proton.core.drive.base.data.extension.isHttpError
 import me.proton.core.drive.base.data.extension.isRetryable
 import me.proton.core.drive.base.domain.api.ProtonApiCode
+import me.proton.core.drive.base.domain.extension.firstErrorDomainOrNull
+import me.proton.core.drive.base.domain.extension.toApiException
 import me.proton.core.drive.cryptobase.domain.exception.VerificationException
 import me.proton.core.drive.observability.domain.metrics.UploadErrorsTotal
 import me.proton.core.drive.upload.domain.exception.InconsistencyException
@@ -33,6 +35,8 @@ import me.proton.core.drive.upload.domain.exception.NotEnoughSpaceException
 import me.proton.core.network.domain.ApiException
 import me.proton.core.network.domain.hasProtonErrorCode
 import me.proton.core.network.domain.isHttpError
+import me.proton.drive.sdk.ProtonDriveSdkException
+import me.proton.drive.sdk.ProtonSdkError
 import me.proton.core.drive.base.data.extension.getDefaultMessage as baseGetDefaultMessage
 import me.proton.core.drive.base.data.extension.log as baseLog
 
@@ -54,11 +58,17 @@ internal fun Throwable.log(tag: String, message: String? = null): Throwable = th
 
 internal fun Throwable.toEventUploadReason(): Event.Upload.Reason = when (this) {
     is SecurityException -> Event.Upload.Reason.ERROR_PERMISSIONS
-    is ApiException -> when {
-        hasProtonErrorCode(ProtonApiCode.EXCEEDED_QUOTA) -> Event.Upload.Reason.ERROR_DRIVE_STORAGE
-        else -> Event.Upload.Reason.ERROR_OTHER
-    }
+    is ApiException -> toEventUploadReason()
     is VerifierException, is VerificationException -> Event.Upload.Reason.ERROR_INTEGRITY
+    is ProtonDriveSdkException -> {
+        val apiException = toApiException()
+        val integrityError = error?.firstErrorDomainOrNull(ProtonSdkError.ErrorDomain.DataIntegrity)
+        when {
+            apiException != null -> apiException.toEventUploadReason()
+            integrityError != null -> Event.Upload.Reason.ERROR_INTEGRITY
+            else -> Event.Upload.Reason.ERROR_OTHER
+        }
+    }
     else -> if (isErrno(OsConstants.ENOSPC)) {
         Event.Upload.Reason.ERROR_LOCAL_STORAGE
     } else {
@@ -67,6 +77,7 @@ internal fun Throwable.toEventUploadReason(): Event.Upload.Reason = when (this) 
 }
 
 fun Throwable.toUploadErrorType(): UploadErrorsTotal.Type = when(this) {
+    is ProtonDriveSdkException -> error("Wrong usage, this exception should be used only for SDK UploadErrorsTotal.Type")
     is ApiException -> when {
         hasProtonErrorCode(ProtonApiCode.EXCEEDED_QUOTA) -> UploadErrorsTotal.Type.free_space_exceeded
         hasProtonErrorCode(ProtonApiCode.TOO_MANY_CHILDREN) -> UploadErrorsTotal.Type.too_many_children

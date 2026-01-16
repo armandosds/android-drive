@@ -31,7 +31,7 @@ import me.proton.core.drive.drivelink.data.db.entity.DriveLinkEntity.Companion.O
 import me.proton.core.drive.drivelink.data.db.entity.DriveLinkEntity.Companion.SHARE_MEMBER_PREFIX
 import me.proton.core.drive.drivelink.data.db.entity.DriveLinkEntity.Companion.TRASH_PREFIX
 import me.proton.core.drive.link.data.db.LinkDao
-import me.proton.core.drive.linkdownload.data.db.LinkDownloadDao
+import me.proton.core.drive.linkdownload.data.db.dao.LinkDownloadDao
 import me.proton.core.drive.linkoffline.data.db.LinkOfflineDao
 import me.proton.core.drive.linktrash.data.db.dao.LinkTrashDao
 import me.proton.core.drive.share.data.db.ShareMembershipDao

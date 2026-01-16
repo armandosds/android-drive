@@ -37,12 +37,12 @@ android-tools = "1.1.5"
 # Coil
 coil = "2.4.0"
 # Core
-core = "35.0.0"
+core = "36.2.0"
 core-test-quark = "14.1.0"
 # Dagger
 dagger = "2.53.1"
 # Drive
-drive-sdk = "0.1.1"
+drive-sdk = "0.6.1-alpha.12"
 # Desugar
 desugar = "2.0.4"
 # Github

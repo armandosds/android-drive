@@ -19,15 +19,14 @@
 package me.proton.android.drive.ui.dialog
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import me.proton.android.drive.photos.presentation.component.ConfirmStopSyncFolderDialogContent
 import me.proton.android.drive.ui.viewmodel.ConfirmStopSyncFolderDialogViewModel
-import me.proton.core.compose.flow.rememberFlowWithLifecycle
 
 @Composable
 @ExperimentalCoroutinesApi
@@ -38,8 +37,9 @@ fun ConfirmStopSyncFolderDialog(
 ) {
     val viewModel = hiltViewModel<ConfirmStopSyncFolderDialogViewModel>()
     val viewEvent = remember(viewModel, onConfirm) { viewModel.viewEvent(onConfirm) }
-    val viewState by rememberFlowWithLifecycle(viewModel.viewState)
-        .collectAsState(initial = viewModel.initialViewState)
+    val viewState by viewModel.viewState.collectAsStateWithLifecycle(
+        initialValue = viewModel.initialViewState
+    )
 
     val name = viewState.name
     if (name != null) {

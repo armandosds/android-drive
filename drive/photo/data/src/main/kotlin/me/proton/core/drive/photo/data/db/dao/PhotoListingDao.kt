@@ -37,19 +37,46 @@ abstract class PhotoListingDao : BaseDao<PhotoListingEntity>() {
     )
     abstract fun getPhotoListingCount(userId: UserId, volumeId: String): Flow<Int>
 
-    suspend fun getPhotoListings(
+    suspend fun getPhotoListingWithFileProperties(
         userId: UserId,
         volumeId: String,
         direction: Direction,
         limit: Int,
         offset: Int,
     ): List<PhotoListingWithFileProperties> = when(direction) {
+        Direction.ASCENDING -> getPhotoListingWithFilePropertiesAsc(userId, volumeId, limit, offset)
+        Direction.DESCENDING -> getPhotoListingWithFilePropertiesDesc(userId, volumeId, limit, offset)
+    }
+
+    suspend fun getPhotoListings(
+        userId: UserId,
+        volumeId: String,
+        direction: Direction,
+        limit: Int,
+        offset: Int,
+    ): List<PhotoListingEntity> = when(direction) {
         Direction.ASCENDING -> getPhotoListingsAsc(userId, volumeId, limit, offset)
         Direction.DESCENDING -> getPhotoListingsDesc(userId, volumeId, limit, offset)
     }
 
+    @Query(PHOTO_LISTING_WITH_FILE_PROPERTIES_ASC)
+    abstract suspend fun getPhotoListingWithFilePropertiesAsc(
+        userId: UserId,
+        volumeId: String,
+        limit: Int,
+        offset: Int,
+    ): List<PhotoListingWithFileProperties>
+
     @Query(PHOTO_LISTING_ASC)
     abstract suspend fun getPhotoListingsAsc(
+        userId: UserId,
+        volumeId: String,
+        limit: Int,
+        offset: Int,
+    ): List<PhotoListingEntity>
+
+    @Query(PHOTO_LISTING_WITH_FILE_PROPERTIES_DESC)
+    abstract suspend fun getPhotoListingWithFilePropertiesDesc(
         userId: UserId,
         volumeId: String,
         limit: Int,
@@ -62,7 +89,18 @@ abstract class PhotoListingDao : BaseDao<PhotoListingEntity>() {
         volumeId: String,
         limit: Int,
         offset: Int,
-    ): List<PhotoListingWithFileProperties>
+    ): List<PhotoListingEntity>
+
+    fun getPhotoListingWithFilePropertiesFlow(
+        userId: UserId,
+        volumeId: String,
+        direction: Direction,
+        limit: Int,
+        offset: Int,
+    ): Flow<List<PhotoListingWithFileProperties>> = when (direction) {
+        Direction.ASCENDING -> getPhotoListingWithFilePropertiesAscFlow(userId, volumeId, limit, offset)
+        Direction.DESCENDING -> getPhotoListingWithFilePropertiesDescFlow(userId, volumeId, limit, offset)
+    }
 
     fun getPhotoListingsFlow(
         userId: UserId,
@@ -70,13 +108,29 @@ abstract class PhotoListingDao : BaseDao<PhotoListingEntity>() {
         direction: Direction,
         limit: Int,
         offset: Int,
-    ): Flow<List<PhotoListingWithFileProperties>> = when (direction) {
+    ): Flow<List<PhotoListingEntity>> = when (direction) {
         Direction.ASCENDING -> getPhotoListingsAscFlow(userId, volumeId, limit, offset)
         Direction.DESCENDING -> getPhotoListingsDescFlow(userId, volumeId, limit, offset)
     }
 
+    @Query(PHOTO_LISTING_WITH_FILE_PROPERTIES_ASC)
+    abstract fun getPhotoListingWithFilePropertiesAscFlow(
+        userId: UserId,
+        volumeId: String,
+        limit: Int,
+        offset: Int,
+    ): Flow<List<PhotoListingWithFileProperties>>
+
     @Query(PHOTO_LISTING_ASC)
     abstract fun getPhotoListingsAscFlow(
+        userId: UserId,
+        volumeId: String,
+        limit: Int,
+        offset: Int,
+    ): Flow<List<PhotoListingEntity>>
+
+    @Query(PHOTO_LISTING_WITH_FILE_PROPERTIES_DESC)
+    abstract fun getPhotoListingWithFilePropertiesDescFlow(
         userId: UserId,
         volumeId: String,
         limit: Int,
@@ -89,7 +143,7 @@ abstract class PhotoListingDao : BaseDao<PhotoListingEntity>() {
         volumeId: String,
         limit: Int,
         offset: Int,
-    ): Flow<List<PhotoListingWithFileProperties>>
+    ): Flow<List<PhotoListingEntity>>
 
     @Query("DELETE FROM PhotoListingEntity WHERE user_id = :userId AND share_id = :shareId AND id in (:linkIds)")
     abstract suspend fun delete(userId: UserId, shareId: String, linkIds: List<String>)
@@ -97,25 +151,91 @@ abstract class PhotoListingDao : BaseDao<PhotoListingEntity>() {
     @Query("DELETE FROM PhotoListingEntity WHERE user_id = :userId AND volume_id = :volumeId")
     abstract suspend fun deleteAll(userId: UserId, volumeId: String)
 
+    @Query(
+        """
+            WITH listing AS (
+                SELECT
+                    ple.user_id,
+                    ple.volume_id,
+                    ple.share_id,
+                    ple.id,
+                    ple.capture_time as capture_time,
+                    ple.hash,
+                    ple.content_hash,
+                    lfpe.revision_id,
+                    lfpe.thumbnail_id_default
+                FROM PhotoListingEntity ple
+                LEFT JOIN LinkFilePropertiesEntity lfpe ON
+                    ple.user_id = lfpe.file_user_id AND
+                    ple.share_id = lfpe.file_share_id AND
+                    ple.id = lfpe.file_link_id
+            )
+            SELECT capture_time, typeof(capture_time) as type FROM listing
+            WHERE capture_time IS NULL OR typeof(capture_time) != 'integer'
+        """
+    )
+    abstract suspend fun getInvalidCaptureTimes(): List<InvalidCaptureTime>
+
+    data class InvalidCaptureTime(
+        val captureTime: Long?,
+        val type: String,
+    )
+
     private companion object{
-        const val PHOTO_LISTING_ASC = """
-            SELECT PhotoListingEntity.*, LinkFilePropertiesEntity.revision_id, LinkFilePropertiesEntity.thumbnail_id_default FROM PhotoListingEntity
-            LEFT JOIN LinkFilePropertiesEntity ON
-                PhotoListingEntity.user_id = LinkFilePropertiesEntity.file_user_id AND
-                PhotoListingEntity.share_id = LinkFilePropertiesEntity.file_share_id AND
-                PhotoListingEntity.id = LinkFilePropertiesEntity.file_link_id
+        const val PHOTO_LISTING_WITH_FILE_PROPERTIES_ASC = """
+            SELECT 
+                ple.user_id, 
+                ple.volume_id, 
+                ple.share_id, 
+                ple.id, 
+                ple.capture_time as capture_time, 
+                ple.hash, 
+                ple.content_hash, 
+                lfpe.revision_id, 
+                lfpe.thumbnail_id_default 
+            FROM PhotoListingEntity ple
+            LEFT JOIN LinkFilePropertiesEntity lfpe ON
+                ple.user_id = lfpe.file_user_id AND
+                ple.share_id = lfpe.file_share_id AND
+                ple.id = lfpe.file_link_id
             WHERE
                 user_id = :userId AND
                 volume_id = :volumeId
             ORDER BY capture_time ASC, id ASC
             LIMIT :limit OFFSET :offset
         """
+        const val PHOTO_LISTING_ASC = """
+            SELECT * FROM PhotoListingEntity
+            WHERE
+                user_id = :userId AND
+                volume_id = :volumeId
+            ORDER BY capture_time ASC, id ASC
+            LIMIT :limit OFFSET :offset
+        """
+        const val PHOTO_LISTING_WITH_FILE_PROPERTIES_DESC = """
+            SELECT 
+                ple.user_id, 
+                ple.volume_id, 
+                ple.share_id, 
+                ple.id, 
+                ple.capture_time as capture_time,  
+                ple.hash, 
+                ple.content_hash, 
+                lfpe.revision_id, 
+                lfpe.thumbnail_id_default 
+            FROM PhotoListingEntity ple
+            LEFT JOIN LinkFilePropertiesEntity lfpe ON
+                ple.user_id = lfpe.file_user_id AND
+                ple.share_id = lfpe.file_share_id AND
+                ple.id = lfpe.file_link_id
+            WHERE
+                user_id = :userId AND
+                volume_id = :volumeId
+            ORDER BY capture_time DESC, id DESC
+            LIMIT :limit OFFSET :offset
+        """
         const val PHOTO_LISTING_DESC = """
-            SELECT PhotoListingEntity.*, LinkFilePropertiesEntity.revision_id, LinkFilePropertiesEntity.thumbnail_id_default FROM PhotoListingEntity
-            LEFT JOIN LinkFilePropertiesEntity ON
-                PhotoListingEntity.user_id = LinkFilePropertiesEntity.file_user_id AND
-                PhotoListingEntity.share_id = LinkFilePropertiesEntity.file_share_id AND
-                PhotoListingEntity.id = LinkFilePropertiesEntity.file_link_id
+            SELECT * FROM PhotoListingEntity
             WHERE
                 user_id = :userId AND
                 volume_id = :volumeId

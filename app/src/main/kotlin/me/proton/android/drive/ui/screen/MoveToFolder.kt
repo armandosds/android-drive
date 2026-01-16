@@ -30,7 +30,6 @@ import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -40,6 +39,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -48,12 +48,11 @@ import me.proton.android.drive.ui.viewmodel.MoveToFolderViewModel
 import me.proton.core.compose.component.ProtonSnackbarHost
 import me.proton.core.compose.component.ProtonSnackbarHostState
 import me.proton.core.compose.component.ProtonSnackbarType
-import me.proton.core.compose.flow.rememberFlowWithLifecycle
 import me.proton.core.compose.theme.ProtonDimens.DefaultSpacing
 import me.proton.core.compose.theme.ProtonDimens.SmallSpacing
 import me.proton.core.compose.theme.ProtonTheme
-import me.proton.core.compose.theme.defaultHighlight
-import me.proton.core.compose.theme.headlineSmall
+import me.proton.core.compose.theme.defaultHighlightNorm
+import me.proton.core.compose.theme.headlineSmallNorm
 import me.proton.core.drive.base.presentation.component.EncryptedItem
 import me.proton.core.drive.base.presentation.component.TopAppBar
 import me.proton.core.drive.base.presentation.component.TopBarActions
@@ -71,8 +70,9 @@ fun MoveToFolder(
     navigateBack: () -> Unit,
 ) {
     val viewModel = hiltViewModel<MoveToFolderViewModel>()
-    val viewState by rememberFlowWithLifecycle(flow = viewModel.viewState)
-        .collectAsState(initial = viewModel.initialViewState)
+    val viewState by viewModel.viewState.collectAsStateWithLifecycle(
+        initialValue = viewModel.initialViewState
+    )
     val viewEvent = remember(viewModel, navigateBack) { viewModel.viewEvent(navigateToCreateFolder, navigateBack) }
     val snackbarHostState = remember { ProtonSnackbarHostState() }
 
@@ -170,7 +170,7 @@ fun Title(
     ) {
         Text(
             text = "${stringResource(id = I18N.string.move_to)} ",
-            style = ProtonTheme.typography.headlineSmall,
+            style = ProtonTheme.typography.headlineSmallNorm,
         )
         if (isTitleEncrypted) {
             EncryptedItem(
@@ -180,7 +180,7 @@ fun Title(
             TextWithMiddleEllipsis(
                 text = title,
                 maxLines = 1,
-                style = ProtonTheme.typography.defaultHighlight,
+                style = ProtonTheme.typography.defaultHighlightNorm,
             )
         }
     }

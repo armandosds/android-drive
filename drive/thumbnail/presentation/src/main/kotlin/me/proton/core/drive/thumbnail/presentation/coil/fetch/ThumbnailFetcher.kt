@@ -29,12 +29,14 @@ import coil.fetch.SourceResult
 import coil.key.Keyer
 import coil.request.Options
 import me.proton.core.drive.crypto.domain.usecase.DecryptThumbnail
+import me.proton.core.drive.drivelink.domain.usecase.UseSdkForThumbnail
 import me.proton.core.drive.link.domain.entity.FileId
 import me.proton.core.drive.link.domain.extension.userId
 import me.proton.core.drive.linkoffline.domain.usecase.IsLinkOrAnyAncestorMarkedAsOffline
 import me.proton.core.drive.thumbnail.domain.usecase.GetThumbnailDecryptedFile
 import me.proton.core.drive.thumbnail.domain.usecase.GetThumbnailFile
 import me.proton.core.drive.thumbnail.domain.usecase.GetThumbnailInputStream
+import me.proton.core.drive.thumbnail.domain.usecase.GetThumbnailSdk
 import me.proton.core.drive.thumbnail.presentation.entity.ThumbnailVO
 import okio.BufferedSource
 import okio.buffer
@@ -55,8 +57,10 @@ class ThumbnailFetcher(
     private val getThumbnailInputStream: GetThumbnailInputStream,
     private val getThumbnailFile: GetThumbnailFile,
     private val getThumbnailDecryptedFile: GetThumbnailDecryptedFile,
+    private val getThumbnailSdk: GetThumbnailSdk,
     private val decryptThumbnail: DecryptThumbnail,
     private val isLinkOrAnyAncestorMarkedAsOffline: IsLinkOrAnyAncestorMarkedAsOffline,
+    private val useSdkForThumbnail: UseSdkForThumbnail,
     private val data: ThumbnailVO,
     private val options: Options
 ) : Fetcher {
@@ -129,32 +133,53 @@ class ThumbnailFetcher(
         data: ThumbnailVO,
         options: Options,
         cacheFile: File,
-    ): SourceResult = getThumbnailInputStream(
-        thumbnailId = data.thumbnailId,
-    ).map { inputStream ->
-        inputStream.use {
-            writeOnDiskIfNeeded(options, cacheFile, inputStream, data)
-        }
-    }.getOrThrow()
+    ): SourceResult = if (useSdkForThumbnail(data.fileId).getOrThrow()) {
+        getThumbnailSdk(
+            volumeId = data.volumeId,
+            fileId = data.fileId,
+            thumbnailType = data.thumbnailId.type,
+        ).map { inputStream ->
+            inputStream.use {
+                writeOnDiskIfNeeded(
+                    options = options,
+                    cacheFile = cacheFile,
+                    data = data,
+                    inputStream = inputStream,
+                )
+            }
+        }.getOrThrow()
+    } else {
+        getThumbnailInputStream(
+            thumbnailId = data.thumbnailId,
+        ).map { inputStream ->
+            inputStream.use {
+                writeOnDiskIfNeeded(
+                    options = options,
+                    cacheFile = cacheFile,
+                    data = data,
+                    inputStream = ByteArrayInputStream(decryptThumbnail(data.fileId, inputStream).getOrThrow())
+                )
+            }
+        }.getOrThrow()
+    }
 
-    private suspend fun writeOnDiskIfNeeded(
+    private fun writeOnDiskIfNeeded(
         options: Options,
         cacheFile: File,
-        networkInputStream: InputStream,
         data: ThumbnailVO,
+        inputStream: InputStream,
     ): SourceResult {
         val allowDiskWrite = options.diskCachePolicy.writeEnabled
-        val decryptedThumbnail = decryptThumbnail(data.fileId, networkInputStream).getOrThrow()
         return if (allowDiskWrite) {
             if (!cacheFile.exists()) {
                 cacheFile.createNewFile()
             }
             cacheFile.outputStream().use { outputStream ->
-                outputStream.write(decryptedThumbnail)
+                inputStream.copyTo(outputStream)
             }
             cacheFile.inputStream()
         } else {
-            ByteArrayInputStream(decryptedThumbnail)
+            inputStream
         }.let { inputStream ->
             SourceResult(
                 source = getSource(data, inputStream.source().buffer()),
@@ -169,6 +194,8 @@ class ThumbnailFetcher(
         private val getThumbnailInputStream: GetThumbnailInputStream,
         private val getThumbnailFile: GetThumbnailFile,
         private val getThumbnailDecryptedFile: GetThumbnailDecryptedFile,
+        private val getThumbnailSdk: GetThumbnailSdk,
+        private val useSdkForThumbnail: UseSdkForThumbnail,
         private val decryptThumbnail: DecryptThumbnail,
         private val isLinkOrAnyAncestorMarkedAsOffline: IsLinkOrAnyAncestorMarkedAsOffline,
     ) : Fetcher.Factory<ThumbnailVO> {
@@ -182,6 +209,8 @@ class ThumbnailFetcher(
                 getThumbnailInputStream = getThumbnailInputStream,
                 getThumbnailFile = getThumbnailFile,
                 getThumbnailDecryptedFile = getThumbnailDecryptedFile,
+                getThumbnailSdk = getThumbnailSdk,
+                useSdkForThumbnail = useSdkForThumbnail,
                 decryptThumbnail = decryptThumbnail,
                 isLinkOrAnyAncestorMarkedAsOffline = isLinkOrAnyAncestorMarkedAsOffline,
                 data = data,

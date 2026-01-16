@@ -144,7 +144,8 @@ suspend fun FolderContext.file(
 
 suspend fun FolderContext.file(
     link: LinkEntity,
-    properties: LinkFilePropertiesEntity = linkFilePropertiesEntity(link),
+    photoCaptureTime: Long? = null,
+    properties: LinkFilePropertiesEntity = linkFilePropertiesEntity(link, photoCaptureTime),
     tags: List<Long> = emptyList(),
     block: suspend FileContext.() -> Unit = {},
 ): FileId {
@@ -157,7 +158,7 @@ suspend fun FolderContext.file(
                 volumeId = volume.id,
                 shareId = share.id,
                 linkId = link.id,
-                captureTime = 0,
+                captureTime = photoCaptureTime ?: 0,
                 hash = null,
                 contentHash = null,
             )
@@ -181,7 +182,9 @@ suspend fun FolderContext.file(
 
 fun FolderContext.linkFilePropertiesEntity(
     link: LinkEntity,
+    photoCaptureTime: Long? = null,
     photoContentHash: String? = null,
+    defaultThumbnailId: String? = null,
 ) =
     LinkFilePropertiesEntity(
         userId = user.userId,
@@ -192,7 +195,9 @@ fun FolderContext.linkFilePropertiesEntity(
         contentKeyPacket = "",
         contentKeyPacketSignature = null,
         activeRevisionSignatureAddress = null,
-        photoContentHash = photoContentHash
+        photoCaptureTime = photoCaptureTime,
+        photoContentHash = photoContentHash,
+        defaultThumbnailId = defaultThumbnailId,
     )
 
 suspend fun FolderContext.album(

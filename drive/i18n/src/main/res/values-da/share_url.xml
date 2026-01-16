@@ -65,8 +65,8 @@
         Example:
             "Expiration date must not be after more than 90 days"
     -->
-  <string name="shared_link_error_message_expiration_date_too_late">Udløbsdato må ikke være efter mere end %1$d dage</string>
-  <string name="shared_link_error_legacy_link">Dette er et gammelt link, hvis administration ikke understøttes. Det anbefales, at du holder op med at dele dette link og skaffer et nyt link.</string>
+  <string name="shared_link_error_message_expiration_date_too_late">Udløbsdato må ikke være senere end efter %1$d dage</string>
+  <string name="shared_link_error_legacy_link">Dette er et gammelt link, hvis administration ikke understøttes. Det anbefales, at du holder op med at dele dette link og skaffer dig et nyt link.</string>
   <string name="title_share_via_link">Del via link</string>
   <string name="shared_with_me_title">Delt med mig</string>
   <string name="shared_by_me_title">Delt af mig</string>
@@ -95,9 +95,9 @@
         Example:
             "Pending shared albums (2)"
     -->
-  <string name="shared_user_album_invitations_title">Afventende delte albummer (%1$d)</string>
+  <string name="shared_user_album_invitations_title">Afventende delte albums (%1$d)</string>
   <string name="shared_user_invitations_title_empty">Ingen afventende delte elementer</string>
-  <string name="shared_user_album_invitations_title_empty">Ingen afventende delte albummer</string>
+  <string name="shared_user_album_invitations_title_empty">Ingen afventende delte albums</string>
   <string name="shared_user_invitations_description_empty">Alle nye invitationer vil være her</string>
   <string name="shared_user_invitations_accept_button">Accepter</string>
   <string name="shared_user_invitations_decline_button">Afvis</string>

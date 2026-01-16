@@ -26,15 +26,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.PagingData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -55,8 +55,8 @@ import me.proton.core.compose.flow.rememberFlowWithLifecycle
 import me.proton.core.drive.base.domain.entity.FastScrollAnchor
 import me.proton.core.drive.base.presentation.component.TopAppBar
 import me.proton.core.drive.base.presentation.component.TopBarActions
-import me.proton.core.drive.drivelink.domain.entity.DriveLink
 import me.proton.core.drive.base.presentation.effect.ListEffect
+import me.proton.core.drive.drivelink.domain.entity.DriveLink
 import me.proton.core.drive.link.domain.entity.FileId
 import me.proton.core.drive.link.domain.entity.FolderId
 import me.proton.core.drive.link.domain.entity.LinkId
@@ -76,11 +76,11 @@ fun PhotosScreen(
     navigateToPhotosUpsell: () -> Unit,
     navigateToBackupSettings: () -> Unit,
     navigateToNotificationPermissionRationale: () -> Unit,
-    navigateToBlackFridayPromo: () -> Unit,
 ) {
     val viewModel = hiltViewModel<PhotosViewModel>()
-    val viewState by rememberFlowWithLifecycle(flow = viewModel.viewState)
-        .collectAsState(initial = viewModel.initialViewState)
+    val viewState by viewModel.viewState.collectAsStateWithLifecycle(
+        initialValue = viewModel.initialViewState
+    )
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val viewEvent = remember(lifecycle) {
         viewModel.viewEvent(
@@ -91,7 +91,6 @@ fun PhotosScreen(
             navigateToPhotosIssues = navigateToPhotosIssues,
             navigateToPhotosUpsell = navigateToPhotosUpsell,
             navigateToBackupSettings = navigateToBackupSettings,
-            navigateToBlackFridayPromo = navigateToBlackFridayPromo,
             lifecycle = lifecycle,
         )
     }
@@ -142,8 +141,9 @@ fun PhotosScreen(
     getFastScrollAnchors: suspend (List<PhotosItem>, Int, Int) -> List<FastScrollAnchor>,
     modifier: Modifier = Modifier,
 ) {
-    val selectedPhotos by rememberFlowWithLifecycle(flow = viewState.selected)
-        .collectAsState(initial = emptySet())
+    val selectedPhotos by viewState.selected.collectAsStateWithLifecycle(
+        initialValue = emptySet()
+    )
     val inMultiselect = remember(selectedPhotos) { selectedPhotos.isNotEmpty() }
 
     BackHandler(enabled = inMultiselect) { viewEvent.onBack() }

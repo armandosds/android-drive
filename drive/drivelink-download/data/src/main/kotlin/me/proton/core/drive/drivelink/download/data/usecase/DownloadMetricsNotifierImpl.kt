@@ -23,12 +23,11 @@ import me.proton.core.drive.base.domain.extension.toResult
 import me.proton.core.drive.base.domain.log.LogTag
 import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.util.coRunCatching
+import me.proton.core.drive.drivelink.domain.usecase.UseSdkForDownload
 import me.proton.core.drive.drivelink.download.data.extension.toDownloadErrorType
 import me.proton.core.drive.drivelink.download.domain.usecase.DownloadMetricsNotifier
 import me.proton.core.drive.drivelink.download.domain.usecase.GetNumberOfDownloadFileRetries
-import me.proton.core.drive.feature.flag.domain.usecase.IsDownloadManagerEnabled
 import me.proton.core.drive.link.domain.entity.FileId
-import me.proton.core.drive.link.domain.extension.userId
 import me.proton.core.drive.observability.data.extension.toShareType
 import me.proton.core.drive.observability.domain.metrics.DownloadErrorsTotal
 import me.proton.core.drive.observability.domain.metrics.DownloadSuccessRateTotal
@@ -38,13 +37,14 @@ import me.proton.core.drive.observability.domain.metrics.common.ShareType
 import me.proton.core.drive.observability.domain.usecase.EnqueueObservabilityEvent
 import me.proton.core.drive.share.domain.entity.Share
 import me.proton.core.drive.share.domain.usecase.GetShare
+import me.proton.core.util.kotlin.CoreLogger
 import javax.inject.Inject
 
 class DownloadMetricsNotifierImpl @Inject constructor(
     private val enqueueObservabilityEvent: EnqueueObservabilityEvent,
     private val getShare: GetShare,
-    private val isDownloadManagerEnabled: IsDownloadManagerEnabled,
     private val getNumberOfDownloadFileRetries: GetNumberOfDownloadFileRetries,
+    private val useSdkForDownload: UseSdkForDownload,
 ) : DownloadMetricsNotifier {
 
     override suspend fun invoke(
@@ -53,6 +53,14 @@ class DownloadMetricsNotifierImpl @Inject constructor(
         throwable: Throwable?,
         excludedErrorTypes: Set<DownloadErrorsTotal.Type>,
     ) {
+        val downloadedBySdk = useSdkForDownload(fileId).getOrDefault(false)
+        if (downloadedBySdk) {
+            CoreLogger.d(
+                tag = fileId.logTag,
+                message = "Skipping download metrics notification for file downloaded by SDK",
+            )
+            return
+        }
         require((isSuccess && throwable == null) || !isSuccess) {
             "When isSuccess is true, throwable must be null"
         }
@@ -86,15 +94,10 @@ class DownloadMetricsNotifierImpl @Inject constructor(
         share: Share,
         isSuccess: Boolean,
     ) {
-        val isReattempted = if (isDownloadManagerEnabled(fileId.userId)) {
-            getNumberOfDownloadFileRetries(share.volumeId, fileId)
+        val isReattempted = getNumberOfDownloadFileRetries(share.volumeId, fileId)
                 .getOrNull(fileId.logTag)
                 ?.let { retries -> retries > 0 }
                 ?: false
-
-        } else {
-            false
-        }
         coRunCatching { share.type.toShareType() }
             .getOrNull(fileId.logTag, "Converting share type failed")
             ?.let { shareType ->

@@ -18,6 +18,4 @@
   -->
 <resources>
   <string name="whats_new_title">Újdonságok</string>
-  <string name="whats_new_albums_title">Megérkeztek a fotóalbumok!</string>
-  <string name="whats_new_albums_description">Rendszerezze emlékeit az új album funkcióval. Szűrés videók, kedvencek és egyebek szerint – mind ugyanazzal a végpontok közti titkosítással, amelyben megbízik.</string>
 </resources>

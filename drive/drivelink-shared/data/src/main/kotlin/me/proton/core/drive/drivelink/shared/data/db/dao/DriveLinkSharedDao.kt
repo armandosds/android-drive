@@ -26,7 +26,7 @@ import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.drivelink.data.db.dao.DriveLinkDao
 import me.proton.core.drive.drivelink.data.db.entity.DriveLinkEntity
 import me.proton.core.drive.link.data.db.LinkDao
-import me.proton.core.drive.linkdownload.data.db.LinkDownloadDao
+import me.proton.core.drive.linkdownload.data.db.dao.LinkDownloadDao
 import me.proton.core.drive.linkoffline.data.db.LinkOfflineDao
 import me.proton.core.drive.linktrash.data.db.dao.LinkTrashDao
 import me.proton.core.drive.share.data.db.ShareMembershipDao

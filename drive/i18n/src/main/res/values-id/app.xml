@@ -47,6 +47,7 @@
   <string name="folder_option_take_a_photo">Ambil foto baru</string>
   <string name="folder_option_create_document">Buat dokumen</string>
   <string name="folder_option_create_spreadsheet">Buat spreadsheet</string>
+  <string name="folder_option_import_folder">Upload a folder</string>
   <string name="settings_theme_system_default">Bawaan sistem</string>
   <string name="settings_theme_dark">Gelap</string>
   <string name="settings_theme_light">Terang</string>

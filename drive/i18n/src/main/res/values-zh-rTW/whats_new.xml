@@ -18,6 +18,4 @@
   -->
 <resources>
   <string name="whats_new_title">最新消息</string>
-  <string name="whats_new_albums_title">相簿功能上線了！</string>
-  <string name="whats_new_albums_description">使用我們全新的相簿功能整理您的回憶。依影片、最愛等篩選，全都採用您所信任的端對端加密技術。</string>
 </resources>

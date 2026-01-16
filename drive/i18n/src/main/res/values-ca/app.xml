@@ -47,6 +47,7 @@
   <string name="folder_option_take_a_photo">Feu una nova foto</string>
   <string name="folder_option_create_document">Crea un document</string>
   <string name="folder_option_create_spreadsheet">Crea un full de càlcul</string>
+  <string name="folder_option_import_folder">Carrega una carpeta</string>
   <string name="settings_theme_system_default">Valors per defecte del sistema</string>
   <string name="settings_theme_dark">Fosc</string>
   <string name="settings_theme_light">Clar</string>

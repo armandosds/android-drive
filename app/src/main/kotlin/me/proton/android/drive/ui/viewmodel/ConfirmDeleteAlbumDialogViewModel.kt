@@ -43,8 +43,8 @@ import me.proton.android.drive.photos.presentation.viewstate.ConfirmDeleteAlbumV
 import me.proton.android.drive.photos.presentation.viewstate.ConfirmDeleteAlbumWithChildrenViewState
 import me.proton.core.domain.arch.mapSuccessValueOrNull
 import me.proton.core.drive.base.data.extension.detailsOrNull
-import me.proton.core.drive.base.data.workmanager.onProtonHttpException
 import me.proton.core.drive.base.domain.api.ProtonApiCode
+import me.proton.core.drive.base.domain.extension.onProtonHttpException
 import me.proton.core.drive.base.domain.log.LogTag.VIEW_MODEL
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.usecase.BroadcastMessages

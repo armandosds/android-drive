@@ -47,6 +47,7 @@
   <string name="folder_option_take_a_photo">Ta et nytt bilde</string>
   <string name="folder_option_create_document">Opprett dokument</string>
   <string name="folder_option_create_spreadsheet">Opprett regneark</string>
+  <string name="folder_option_import_folder">Last opp en mappe</string>
   <string name="settings_theme_system_default">Systemstandard</string>
   <string name="settings_theme_dark">Mørk</string>
   <string name="settings_theme_light">Lys</string>

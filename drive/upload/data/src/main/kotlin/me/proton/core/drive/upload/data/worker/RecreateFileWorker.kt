@@ -35,7 +35,6 @@ import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.base.data.workmanager.addTags
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.usecase.BroadcastMessages
-import me.proton.core.drive.feature.flag.domain.usecase.RefreshFeatureFlags
 import me.proton.core.drive.linkupload.domain.entity.UploadFileLink
 import me.proton.core.drive.linkupload.domain.usecase.GetUploadFileLink
 import me.proton.core.drive.linkupload.domain.usecase.UpdateName
@@ -60,7 +59,6 @@ class RecreateFileWorker @AssistedInject constructor(
     uploadErrorManager: UploadErrorManager,
     private val recreateFile: RecreateFile,
     updateName: UpdateName,
-    refreshFeatureFlags: RefreshFeatureFlags,
     configurationProvider: ConfigurationProvider,
     uploadMetricsNotifier: UploadMetricsNotifier,
     canRun: CanRun,
@@ -74,7 +72,6 @@ class RecreateFileWorker @AssistedInject constructor(
     getUploadFileLink = getUploadFileLink,
     uploadErrorManager = uploadErrorManager,
     updateName = updateName,
-    refreshFeatureFlags = refreshFeatureFlags,
     configurationProvider = configurationProvider,
     uploadMetricsNotifier = uploadMetricsNotifier,
     canRun = canRun,
@@ -86,7 +83,6 @@ class RecreateFileWorker @AssistedInject constructor(
         uploadFileLink.logWorkState("recreating file")
         recreateFile(uploadFileLink)
             .onFailure { error ->
-                error.handleFeatureDisabled()
                 return uploadFileLink.retryOrAbort(
                     retryable = error.isRetryable || error.handle(uploadFileLink),
                     canRetry = canRetry(),

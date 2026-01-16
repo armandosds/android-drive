@@ -75,4 +75,24 @@
     <item quantity="other">%1$d elementi</item>
   </plurals>
   <string name="files_upload_verification_failed">Caricamento non riuscito: Verifica dei dati non riuscita</string>
+  <!--
+        Variable %1$d is a quantity of folders that were created
+        Example:
+            "Created 1 folder"
+            "Created 15 folders"
+    -->
+  <plurals name="folder_upload_created_subfolders">
+    <item quantity="one">Creata %1$d cartella</item>
+    <item quantity="other">Create %1$d cartelle</item>
+  </plurals>
+  <!--
+        Variable %1$d is a quantity of files scheduled for upload
+        Example:
+            "Scheduled 1 file for upload"
+            "Scheduled 102 files for upload"
+    -->
+  <plurals name="folder_upload_scheduled_files_for_upload">
+    <item quantity="one">Pianificato %1$d file per il caricamento</item>
+    <item quantity="other">Pianificati%1$d file per il caricamento</item>
+  </plurals>
 </resources>

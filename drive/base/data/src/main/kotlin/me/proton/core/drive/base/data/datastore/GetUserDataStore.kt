@@ -54,21 +54,25 @@ class GetUserDataStore @Inject constructor(
         private const val DATASTORE_ROOT = "datastore"
         private const val DATASTORE_USER_PREFERENCES_FILE = "user.preferences_pb"
         private const val KEY_MIGRATION_KEY_PACKET_LAST_UPDATE = "migration_key_packet_last_update"
-        private const val KEY_CREATE_DOCUMENT_ACITON_INVOKED = "create_document_action_invoked"
+        private const val KEY_CREATE_DOCUMENT_ACTION_INVOKED = "create_document_action_invoked"
         private const val KEY_NOTIFICATION_PERMISSION_RATIONALE_REJECTED = "notification_permission_rationale_rejected"
         private const val KEY_NEW_ALBUM_NAME = "new_album_name"
         private const val KEY_SUBSCRIPTION_LAST_UPDATE = "subscription_last_update_"
         private const val KEY_PHOTOS_MIGRATION_TAGS_LAST_FINISHED_UPDATE = "key_photos_migration_tags_last_finished_update"
+        private const val KEY_DOWNLOAD_WORK_MANAGER_CANCELLED_ALL = "key_download_work_manager_cancelled_all"
+        private const val KEY_UPLOAD_FOLDER_ACTION_INVOKED = "upload_folder_action_invoked"
     }
 
     data object Keys {
         val migrationKeyPacketLastUpdate get() = longPreferencesKey(KEY_MIGRATION_KEY_PACKET_LAST_UPDATE)
-        val createDocumentActionInvoked get() = booleanPreferencesKey(KEY_CREATE_DOCUMENT_ACITON_INVOKED)
+        val createDocumentActionInvoked get() = booleanPreferencesKey(KEY_CREATE_DOCUMENT_ACTION_INVOKED)
         val notificationPermissionRationaleRejected get() = booleanPreferencesKey(
             KEY_NOTIFICATION_PERMISSION_RATIONALE_REJECTED
         )
         val newAlbumName get() = stringPreferencesKey(KEY_NEW_ALBUM_NAME)
         fun subscriptionLastUpdate(name: String) = longPreferencesKey(KEY_SUBSCRIPTION_LAST_UPDATE + name)
         val photosMigrationTagsLastFinishedUpdate get() = longPreferencesKey(KEY_PHOTOS_MIGRATION_TAGS_LAST_FINISHED_UPDATE)
+        val downloadWorkManagerCancelledAll get() = booleanPreferencesKey(KEY_DOWNLOAD_WORK_MANAGER_CANCELLED_ALL)
+        val uploadFolderActionInvoked get() = booleanPreferencesKey(KEY_UPLOAD_FOLDER_ACTION_INVOKED)
     }
 }

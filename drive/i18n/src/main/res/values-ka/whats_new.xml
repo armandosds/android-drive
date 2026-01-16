@@ -18,6 +18,4 @@
   -->
 <resources>
   <string name="whats_new_title">სიახლეები</string>
-  <string name="whats_new_albums_title">ფოტოალბომები უკვე ხელმისაწვდომია!</string>
-  <string name="whats_new_albums_description">დაალაგეთ მოგონებები ალბომების ახალი ფუნქციით. გაფილტრეთ ვიდეოების, რჩეულებისა და სხვათა მიხედვით — ეს ყველაფერი იმავე ბოლომდე დაშიფვრით, რომელსაც ენდობით.</string>
 </resources>

@@ -39,7 +39,6 @@ import androidx.compose.material.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -85,18 +84,18 @@ import me.proton.core.compose.theme.headlineSmallNorm
 import me.proton.core.compose.theme.headlineSmallUnspecified
 import me.proton.core.drive.base.domain.entity.FastScrollAnchor
 import me.proton.core.drive.base.presentation.component.RepeatOnLifecycleLaunchedEffect
+import me.proton.core.drive.base.presentation.component.Title
 import me.proton.core.drive.base.presentation.component.TopAppBar
 import me.proton.core.drive.base.presentation.component.TopBarActions
 import me.proton.core.drive.base.presentation.effect.ListEffect
 import me.proton.core.drive.drivelink.domain.entity.DriveLink
+import me.proton.core.drive.drivelink.shared.presentation.component.UserInvitationBanner
 import me.proton.core.drive.link.domain.entity.AlbumId
 import me.proton.core.drive.link.domain.entity.FileId
 import me.proton.core.drive.link.domain.entity.FolderId
 import me.proton.core.drive.link.domain.entity.LinkId
-import me.proton.core.drive.link.selection.domain.entity.SelectionId
-import me.proton.core.drive.base.presentation.component.Title
-import me.proton.core.drive.drivelink.shared.presentation.component.UserInvitationBanner
 import me.proton.core.drive.link.domain.entity.PhotoTag
+import me.proton.core.drive.link.selection.domain.entity.SelectionId
 import me.proton.core.drive.i18n.R as I18N
 
 @Composable
@@ -114,7 +113,6 @@ fun PhotosAndAlbumsScreen(
     navigateToCreateNewAlbum: () -> Unit,
     navigateToAlbum: (AlbumId) -> Unit,
     navigateToUserInvitation: (Boolean) -> Unit,
-    navigateToBlackFridayPromo: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val viewModel = hiltViewModel<PhotosAndAlbumsViewModel>()
@@ -146,7 +144,6 @@ fun PhotosAndAlbumsScreen(
                 navigateToPhotosUpsell = navigateToPhotosUpsell,
                 navigateToBackupSettings = navigateToBackupSettings,
                 navigateToNotificationPermissionRationale = navigateToNotificationPermissionRationale,
-                navigateToBlackFridayPromo = navigateToBlackFridayPromo,
                 defaultTitle = defaultTitle,
             )
 
@@ -242,13 +239,13 @@ fun PhotosTab(
     navigateToPhotosUpsell: () -> Unit,
     navigateToBackupSettings: () -> Unit,
     navigateToNotificationPermissionRationale: () -> Unit,
-    navigateToBlackFridayPromo: () -> Unit,
     defaultTitle: @Composable (Modifier) -> Unit,
 ) {
     val viewModel = hiltViewModel<PhotosViewModel>()
-    val viewState by rememberFlowWithLifecycle(flow = viewModel.viewState)
-        .collectAsState(initial = viewModel.initialViewState)
-    val lifecycle = androidx.compose.ui.platform.LocalLifecycleOwner.current.lifecycle
+    val viewState by viewModel.viewState.collectAsStateWithLifecycle(
+        initialValue = viewModel.initialViewState
+    )
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
     val viewEvent = remember(lifecycle) {
         viewModel.viewEvent(
             navigateToPreview = navigateToPhotosPreview,
@@ -258,7 +255,6 @@ fun PhotosTab(
             navigateToPhotosIssues = navigateToPhotosIssues,
             navigateToPhotosUpsell = navigateToPhotosUpsell,
             navigateToBackupSettings = navigateToBackupSettings,
-            navigateToBlackFridayPromo = navigateToBlackFridayPromo,
             lifecycle = lifecycle,
         )
     }
@@ -315,8 +311,9 @@ private fun PhotosTab(
     getFastScrollAnchors: suspend (List<PhotosItem>, Int, Int) -> List<FastScrollAnchor>,
     modifier: Modifier = Modifier,
 ) {
-    val selectedPhotos by rememberFlowWithLifecycle(flow = viewState.selected)
-        .collectAsState(initial = emptySet())
+    val selectedPhotos by viewState.selected.collectAsStateWithLifecycle(
+        initialValue = emptySet()
+    )
     val inMultiselect = remember(selectedPhotos) { selectedPhotos.isNotEmpty() }
 
     BackHandler(enabled = inMultiselect) { viewEvent.onBack() }

@@ -29,5 +29,6 @@ internal enum class BusinessPlan(val planName: String) {
     DRIVE_PROFESSIONAL("drivebiz2024"),
     BUSINESS_SUITE_2022("bundlepro2022"),
     BUSINESS_SUITE_2024("bundlepro2024"),
+    WORKSPACE_PREMIUM("bundlebiz2025"),
     ENTERPRISE("enterprise2022"),
 }

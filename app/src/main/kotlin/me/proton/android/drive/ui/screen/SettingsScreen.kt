@@ -22,21 +22,20 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import me.proton.android.drive.ui.viewmodel.SettingsViewModel
 import me.proton.core.compose.component.ProtonSnackbarHost
 import me.proton.core.compose.component.ProtonSnackbarHostState
 import me.proton.core.compose.component.ProtonSnackbarType
-import me.proton.core.compose.flow.rememberFlowWithLifecycle
 import me.proton.core.drive.settings.presentation.Settings
 
 @Composable
@@ -51,8 +50,9 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
 ) {
     val viewModel = hiltViewModel<SettingsViewModel>()
-    val settingsViewState by rememberFlowWithLifecycle(flow = viewModel.viewState)
-        .collectAsState(initial = null)
+    val settingsViewState by viewModel.viewState.collectAsStateWithLifecycle(
+        initialValue = null
+    )
     val snackbarHostState = remember { ProtonSnackbarHostState() }
 
     LaunchedEffect(key1 = viewModel) {

@@ -30,12 +30,14 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.base.domain.entity.Percentage
+import me.proton.core.drive.base.domain.extension.getOrNull
 import me.proton.core.drive.base.domain.extension.mapWithPrevious
 import me.proton.core.drive.base.domain.extension.toResult
 import me.proton.core.drive.base.domain.log.LogTag
 import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.util.coRunCatching
+import me.proton.core.drive.cryptobase.domain.exception.VerificationException
 import me.proton.core.drive.drivelink.domain.usecase.GetDriveLink
 import me.proton.core.drive.drivelink.download.domain.exception.InvalidBlocksException
 import me.proton.core.drive.file.base.domain.entity.Block
@@ -44,7 +46,9 @@ import me.proton.core.drive.file.base.domain.usecase.GetBlockFile
 import me.proton.core.drive.link.domain.entity.FileId
 import me.proton.core.drive.link.domain.extension.userId
 import me.proton.core.drive.linkdownload.domain.entity.DownloadState
+import me.proton.core.drive.linkdownload.domain.usecase.RemoveSignatureVerificationFailed
 import me.proton.core.drive.linkdownload.domain.usecase.SetDownloadState
+import me.proton.core.drive.linkdownload.domain.usecase.SetSignatureVerificationFailed
 import me.proton.core.drive.thumbnail.domain.usecase.GetThumbnailPermanentFile
 import me.proton.core.drive.volume.domain.entity.VolumeId
 import me.proton.core.util.kotlin.CoreLogger
@@ -62,6 +66,8 @@ class DownloadFileLegacy @Inject constructor(
     private val getDriveLink: GetDriveLink,
     private val decryptDownloadedBlocks: DecryptDownloadedBlocks,
     private val deleteDownloadedBlocks: DeleteDownloadedBlocks,
+    private val setSignatureVerificationFailed: SetSignatureVerificationFailed,
+    private val removeSignatureVerificationFailed: RemoveSignatureVerificationFailed,
 ) {
 
     suspend operator fun invoke(
@@ -75,7 +81,7 @@ class DownloadFileLegacy @Inject constructor(
         val revision = setDownloadingAndGetRevision(fileId, revisionId).getOrThrow()
         getThumbnailPermanentFile(volumeId, driveLink.link, revisionId).getOrThrow()
         val file = moveFileIfExists(fileId).getOrThrow()
-        if (file != null && file.exists()) {
+        if (file.exists()) {
             CoreLogger.d(LogTag.DOWNLOAD, "File already downloaded")
             setDownloadState(driveLink.link, DownloadState.Ready)
             return@coRunCatching
@@ -125,12 +131,28 @@ class DownloadFileLegacy @Inject constructor(
             }
             .getOrThrow()
         CoreLogger.d(LogTag.DOWNLOAD, "Downloaded blocks verification: isSuccessful=$verified")
-        decryptDownloadedBlocks(driveLink).onSuccess {
-            CoreLogger.i(LogTag.DOWNLOAD, "File ${driveLink.id.id.logId()} was successfully decrypted!")
-            deleteDownloadedBlocks(driveLink).getOrThrow()
-        }.onFailure { error ->
-            CoreLogger.e(LogTag.DOWNLOAD, error,"There was an error decrypting file ${driveLink.id.id.logId()}")
-        }.getOrThrow()
+        removeSignatureVerificationFailed(driveLink.id).getOrNull(
+            tag = LogTag.DOWNLOAD,
+            message = "Failed to remove that signature verification failed"
+        )
+        decryptDownloadedBlocks(driveLink, checkSignature = true)
+            .recoverCatching { error ->
+                if (error is VerificationException) {
+                    setSignatureVerificationFailed(driveLink.id).getOrNull(
+                        tag = LogTag.DOWNLOAD,
+                        message = "Failed to set that signature verification failed"
+                    )
+                } else {
+                    throw error
+                }
+            }
+            .onSuccess {
+                CoreLogger.i(LogTag.DOWNLOAD, "File ${driveLink.id.id.logId()} was successfully decrypted!")
+                deleteDownloadedBlocks(driveLink).getOrThrow()
+            }
+            .onFailure { error ->
+                CoreLogger.e(LogTag.DOWNLOAD, error,"There was an error decrypting file ${driveLink.id.id.logId()}")
+            }.getOrThrow()
     }.onFailure { setDownloadState(fileId, DownloadState.Error) }
 
     private suspend fun List<Block>.blocksForDownload(

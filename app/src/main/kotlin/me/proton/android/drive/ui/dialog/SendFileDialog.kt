@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,6 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
@@ -44,12 +44,10 @@ import me.proton.android.drive.ui.viewmodel.SendFileViewModel
 import me.proton.android.drive.ui.viewmodel.ShareState
 import me.proton.core.compose.component.ProtonAlertDialog
 import me.proton.core.compose.component.ProtonAlertDialogButton
-import me.proton.core.compose.flow.rememberFlowWithLifecycle
 import me.proton.core.compose.theme.ProtonDimens.SmallSpacing
 import me.proton.core.compose.theme.ProtonTheme
 import me.proton.core.compose.theme.captionHint
 import me.proton.core.compose.theme.defaultSmallWeak
-import me.proton.core.compose.theme.headline
 import me.proton.core.drive.base.domain.entity.Percentage
 import me.proton.core.drive.base.domain.extension.toPercentString
 import me.proton.core.drive.base.presentation.component.LinearProgressIndicator
@@ -63,8 +61,8 @@ fun SendFileDialog(
     onDismiss: () -> Unit,
 ) {
     val viewModel = hiltViewModel<SendFileViewModel>()
-    val driveLink by rememberFlowWithLifecycle(flow = viewModel.driveLink).collectAsState(initial = null)
-    val downloadState by rememberFlowWithLifecycle(viewModel.downloadState).collectAsState(initial = null)
+    val driveLink by viewModel.driveLink.collectAsStateWithLifecycle(initialValue = null)
+    val downloadState by viewModel.downloadState.collectAsStateWithLifecycle(initialValue = null)
     when (val state = downloadState) {
         is ShareState.Error -> onDismiss()
         is ShareState.Ready -> {
@@ -141,7 +139,7 @@ private fun ProgressDialogStatus(
             progress = null,
         )
         is ShareState.Downloading -> {
-            val progress by rememberFlowWithLifecycle(flow = state.progress).collectAsState(initial = null)
+            val progress by state.progress.collectAsStateWithLifecycle(initialValue = null)
             ProgressDialogStatus(
                 modifier = modifier,
                 state = state,

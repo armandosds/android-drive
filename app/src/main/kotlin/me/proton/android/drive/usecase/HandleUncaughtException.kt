@@ -21,11 +21,14 @@ package me.proton.android.drive.usecase
 import android.database.sqlite.SQLiteDiskIOException
 import android.database.sqlite.SQLiteFullException
 import kotlinx.coroutines.runBlocking
+import me.proton.android.drive.log.DriveLogTag
 import me.proton.core.drive.announce.event.domain.entity.Event
 import me.proton.core.drive.announce.event.domain.usecase.AnnounceEvent
 import me.proton.core.drive.base.domain.usecase.ClearCacheFolder
 import me.proton.core.drive.base.domain.usecase.GetInternalStorageInfo
 import me.proton.core.drive.base.domain.util.coRunCatching
+import me.proton.core.drive.photo.data.db.PhotoDatabase
+import me.proton.core.util.kotlin.CoreLogger
 import java.io.IOException
 import javax.inject.Inject
 
@@ -33,13 +36,37 @@ class HandleUncaughtException @Inject constructor(
     private val getInternalStorageInfo: GetInternalStorageInfo,
     private val clearCacheFolder: ClearCacheFolder,
     private val announceEvent: AnnounceEvent,
+    private val db: PhotoDatabase,
 ) {
 
-    operator fun invoke(error: Throwable): Result<Boolean> = coRunCatching {
+    operator fun invoke(error: Throwable, isFromMainThread: Boolean): Result<Boolean> = coRunCatching {
         val isNoSpaceLeftOnDevice = getInternalStorageInfo().getOrThrow().available.value == 0L
         if (isNoSpaceLeftOnDevice) runBlocking {
             announceEvent(Event.NoSpaceLeftOnDevice)
             clearCacheFolder()
+        }
+        val isCursorWindowError = error.isCursorWindowError
+        val hasGetPhotoListingsDescFlowString = error.stackTraceToString().contains("getPhotoListingsDescFlow")
+        CoreLogger.d(DriveLogTag.CRASH, "HandleUncaughtException isCursorWindowError=$isCursorWindowError, hasGetPhotoListingsDescFlowString=$hasGetPhotoListingsDescFlowString, isFromMainThread=$isFromMainThread")
+        if (error is java.lang.IllegalStateException ||
+            error.cause is java.lang.IllegalStateException
+        ) {
+            val invalidCaptureTimes = runBlocking {
+                db.photoListingDao.getInvalidCaptureTimes()
+            }
+            val message = if (invalidCaptureTimes.isNotEmpty()) {
+                buildString {
+                    append("Invalid capture time found: ")
+                    append(
+                        invalidCaptureTimes.joinToString { (captureTime, type) ->
+                            "(captureTime=$captureTime type=$type)"
+                        }
+                    )
+                }
+            } else {
+                "No invalid capture times found in PhotoListingEntity"
+            }
+            CoreLogger.d(DriveLogTag.CRASH, message)
         }
         when (error) {
             is IOException,
@@ -48,4 +75,8 @@ class HandleUncaughtException @Inject constructor(
             else -> false
         }
     }
+
+    private val Throwable.isCursorWindowError: Boolean get() =
+        this is IllegalStateException && message.orEmpty().contains("from CursorWindow.") ||
+                cause is IllegalStateException && cause?.message.orEmpty().contains("from CursorWindow.")
 }

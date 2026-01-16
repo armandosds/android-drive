@@ -29,6 +29,8 @@ open class ErrorUriResolver : UriResolver {
         block: suspend (InputStream) -> T
     ): T? = error("Not yet implemented")
 
+    override suspend fun inputStream(uriString: String): InputStream? = error("Not yet implemented")
+
     override suspend fun exists(uriString: String): Boolean = error("Not yet implemented")
 
     override suspend fun getName(uriString: String): String? = error("Not yet implemented")

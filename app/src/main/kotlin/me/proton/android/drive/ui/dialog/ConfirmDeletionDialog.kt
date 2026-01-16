@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import me.proton.android.drive.ui.viewmodel.ConfirmDeletionDialogViewModel
 import me.proton.core.compose.flow.rememberFlowWithLifecycle
@@ -38,7 +39,9 @@ fun ConfirmDeletionDialog(
     val viewModel = hiltViewModel<ConfirmDeletionDialogViewModel>()
     val viewEvent = remember(viewModel, onDismiss) { viewModel.viewEvent(onDismiss) }
     val flow = remember(viewModel) { viewModel.viewState }
-    val viewState by rememberFlowWithLifecycle(flow).collectAsState(initial = viewModel.initialViewState)
+    val viewState by flow.collectAsStateWithLifecycle(
+        initialValue = viewModel.initialViewState
+    )
 
     val name = viewState.name ?: return
 

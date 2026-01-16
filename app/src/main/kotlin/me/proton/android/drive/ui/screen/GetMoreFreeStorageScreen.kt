@@ -37,7 +37,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,12 +51,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import me.proton.android.drive.ui.viewmodel.GetMoreFreeStorageViewModel
 import me.proton.android.drive.ui.viewstate.GetMoreFreeStorageViewState
-import me.proton.core.compose.flow.rememberFlowWithLifecycle
 import me.proton.core.compose.theme.ProtonDimens
 import me.proton.core.compose.theme.ProtonDimens.DefaultSpacing
-import me.proton.core.compose.theme.ProtonDimens.ExtraSmallSpacing
 import me.proton.core.compose.theme.ProtonDimens.MediumSpacing
 import me.proton.core.compose.theme.ProtonDimens.SmallSpacing
 import me.proton.core.compose.theme.ProtonTheme
@@ -70,8 +68,8 @@ import me.proton.core.drive.base.presentation.component.TopAppBar
 import me.proton.core.drive.base.presentation.extension.asHumanReadableString
 import me.proton.core.drive.base.presentation.extension.isLandscape
 import me.proton.core.drive.base.presentation.R as BasePresentation
-import me.proton.core.presentation.R as CorePresentation
 import me.proton.core.drive.i18n.R as I18N
+import me.proton.core.presentation.R as CorePresentation
 
 @Composable
 fun GetMoreFreeStorageScreen(
@@ -79,8 +77,8 @@ fun GetMoreFreeStorageScreen(
     navigateBack: () -> Unit,
 ) {
     val viewModel = hiltViewModel<GetMoreFreeStorageViewModel>()
-    val viewState by rememberFlowWithLifecycle(viewModel.viewState).collectAsState(
-        initial = viewModel.initialViewState
+    val viewState by viewModel.viewState.collectAsStateWithLifecycle(
+        initialValue = viewModel.initialViewState
     )
     GetMoreFreeStorage(
         viewState = viewState,

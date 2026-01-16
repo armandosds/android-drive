@@ -25,6 +25,7 @@ import javax.inject.Inject
 class TestBuildConfigFieldsProvider @Inject constructor() : BuildConfigFieldsProvider {
     override val buildConfigFields: BuildConfigFields
         get() = BuildConfigFields(
-            appVersionName = "x.y.z-test"
+            appVersionName = "x.y.z-test",
+            sdkVersionName = "a.b.c-test",
         )
 }

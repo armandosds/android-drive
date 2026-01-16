@@ -83,4 +83,28 @@
     <item quantity="other">%1$d елементів</item>
   </plurals>
   <string name="files_upload_verification_failed">Збій вивантаження: помилка перевірки даних</string>
+  <!--
+        Variable %1$d is a quantity of folders that were created
+        Example:
+            "Created 1 folder"
+            "Created 15 folders"
+    -->
+  <plurals name="folder_upload_created_subfolders">
+    <item quantity="one">Створено %1$d теку</item>
+    <item quantity="few">Створено %1$d теки</item>
+    <item quantity="many">Створено %1$d тек</item>
+    <item quantity="other">Створено %1$d тек</item>
+  </plurals>
+  <!--
+        Variable %1$d is a quantity of files scheduled for upload
+        Example:
+            "Scheduled 1 file for upload"
+            "Scheduled 102 files for upload"
+    -->
+  <plurals name="folder_upload_scheduled_files_for_upload">
+    <item quantity="one">Заплановано %1$d файл для вивантаження</item>
+    <item quantity="few">Заплановано %1$d файли для вивантаження</item>
+    <item quantity="many">Заплановано %1$d файлів для вивантаження</item>
+    <item quantity="other">Заплановано %1$d файлів для вивантаження</item>
+  </plurals>
 </resources>

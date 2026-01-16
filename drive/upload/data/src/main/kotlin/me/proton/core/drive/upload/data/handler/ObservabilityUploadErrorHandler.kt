@@ -42,7 +42,7 @@ import me.proton.core.drive.upload.data.extension.toUploadErrorType
 import me.proton.core.drive.upload.domain.handler.UploadErrorHandler
 import me.proton.core.drive.upload.domain.manager.UploadErrorManager
 import me.proton.core.drive.upload.domain.manager.UploadWorkManager
-import me.proton.core.drive.user.domain.extension.isFree
+import me.proton.core.drive.user.domain.extension.isWithoutProtonSubscription
 import me.proton.core.user.domain.usecase.GetUser
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.minutes
@@ -116,7 +116,11 @@ class ObservabilityUploadErrorHandler @Inject constructor(
     ) {
         if (uploadError.throwable.toUploadErrorType() !in excludedErrorTypes) {
             val user = getUser(uploadError.uploadFileLink.userId, refresh = false)
-            notifyUploadErroringUsersTotalMetric(uploadError, shareType, user.isFree)
+            notifyUploadErroringUsersTotalMetric(
+                uploadError = uploadError,
+                shareType = shareType,
+                isFreeUser = user.isWithoutProtonSubscription,
+            )
         }
     }
 

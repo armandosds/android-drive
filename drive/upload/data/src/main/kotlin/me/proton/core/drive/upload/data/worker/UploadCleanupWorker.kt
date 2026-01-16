@@ -51,6 +51,7 @@ import me.proton.core.drive.upload.data.worker.WorkerKeys.KEY_REASON
 import me.proton.core.drive.upload.data.worker.WorkerKeys.KEY_UPLOAD_FILE_LINK_ID
 import me.proton.core.drive.upload.data.worker.WorkerKeys.KEY_USER_ID
 import me.proton.core.drive.upload.domain.manager.UploadErrorManager
+import me.proton.core.drive.upload.domain.manager.UploadSdkManager
 import me.proton.core.drive.upload.domain.usecase.AnnounceUploadEvent
 import me.proton.core.drive.upload.domain.usecase.GetBlockFolder
 import me.proton.core.drive.upload.domain.usecase.RemoveUploadFile
@@ -78,6 +79,7 @@ class UploadCleanupWorker @AssistedInject constructor(
     private val announceUploadEvent: AnnounceUploadEvent,
     private val networkTypeProviders: @JvmSuppressWildcards Map<NetworkTypeProviderType, NetworkTypeProvider>,
     private val cleanupVerifier: CleanupVerifier,
+    private val uploadSdkManager: UploadSdkManager,
     configurationProvider: ConfigurationProvider,
     uploadMetricsNotifier: UploadMetricsNotifier,
     canRun: CanRun,
@@ -128,6 +130,7 @@ class UploadCleanupWorker @AssistedInject constructor(
                     reason = reason,
                 )
             )
+            uploadSdkManager.cancel(uploadFileLink)
             getBlockFolder(userId, uploadFileLink).getOrNull(
                 tag = uploadFileLink.logTag(),
                 message = "Cannot get block to delete them",

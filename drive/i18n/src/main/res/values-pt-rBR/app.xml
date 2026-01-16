@@ -47,6 +47,7 @@
   <string name="folder_option_take_a_photo">Tirar uma nova foto</string>
   <string name="folder_option_create_document">Criar documento</string>
   <string name="folder_option_create_spreadsheet">Criar planilha</string>
+  <string name="folder_option_import_folder">Enviar uma pasta</string>
   <string name="settings_theme_system_default">Padrão do sistema</string>
   <string name="settings_theme_dark">Escuro</string>
   <string name="settings_theme_light">Claro</string>

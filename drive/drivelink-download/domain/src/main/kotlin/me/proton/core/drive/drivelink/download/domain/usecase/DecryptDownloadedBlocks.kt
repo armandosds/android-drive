@@ -18,16 +18,14 @@
 
 package me.proton.core.drive.drivelink.download.domain.usecase
 
-import me.proton.core.drive.base.domain.log.LogTag
-import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.usecase.GetCacheFolder
 import me.proton.core.drive.base.domain.usecase.GetPermanentFolder
+import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.drivelink.crypto.domain.usecase.DecryptLinkContent
 import me.proton.core.drive.drivelink.domain.entity.DriveLink
 import me.proton.core.drive.drivelink.domain.extension.decryptedFileName
 import me.proton.core.drive.link.domain.extension.userId
 import me.proton.core.drive.linkoffline.domain.usecase.IsLinkOrAnyAncestorMarkedAsOffline
-import me.proton.core.util.kotlin.CoreLogger
 import java.io.File
 import javax.inject.Inject
 
@@ -36,9 +34,11 @@ class DecryptDownloadedBlocks @Inject constructor(
     private val getCacheFolder: GetCacheFolder,
     private val decryptLinkContent: DecryptLinkContent,
     private val isLinkOrAnyAncestorMarkedAsOffline: IsLinkOrAnyAncestorMarkedAsOffline,
-    private val deleteDownloadedBlocks: DeleteDownloadedBlocks,
 ) {
-    suspend operator fun invoke(driveLink: DriveLink.File) = runCatching {
+    suspend operator fun invoke(
+        driveLink: DriveLink.File,
+        checkSignature: Boolean = false,
+    ) = coRunCatching {
         val volumeId = driveLink.volumeId
         val fileId = driveLink.id
         val parentFolder = if (isLinkOrAnyAncestorMarkedAsOffline(fileId)) {
@@ -57,12 +57,6 @@ class DecryptDownloadedBlocks @Inject constructor(
 
         val targetFile = File(parentFolder, driveLink.decryptedFileName)
 
-        decryptLinkContent(driveLink, targetFile, false).getOrThrow()
-
-        CoreLogger.i(
-            LogTag.GET_FILE,
-            "File ${driveLink.id.id.logId()} was successfully decrypted!"
-        )
-        deleteDownloadedBlocks(driveLink).getOrThrow()
+        decryptLinkContent(driveLink, targetFile, checkSignature).getOrThrow()
     }
 }

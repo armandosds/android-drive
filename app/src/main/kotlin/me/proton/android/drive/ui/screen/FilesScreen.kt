@@ -21,20 +21,19 @@ package me.proton.android.drive.ui.screen
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.testTag
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import me.proton.android.drive.ui.effect.HandleHomeEffect
 import me.proton.android.drive.ui.viewmodel.FilesViewModel
 import me.proton.android.drive.ui.viewstate.HomeScaffoldState
-import me.proton.core.compose.flow.rememberFlowWithLifecycle
 import me.proton.core.drive.base.presentation.component.ProtonPullToRefresh
 import me.proton.core.drive.base.presentation.component.TopBarActions
 import me.proton.core.drive.files.presentation.component.DriveLinksFlow
@@ -57,15 +56,16 @@ fun FilesScreen(
     navigateToMultipleFileOrFolderOptions: (selectionId: SelectionId) -> Unit,
     navigateToParentFolderOptions: (folderId: FolderId) -> Unit,
     navigateToSubscription: () -> Unit,
-    navigateToBlackFridayPromo: () -> Unit,
     navigateBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val viewModel = hiltViewModel<FilesViewModel>()
-    val viewState by rememberFlowWithLifecycle(flow = viewModel.viewState)
-        .collectAsState(initial = viewModel.initialViewState)
-    val selected by rememberFlowWithLifecycle(flow = viewState.selected)
-        .collectAsState(initial = null)
+    val viewState by viewModel.viewState.collectAsStateWithLifecycle(
+        initialValue = viewModel.initialViewState
+    )
+    val selected by viewState.selected.collectAsStateWithLifecycle(
+        initialValue = null
+    )
     val inMultiselect = remember(selected) { selected?.isNotEmpty() ?: false }
 
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -78,7 +78,6 @@ fun FilesScreen(
             navigateToMultipleFileOrFolderOptions,
             navigateToParentFolderOptions,
             navigateToSubscription,
-            navigateToBlackFridayPromo,
             navigateBack,
             lifecycle,
         )

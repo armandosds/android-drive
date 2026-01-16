@@ -47,6 +47,7 @@
   <string name="folder_option_take_a_photo">새 사진 촬영</string>
   <string name="folder_option_create_document">문서 생성</string>
   <string name="folder_option_create_spreadsheet">스프레드시트 생성</string>
+  <string name="folder_option_import_folder">폴더 업로드</string>
   <string name="settings_theme_system_default">시스템 기본값</string>
   <string name="settings_theme_dark">다크</string>
   <string name="settings_theme_light">라이트</string>

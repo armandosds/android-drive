@@ -16,20 +16,19 @@
  * along with Proton Drive.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import org.gradle.api.JavaVersion
-import org.gradle.kotlin.dsl.dependencies
-import com.android.build.api.dsl.LibraryExtension
 import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.api.dsl.LibraryExtension
 import com.android.build.gradle.TestedExtension
+import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.artifacts.dsl.DependencyHandler
-import org.gradle.api.plugins.ExtensionAware
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
-import org.jetbrains.kotlin.gradle.dsl.KotlinJvmOptions
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
 import org.jetbrains.kotlin.gradle.plugin.KaptExtension
 import java.io.File
@@ -73,7 +72,6 @@ fun Project.driveModule(
             applicationId = Config.applicationId
             versionCode = versionCodeFromGitCommitCount
             versionName = Config.versionName
-            resourceConfigurations.addAll(Config.resourceConfigurations)
 
             javaCompileOptions {
                 annotationProcessorOptions {
@@ -104,9 +102,7 @@ fun Project.driveModule(
             this.buildConfig = buildConfig
         }
 
-        (this as ExtensionAware).extensions.configure<KotlinJvmOptions>("kotlinOptions") {
-            jvmTarget = JavaVersion.VERSION_17.toString()
-        }
+        configureJvmTarget()
     }
 
     extensions.findByType<LibraryExtension>()?.apply {
@@ -140,9 +136,7 @@ fun Project.driveModule(
             this.buildConfig = buildConfig
         }
 
-        (this as ExtensionAware).extensions.configure<KotlinJvmOptions>("kotlinOptions") {
-            jvmTarget = JavaVersion.VERSION_17.toString()
-        }
+        configureJvmTarget()
     }
 
     extensions.findByType(KaptExtension::class.java)?.let { kaptExt ->
@@ -268,3 +262,11 @@ fun String.countSubstrings(substring: String): Int =
 
 private val Project.fullName: String
     get() = "${parent?.run { if (this == rootProject) null else "$fullName:" } ?: ""}$name"
+
+fun Project.configureJvmTarget(target: JvmTarget = JvmTarget.JVM_17) {
+    extensions.configure<KotlinAndroidProjectExtension> {
+        compilerOptions {
+            jvmTarget.set(target)
+        }
+    }
+}

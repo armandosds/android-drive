@@ -26,20 +26,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.RadioButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import me.proton.android.drive.ui.viewevent.AutoLockDurationsViewEvent
 import me.proton.android.drive.ui.viewmodel.AutoLockDurationsViewModel
 import me.proton.android.drive.ui.viewstate.AutoLockDurationsViewState
 import me.proton.core.compose.component.bottomsheet.BottomSheetContent
 import me.proton.core.compose.component.bottomsheet.RunAction
-import me.proton.core.compose.flow.rememberFlowWithLifecycle
 import me.proton.core.compose.theme.ProtonDimens.DefaultSpacing
 import me.proton.core.drive.settings.presentation.extension.toString
 
@@ -50,8 +48,9 @@ fun AutoLockDurations(
     modifier: Modifier = Modifier,
 ) {
     val viewModel = hiltViewModel<AutoLockDurationsViewModel>()
-    val viewState by rememberFlowWithLifecycle(flow = viewModel.viewState)
-        .collectAsState(initial = viewModel.initialViewState)
+    val viewState by viewModel.viewState.collectAsStateWithLifecycle(
+        initialValue = viewModel.initialViewState
+    )
     AutoLockDurations(
         viewState = viewState,
         viewEvent = viewModel.viewEvent(runAction, dismiss),

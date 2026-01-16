@@ -18,12 +18,12 @@
 package me.proton.core.drive.drivelink.download.domain.usecase
 
 import me.proton.core.domain.entity.UserId
-import me.proton.core.drive.drivelink.download.domain.manager.DownloadWorkManager
+import me.proton.core.drive.drivelink.download.domain.manager.DownloadManager
 import javax.inject.Inject
 
 class CancelAllDownload @Inject constructor(
-    private val downloadWorkManager: DownloadWorkManager
+    private val downloadManager: DownloadManager,
 ) {
     suspend operator fun invoke(userId: UserId) =
-        downloadWorkManager.cancelAll(userId)
+        downloadManager.cancelAll(userId)
 }

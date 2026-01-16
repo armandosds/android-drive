@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Proton AG.
+ * Copyright (c) 2026 Proton AG.
  * This file is part of Proton Core.
  *
  * Proton Core is free software: you can redistribute it and/or modify
@@ -23,9 +23,11 @@ import me.proton.core.drive.link.domain.entity.FileId
 import me.proton.core.drive.photo.data.db.entity.PhotoListingEntity
 import me.proton.core.drive.photo.domain.entity.PhotoListing
 import me.proton.core.drive.share.domain.entity.ShareId
+import me.proton.core.drive.volume.domain.entity.VolumeId
 
 fun PhotoListingEntity.toPhotoListing() =
     PhotoListing.Volume(
+        volumeId = VolumeId(volumeId),
         linkId = FileId(ShareId(userId, shareId), linkId),
         captureTime = TimestampS(captureTime),
         nameHash = hash,

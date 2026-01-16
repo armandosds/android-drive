@@ -22,9 +22,11 @@ import kotlinx.coroutines.flow.first
 import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.base.domain.entity.TimestampS
 import me.proton.core.drive.base.domain.util.coRunCatching
+import me.proton.core.drive.feature.flag.domain.entity.FeatureFlagId.Companion.driveAndroidUploadFolder
 import me.proton.core.drive.feature.flag.domain.entity.FeatureFlagId.Companion.driveAndroidWhatsNew
 import me.proton.core.drive.feature.flag.domain.extension.on
 import me.proton.core.drive.feature.flag.domain.usecase.GetFeatureFlagFlow
+import me.proton.drive.android.settings.domain.entity.HomeTab
 import me.proton.drive.android.settings.domain.entity.WhatsNewKey
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -35,14 +37,16 @@ class ShouldShowWhatsNew @Inject constructor(
     private val getFeatureFlagFlow: GetFeatureFlagFlow,
 ) {
 
-    suspend operator fun invoke(userId: UserId): Result<WhatsNewKey?> = coRunCatching {
+    suspend operator fun invoke(userId: UserId, currentHomeTab: HomeTab?): Result<WhatsNewKey?> = coRunCatching {
         if (getFeatureFlagFlow(
                 featureFlagId = driveAndroidWhatsNew(userId),
                 emitNotFoundInitially = false,
             ).first().on
         ) {
             when {
-                canShow(WhatsNewKey.ALBUMS) && albumsOn(userId) -> WhatsNewKey.ALBUMS
+                canShow(WhatsNewKey.UPLOAD_FOLDER) &&
+                        isApplicable(WhatsNewKey.UPLOAD_FOLDER, currentHomeTab) &&
+                        uploadFolderOn(userId) -> WhatsNewKey.UPLOAD_FOLDER
                 else -> null
             }
         } else {
@@ -53,5 +57,12 @@ class ShouldShowWhatsNew @Inject constructor(
     private suspend fun ShouldShowWhatsNew.canShow(key: WhatsNewKey) =
         TimestampS() < key.limit && wasWhatsNewShown(key).getOrThrow().not()
 
-    private suspend fun albumsOn(userId: UserId): Boolean = true
+    private fun ShouldShowWhatsNew.isApplicable(key: WhatsNewKey, currentHomeTab: HomeTab?) = currentHomeTab?.let {
+        key.applicableHomeTabs.contains(currentHomeTab)
+    } ?: true
+
+    private suspend fun uploadFolderOn(userId: UserId): Boolean = getFeatureFlagFlow(
+        featureFlagId = driveAndroidUploadFolder(userId),
+        emitNotFoundInitially = false,
+    ).first().on
 }

@@ -83,4 +83,28 @@
     <item quantity="other">%1$d элементаў</item>
   </plurals>
   <string name="files_upload_verification_failed">Збой запампоўвання: даныя не прайшлі спраўджанне</string>
+  <!--
+        Variable %1$d is a quantity of folders that were created
+        Example:
+            "Created 1 folder"
+            "Created 15 folders"
+    -->
+  <plurals name="folder_upload_created_subfolders">
+    <item quantity="one">Створана %1$d папка</item>
+    <item quantity="few">Створана %1$d папкі</item>
+    <item quantity="many">Створана %1$d папак</item>
+    <item quantity="other">Створана %1$d папак</item>
+  </plurals>
+  <!--
+        Variable %1$d is a quantity of files scheduled for upload
+        Example:
+            "Scheduled 1 file for upload"
+            "Scheduled 102 files for upload"
+    -->
+  <plurals name="folder_upload_scheduled_files_for_upload">
+    <item quantity="one">Запланаваны %1$d файл для запампоўвання</item>
+    <item quantity="few">Запланаваны %1$d файлы для запампоўвання</item>
+    <item quantity="many">Запланаваны %1$d файлаў для запампоўвання</item>
+    <item quantity="other">Запланаваны %1$d файлаў для запампоўвання</item>
+  </plurals>
 </resources>

@@ -24,7 +24,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -32,25 +31,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import me.proton.android.drive.ui.effect.HandleHomeEffect
 import me.proton.android.drive.ui.viewevent.ComputersViewEvent
 import me.proton.android.drive.ui.viewmodel.ComputersViewModel
 import me.proton.android.drive.ui.viewstate.ComputersViewState
 import me.proton.android.drive.ui.viewstate.HomeScaffoldState
-import me.proton.core.compose.flow.rememberFlowWithLifecycle
 import me.proton.core.drive.base.presentation.component.ProtonPullToRefresh
 import me.proton.core.drive.base.presentation.extension.conditional
 import me.proton.core.drive.base.presentation.extension.onContent
 import me.proton.core.drive.base.presentation.extension.onEmpty
 import me.proton.core.drive.base.presentation.extension.onError
 import me.proton.core.drive.base.presentation.extension.onLoading
+import me.proton.core.drive.base.presentation.state.ListContentState
 import me.proton.core.drive.device.domain.entity.Device
 import me.proton.core.drive.device.domain.entity.DeviceId
 import me.proton.core.drive.drivelink.device.presentation.component.DevicesContent
 import me.proton.core.drive.drivelink.device.presentation.component.DevicesEmpty
 import me.proton.core.drive.drivelink.device.presentation.component.DevicesError
 import me.proton.core.drive.drivelink.device.presentation.component.DevicesLoading
-import me.proton.core.drive.base.presentation.state.ListContentState
 import me.proton.core.drive.link.domain.entity.FolderId
 import me.proton.core.drive.base.presentation.component.TopAppBar as BaseTopAppBar
 
@@ -62,15 +61,16 @@ fun ComputersScreen(
     modifier: Modifier = Modifier,
 ) {
     val viewModel = hiltViewModel<ComputersViewModel>()
-    val viewState by rememberFlowWithLifecycle(flow = viewModel.viewState)
-        .collectAsState(initial = viewModel.initialViewState)
+    val viewState by viewModel.viewState.collectAsStateWithLifecycle(
+        initialValue = viewModel.initialViewState
+    )
     val viewEvent = remember {
         viewModel.viewEvent(
             navigateToSyncedFolders,
             navigateToComputerOptions,
         )
     }
-    val devices by rememberFlowWithLifecycle(viewModel.devices).collectAsState(initial = null)
+    val devices by viewModel.devices.collectAsStateWithLifecycle(initialValue = null)
     viewModel.HandleHomeEffect(homeScaffoldState)
     Computers(
         homeScaffoldState = homeScaffoldState,

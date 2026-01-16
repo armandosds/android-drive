@@ -30,6 +30,7 @@ import me.proton.android.drive.usecase.MarkWhatsNewAsShown
 import me.proton.core.drive.base.domain.extension.flowOf
 import me.proton.core.drive.base.domain.extension.getOrNull
 import me.proton.core.drive.base.domain.log.LogTag.VIEW_MODEL
+import me.proton.core.drive.base.presentation.common.getThemeDrawableId
 import me.proton.core.drive.base.presentation.viewevent.WhatsNewViewEvent
 import me.proton.core.drive.base.presentation.viewmodel.UserViewModel
 import me.proton.core.drive.base.presentation.viewstate.WhatsNewViewState
@@ -49,11 +50,11 @@ class WhatsNewViewModel @Inject constructor(
 
     val viewState: Flow<WhatsNewViewState?> = flowOf {
         when (key) {
-            WhatsNewKey.ALBUMS -> WhatsNewViewState(
-                title = appContext.getString(I18N.string.whats_new_albums_title),
-                description = appContext.getString(I18N.string.whats_new_albums_description),
-                action = appContext.getString(I18N.string.whats_new_albums_action),
-                image = BasePresentation.drawable.img_whats_new_albums,
+            WhatsNewKey.UPLOAD_FOLDER -> WhatsNewViewState(
+                title = appContext.getString(I18N.string.whats_new_upload_folder_title),
+                description = appContext.getString(I18N.string.whats_new_upload_folder_description),
+                action = appContext.getString(I18N.string.whats_new_upload_folder_action),
+                image = uploadFolderImageResId,
             )
             else -> null
         }
@@ -72,6 +73,12 @@ class WhatsNewViewModel @Inject constructor(
                 .getOrNull(VIEW_MODEL, "Marking whats new as shown failed for: $key")
         }
     }
+
+    private val uploadFolderImageResId: Int get() = getThemeDrawableId(
+        light = BasePresentation.drawable.img_whats_new_upload_folder_light,
+        dark = BasePresentation.drawable.img_whats_new_upload_folder_dark,
+        dayNight = BasePresentation.drawable.img_whats_new_upload_folder_daynight,
+    )
 
     companion object {
         const val KEY = "key"

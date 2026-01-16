@@ -26,10 +26,13 @@ import me.proton.core.drive.base.domain.function.pagedList
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.file.base.domain.entity.Block
 import me.proton.core.drive.link.domain.entity.AlbumId
+import me.proton.core.drive.link.domain.entity.FileId
 import me.proton.core.drive.link.domain.entity.FolderId
 import me.proton.core.drive.link.domain.entity.LinkId
 import me.proton.core.drive.link.domain.extension.userId
-import me.proton.core.drive.linkdownload.data.db.LinkDownloadDao
+import me.proton.core.drive.linkdownload.data.db.LinkDownloadDatabase
+import me.proton.core.drive.linkdownload.data.db.dao.LinkDownloadDao
+import me.proton.core.drive.linkdownload.data.db.entity.LinkDownloadFileSignatureVerificationFailedEntity
 import me.proton.core.drive.linkdownload.data.db.entity.LinkDownloadState
 import me.proton.core.drive.linkdownload.data.extension.toDownloadBlock
 import me.proton.core.drive.linkdownload.data.extension.toDownloadState
@@ -37,14 +40,14 @@ import me.proton.core.drive.linkdownload.domain.entity.DownloadState
 import me.proton.core.drive.linkdownload.domain.repository.LinkDownloadRepository
 
 class LinkDownloadRepositoryImpl(
-    private val db: LinkDownloadDao,
+    private val db: LinkDownloadDatabase,
     private val configurationProvider: ConfigurationProvider,
 ) : LinkDownloadRepository {
 
     override fun getDownloadStateFlow(
         linkId: LinkId,
         revisionId: String,
-    ): Flow<DataResult<DownloadState?>> = db.getDownloadStateFlow(
+    ): Flow<DataResult<DownloadState?>> = db.linkDownloadDao.getDownloadStateFlow(
         userId = linkId.userId,
         shareId = linkId.shareId.id,
         linkId = linkId.id,
@@ -57,7 +60,7 @@ class LinkDownloadRepositoryImpl(
         linkId: LinkId,
         revisionId: String,
     ): List<Block> = pagedList(configurationProvider.dbPageSize) { fromIndex, count ->
-        db.getDownloadBlocks(
+        db.linkDownloadDao.getDownloadBlocks(
             userId = linkId.userId,
             shareId = linkId.shareId.id,
             linkId = linkId.id,
@@ -74,7 +77,7 @@ class LinkDownloadRepositoryImpl(
         revisionId: String,
         downloadState: DownloadState,
         blocks: List<Block>?,
-    ) = db.insertOrUpdate(
+    ) = db.linkDownloadDao.insertOrUpdate(
         userId = linkId.userId,
         shareId = linkId.shareId.id,
         linkId = linkId.id,
@@ -84,7 +87,7 @@ class LinkDownloadRepositoryImpl(
     )
 
     override suspend fun removeDownloadState(linkId: LinkId, revisionId: String) =
-        db.delete(
+        db.linkDownloadDao.delete(
             userId = linkId.userId,
             shareId = linkId.shareId.id,
             linkId = linkId.id,
@@ -95,7 +98,7 @@ class LinkDownloadRepositoryImpl(
         folderId: FolderId,
         excludeMimeTypes: Set<String>,
     ): Boolean = pagedList(configurationProvider.dbPageSize) { fromIndex, count ->
-        db.getAllChildrenStates(
+        db.linkDownloadDao.getAllChildrenStates(
             userId = folderId.userId,
             shareId = folderId.shareId.id,
             folderId = folderId.id,
@@ -108,7 +111,7 @@ class LinkDownloadRepositoryImpl(
     override suspend fun areAllAlbumPhotosDownloaded(
         albumId: AlbumId,
     ): Boolean = pagedList(configurationProvider.dbPageSize) { fromIndex, count ->
-        db.getAllAlbumChildrenStates(
+        db.linkDownloadDao.getAllAlbumChildrenStates(
             userId = albumId.userId,
             albumId = albumId.id,
             limit = count,
@@ -118,5 +121,30 @@ class LinkDownloadRepositoryImpl(
 
     private val downloadedStates = listOf(LinkDownloadState.DOWNLOADED, LinkDownloadState.READY)
 
-    override fun getDownloadingCountFlow(userId: UserId) = db.getDownloadingCountFlow(userId)
+    override fun getDownloadingCountFlow(userId: UserId) = db.linkDownloadDao.getDownloadingCountFlow(userId)
+
+    override suspend fun hasSignatureVerificationFailed(fileId: FileId): Boolean =
+        db.linkDownloadFileSignatureVerificationFailedDao.hasFileSignatureVerificationFailed(
+            userId = fileId.userId,
+            shareId = fileId.shareId.id,
+            fileId = fileId.id,
+        )
+
+    override suspend fun removeSignatureVerificationFailed(fileId: FileId) =
+        db.linkDownloadFileSignatureVerificationFailedDao.delete(
+            LinkDownloadFileSignatureVerificationFailedEntity(
+                userId = fileId.userId,
+                shareId = fileId.shareId.id,
+                linkId = fileId.id,
+            )
+        )
+
+    override suspend fun setSignatureVerificationFailed(fileId: FileId) =
+        db.linkDownloadFileSignatureVerificationFailedDao.insertOrIgnore(
+            LinkDownloadFileSignatureVerificationFailedEntity(
+                userId = fileId.userId,
+                shareId = fileId.shareId.id,
+                linkId = fileId.id,
+            )
+        )
 }

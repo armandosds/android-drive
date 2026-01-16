@@ -25,18 +25,11 @@ import me.proton.core.drive.base.presentation.R as BasePresentation
 import me.proton.core.drive.i18n.R as I18N
 
 class GetSubscriptionAction @Inject constructor() {
-    operator fun invoke(isBlackFridayPromoEnabled: Boolean, onAction: () -> Unit) = Action.Image(
-        imageResId = getSubscriptionActionImageResId(isBlackFridayPromoEnabled),
+    operator fun invoke(onAction: () -> Unit) = Action.Image(
+        imageResId = subscriptionActionImageResId,
         contentDescriptionResId = I18N.string.content_description_subscription_action,
         onAction = onAction,
     )
-
-    private fun getSubscriptionActionImageResId(isBlackFridayPromoEnabled: Boolean): Int =
-        if (isBlackFridayPromoEnabled) {
-            BasePresentation.drawable.drive_subscription_badge_bf2025
-        } else {
-            subscriptionActionImageResId
-        }
 
     private val subscriptionActionImageResId: Int get() = getThemeDrawableId(
         light = BasePresentation.drawable.drive_subscription_badge_light,

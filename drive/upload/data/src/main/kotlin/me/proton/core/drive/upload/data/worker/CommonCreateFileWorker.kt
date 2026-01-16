@@ -22,14 +22,12 @@ import android.content.Context
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import me.proton.core.drive.base.data.workmanager.onProtonHttpException
 import me.proton.core.drive.base.domain.api.ProtonApiCode
 import me.proton.core.drive.base.domain.extension.avoidDuplicateFileName
+import me.proton.core.drive.base.domain.extension.onProtonHttpException
 import me.proton.core.drive.base.domain.extension.trimForbiddenChars
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.usecase.BroadcastMessages
-import me.proton.core.drive.feature.flag.domain.repository.FeatureFlagRepository
-import me.proton.core.drive.feature.flag.domain.usecase.RefreshFeatureFlags
 import me.proton.core.drive.linkupload.domain.entity.UploadFileLink
 import me.proton.core.drive.linkupload.domain.usecase.GetUploadFileLink
 import me.proton.core.drive.linkupload.domain.usecase.UpdateName
@@ -48,7 +46,6 @@ abstract class CommonCreateFileWorker(
     getUploadFileLink: GetUploadFileLink,
     uploadErrorManager: UploadErrorManager,
     private val updateName: UpdateName,
-    private val refreshFeatureFlags: RefreshFeatureFlags,
     configurationProvider: ConfigurationProvider,
     uploadMetricsNotifier: UploadMetricsNotifier,
     canRun: CanRun,
@@ -81,14 +78,4 @@ abstract class CommonCreateFileWorker(
                 false
             }
         } ?: false
-
-    /**
-     * TODO: this should be handled in Core for any response
-     */
-    protected suspend fun Throwable.handleFeatureDisabled() =
-        onProtonHttpException { protonData ->
-            if (protonData.code == ProtonApiCode.FEATURE_DISABLED) {
-                refreshFeatureFlags(userId, FeatureFlagRepository.RefreshId.ApiErrorFeatureDisabled).getOrNull()
-            }
-        }
 }

@@ -18,6 +18,4 @@
   -->
 <resources>
   <string name="whats_new_title">새로운 소식</string>
-  <string name="whats_new_albums_title">사진 앨범을 만나보세요!</string>
-  <string name="whats_new_albums_description">새로운 앨범 기능으로 추억을 정리해 보세요. 동영상, 즐겨찾기 등으로 필터링할 수 있고, 이미 회원님께서 신뢰하시는 기존과 동일한 종단 간 암호화가 적용된답니다.</string>
 </resources>

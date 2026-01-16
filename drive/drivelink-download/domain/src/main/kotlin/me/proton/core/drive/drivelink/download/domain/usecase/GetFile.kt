@@ -29,23 +29,23 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 import me.proton.core.domain.arch.DataResult
 import me.proton.core.drive.base.domain.entity.Percentage
+import me.proton.core.drive.base.domain.extension.getOrNull
 import me.proton.core.drive.base.domain.extension.toResult
 import me.proton.core.drive.base.domain.log.LogTag
 import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.usecase.GetCacheFolder
 import me.proton.core.drive.base.domain.usecase.GetPermanentFolder
 import me.proton.core.drive.base.domain.usecase.isConnectedToNetwork
-import me.proton.core.drive.crypto.domain.usecase.base.UseSessionKey
-import me.proton.core.drive.cryptobase.domain.exception.VerificationException
+import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.drivelink.domain.entity.DriveLink
 import me.proton.core.drive.drivelink.domain.extension.decryptedFileName
 import me.proton.core.drive.drivelink.domain.usecase.GetDriveLink
-import me.proton.core.drive.feature.flag.domain.usecase.IsDownloadManagerEnabled
-import me.proton.core.drive.key.domain.usecase.GetContentKey
+import me.proton.core.drive.file.base.domain.extension.toXAttr
 import me.proton.core.drive.link.domain.entity.FileId
 import me.proton.core.drive.link.domain.extension.userId
 import me.proton.core.drive.linkdownload.domain.entity.DownloadState
 import me.proton.core.drive.linkdownload.domain.usecase.GetDownloadState
+import me.proton.core.drive.linkdownload.domain.usecase.HasSignatureVerificationFailed
 import me.proton.core.drive.linkdownload.domain.usecase.RemoveDownloadState
 import me.proton.core.drive.linkoffline.domain.usecase.IsLinkOrAnyAncestorMarkedAsOffline
 import me.proton.core.util.kotlin.CoreLogger
@@ -63,10 +63,8 @@ class GetFile @Inject constructor(
     private val isConnectedToNetwork: isConnectedToNetwork,
     private val verifyDownloadedState: VerifyDownloadedState,
     private val removeDownloadState: RemoveDownloadState,
-    private val isDownloadManagerEnabled: IsDownloadManagerEnabled,
-    private val useSessionKey: UseSessionKey,
-    private val getContentKey: GetContentKey,
     private val isLinkOrAnyAncestorMarkedAsOffline: IsLinkOrAnyAncestorMarkedAsOffline,
+    private val hasSignatureVerificationFailed: HasSignatureVerificationFailed,
 ) {
     operator fun invoke(
         driveLink: DriveLink.File,
@@ -83,7 +81,10 @@ class GetFile @Inject constructor(
             ),
             driveLink.decryptedFileName,
         )
-        if (cacheFile.exists() && cacheFile.length() != 0L) {
+
+        val cacheFileValid = driveLink.checkFile(cacheFile)
+            .getOrNull(LogTag.GET_FILE, "Cannot check file: ${driveLink.id.id.logId()}")
+        if (cacheFileValid == true) {
             CoreLogger.d(LogTag.GET_FILE, "Cache file for ${driveLink.id.id.logId()} already exists!")
             emit(State.Ready(Uri.fromFile(cacheFile), driveLink.id))
             return@flow
@@ -97,7 +98,10 @@ class GetFile @Inject constructor(
             ),
             driveLink.decryptedFileName,
         )
-        if (permanentFile.exists() && permanentFile.length() != 0L) {
+
+        val permanentFileValid = driveLink.checkFile(permanentFile)
+            .getOrNull(LogTag.GET_FILE, "Cannot check file: ${driveLink.id.id.logId()}")
+        if (permanentFileValid == true) {
             CoreLogger.d(LogTag.GET_FILE, "Permanent file for ${driveLink.id.id.logId()} already exists!")
             emit(State.Ready(Uri.fromFile(permanentFile), driveLink.id))
             return@flow
@@ -124,30 +128,23 @@ class GetFile @Inject constructor(
             return@flow emit(State.Error.Downloading(e))
         }
         CoreLogger.i(LogTag.GET_FILE, "File ${driveLink.id.id.logId()} is downloaded!")
-        useSessionKey(getContentKey(driveLink.link).getOrThrow(), checkSignature) {
-            // do nothing
-        }.onFailure { error ->
-            CoreLogger.e(LogTag.GET_FILE, error,"There was an error decrypting file ${driveLink.id.id.logId()}")
-            when (error) {
-                is VerificationException -> emit(State.Error.VerifyingSignature(error))
-                else -> emit(State.Error.Decrypting(error))
-            }
-        }.onSuccess {
-            val parentFolder = if (isLinkOrAnyAncestorMarkedAsOffline(driveLink.id)) {
-                getPermanentFolder(
-                    userId = driveLink.userId,
-                    volumeId = driveLink.volumeId.id,
-                    revisionId = driveLink.activeRevisionId,
-                )
-            } else {
-                getCacheFolder(
-                    userId = driveLink.userId,
-                    volumeId = driveLink.volumeId.id,
-                    revisionId = driveLink.activeRevisionId,
-                )
-            }
-
-            val targetFile = File(parentFolder, driveLink.decryptedFileName)
+        val parentFolder = if (isLinkOrAnyAncestorMarkedAsOffline(driveLink.id)) {
+            getPermanentFolder(
+                userId = driveLink.userId,
+                volumeId = driveLink.volumeId.id,
+                revisionId = driveLink.activeRevisionId,
+            )
+        } else {
+            getCacheFolder(
+                userId = driveLink.userId,
+                volumeId = driveLink.volumeId.id,
+                revisionId = driveLink.activeRevisionId,
+            )
+        }
+        val targetFile = File(parentFolder, driveLink.decryptedFileName)
+        if (checkSignature && hasSignatureVerificationFailed(driveLink.id).getOrDefault(false)) {
+            emit(State.Error.VerifyingSignature(RuntimeException("Throwable is not available")))
+        } else {
             emit(State.Ready(Uri.fromFile(targetFile), driveLink.id))
         }
     }.flowOn(Dispatchers.IO)
@@ -202,12 +199,38 @@ class GetFile @Inject constructor(
 
     private suspend fun FlowCollector<State>.emitDownloading(fileId: FileId): Boolean =
         getDownloadProgress(
-            getDriveLink(fileId).toResult().getOrThrow(),
-            isDownloadManagerEnabled(fileId.userId),
+            getDriveLink(fileId).toResult().getOrThrow()
         )?.let { progress ->
             emit(State.Downloading(progress))
             true
         } ?: false
+
+    private fun DriveLink.File.checkFile(file: File) : Result<Boolean> = coRunCatching {
+        if (!file.exists()) {
+            return@coRunCatching false
+        }
+        val xAttr = cryptoXAttr.value?.toXAttr()?.getOrNull()
+        val fileSize = xAttr?.common?.size
+
+        if (fileSize == null) {
+            CoreLogger.w(
+                LogTag.GET_FILE,
+                "Cannot found real size for ${this.id.id.logId()}"
+            )
+            return@coRunCatching file.length() != 0L
+        }
+        val delta = fileSize - file.length()
+        if (delta != 0L) {
+            CoreLogger.w(
+                LogTag.GET_FILE,
+                "Unexpected size of existing file for ${this.id.id.logId()}, delta=${delta}"
+            )
+            file.delete()
+            false
+        } else {
+            true
+        }
+    }
 
     sealed class State {
         data class Downloading(val progress: Flow<Percentage>) : State()

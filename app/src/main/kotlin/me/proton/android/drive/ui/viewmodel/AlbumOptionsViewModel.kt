@@ -52,7 +52,6 @@ import me.proton.core.drive.feature.flag.domain.entity.FeatureFlag
 import me.proton.core.drive.feature.flag.domain.entity.FeatureFlag.State.NOT_FOUND
 import me.proton.core.drive.feature.flag.domain.entity.FeatureFlagId.Companion.driveSharingDevelopment
 import me.proton.core.drive.feature.flag.domain.usecase.GetFeatureFlagFlow
-import me.proton.core.drive.feature.flag.domain.usecase.IsDownloadManagerEnabled
 import me.proton.core.drive.files.presentation.entry.FileOptionEntry
 import me.proton.core.drive.link.domain.entity.AlbumId
 import me.proton.core.drive.link.domain.entity.LinkId
@@ -65,7 +64,6 @@ class AlbumOptionsViewModel @Inject constructor(
     getDriveLink: GetDecryptedDriveLink,
     getFeatureFlagFlow: GetFeatureFlagFlow,
     private val toggleOffline: ToggleOffline,
-    private val isDownloadManagerEnabled: IsDownloadManagerEnabled,
 ) : ViewModel(), UserViewModel by UserViewModel(savedStateHandle) {
     private val albumId = AlbumId(
         shareId = ShareId(userId, savedStateHandle.require(KEY_SHARE_ID)),
@@ -113,7 +111,6 @@ class AlbumOptionsViewModel @Inject constructor(
             .filterShareMember(driveLink.isShareMember)
             .filterPermissions(driveLink.sharePermissions ?: Permissions.owner)
             .filterRoot(driveLink, sharingDevelopment)
-            .filterOffline(isDownloadManagerEnabled(userId))
             .map { option ->
                 when (option) {
                     is Option.OfflineToggle -> option.build(runAction) { driveLink ->
@@ -137,15 +134,6 @@ class AlbumOptionsViewModel @Inject constructor(
             }.also {
                 this.dismiss = dismiss
             }
-    }
-
-    private fun Iterable<Option>.filterOffline(
-        isEnabled: Boolean,
-    ) = filter { option ->
-        when (option) {
-            Option.OfflineToggle -> isEnabled
-            else -> true
-        }
     }
 
     companion object {

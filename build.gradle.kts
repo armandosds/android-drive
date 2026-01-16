@@ -69,6 +69,12 @@ allprojects {
     }
 }
 
+subprojects {
+    configurations.all {
+        exclude(group = "me.proton.crypto", module = "android-golib")
+    }
+}
+
 tasks.register("clean", Delete::class) {
     delete(rootProject.buildDir)
 }

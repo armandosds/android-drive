@@ -39,9 +39,3 @@ fun WorkInfo.getLong(key: String, defaultValue: Long = 0) =
             outputData.getLong(key, defaultValue)
         }
     }
-
-//TODO: remove this as we have it in domain
-inline fun <T> Throwable.onProtonHttpException(block: (protonData: ApiResult.Error.ProtonData) -> T): T? =
-    ((this as? ApiException)?.error as? ApiResult.Error.Http)?.proton?.let { protonData ->
-        block(protonData)
-    }

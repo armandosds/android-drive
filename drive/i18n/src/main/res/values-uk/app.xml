@@ -47,6 +47,7 @@
   <string name="folder_option_take_a_photo">Зробити нове фото</string>
   <string name="folder_option_create_document">Створити документ</string>
   <string name="folder_option_create_spreadsheet">Створити електронну таблицю</string>
+  <string name="folder_option_import_folder">Вивантажити теку</string>
   <string name="settings_theme_system_default">Системна</string>
   <string name="settings_theme_dark">Темна</string>
   <string name="settings_theme_light">Світла</string>

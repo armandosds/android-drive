@@ -47,6 +47,7 @@
   <string name="folder_option_take_a_photo">Posnemi novo fotografijo</string>
   <string name="folder_option_create_document">Ustvari dokument</string>
   <string name="folder_option_create_spreadsheet">Ustvari razpredelnico</string>
+  <string name="folder_option_import_folder">Upload a folder</string>
   <string name="settings_theme_system_default">Sistemsko privzeto</string>
   <string name="settings_theme_dark">Temna</string>
   <string name="settings_theme_light">Svetla</string>

@@ -100,10 +100,7 @@ buildCache {
     }
 }
 
-includeCoreBuild {
-    branch.set("main")
-    includeBuild("gopenpgp")
-}
+includeCoreBuild {}
 
 val driveSdkPath = extra.properties["me.proton.drive.sdk.path"] as String?
 if (driveSdkPath != null) {

@@ -71,4 +71,22 @@
     <item quantity="other">%1$d개 항목</item>
   </plurals>
   <string name="files_upload_verification_failed">업로드 실패: 데이터 검증 실패</string>
+  <!--
+        Variable %1$d is a quantity of folders that were created
+        Example:
+            "Created 1 folder"
+            "Created 15 folders"
+    -->
+  <plurals name="folder_upload_created_subfolders">
+    <item quantity="other">%1$d개 폴더가 생성되었습니다</item>
+  </plurals>
+  <!--
+        Variable %1$d is a quantity of files scheduled for upload
+        Example:
+            "Scheduled 1 file for upload"
+            "Scheduled 102 files for upload"
+    -->
+  <plurals name="folder_upload_scheduled_files_for_upload">
+    <item quantity="other">%1$d개 파일 업로드 예정됨</item>
+  </plurals>
 </resources>

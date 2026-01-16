@@ -21,7 +21,9 @@ package me.proton.core.drive.upload.data.worker
 import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.BackoffPolicy
+import androidx.work.Constraints
 import androidx.work.Data
+import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import androidx.work.WorkRequest
@@ -64,7 +66,6 @@ class UploadFileSdkWorker @AssistedInject constructor(
     private val uploadFileSdk: UploadFileSdk,
     configurationProvider: ConfigurationProvider,
     uploadMetricsNotifier: UploadMetricsNotifier,
-    private val cleanupWorkers: CleanupWorkers,
     canRun: CanRun,
     run: Run,
     done: Done,
@@ -96,12 +97,11 @@ class UploadFileSdkWorker @AssistedInject constructor(
                     retryable = error.isRetryable,
                     canRetry = canRetry(),
                     error = error,
-                    message = "Uploading via SDK failed",
+                    message = "Uploading via SDK failed"
                 )
             },
             onSuccess = {
                 CoreLogger.i(uploadFileLink.logTag(), "success! $it")
-                workManager.enqueue(cleanupWorkers(userId, uploadFileLink, tags.toList()))
                 Result.success(getSizeData(uploadFileLink.size?.value ?: 0))
             }
         )
@@ -112,6 +112,7 @@ class UploadFileSdkWorker @AssistedInject constructor(
             userId: UserId,
             uploadFileLinkId: Long,
             uriString: String,
+            networkType: NetworkType,
             tags: List<String> = emptyList(),
         ): OneTimeWorkRequest =
             OneTimeWorkRequest.Builder(UploadFileSdkWorker::class.java)
@@ -120,6 +121,11 @@ class UploadFileSdkWorker @AssistedInject constructor(
                         .putString(KEY_USER_ID, userId.id)
                         .putLong(KEY_UPLOAD_FILE_LINK_ID, uploadFileLinkId)
                         .putString(KEY_URI_STRING, uriString)
+                        .build()
+                )
+                .setConstraints(
+                    Constraints.Builder()
+                        .setRequiredNetworkType(networkType)
                         .build()
                 )
                 .setBackoffCriteria(

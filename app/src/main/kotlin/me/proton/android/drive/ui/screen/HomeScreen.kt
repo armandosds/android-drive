@@ -110,7 +110,6 @@ fun HomeScreen(
     navigateToCreateNewAlbum: () -> Unit,
     navigateToAlbum: (AlbumId) -> Unit,
     navigateToSubscriptionPromo: (String) -> Unit,
-    navigateToBlackFridayPromo: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     setLocalSnackbarPadding(BottomNavigationHeight)
@@ -145,7 +144,6 @@ fun HomeScreen(
             navigateToWhatsNew = navigateToWhatsNew,
             navigateToRatingBooster = navigateToRatingBooster,
             navigateToSubscriptionPromo = navigateToSubscriptionPromo,
-            navigateToBlackFridayPromo = navigateToBlackFridayPromo,
         )
     }
     viewState?.let { currentViewState ->
@@ -170,7 +168,6 @@ fun HomeScreen(
             navigateToUserInvitation = navigateToUserInvitation,
             navigateToCreateNewAlbum = navigateToCreateNewAlbum,
             navigateToAlbum = navigateToAlbum,
-            navigateToBlackFridayPromo = navigateToBlackFridayPromo,
             arguments = arguments,
             viewState = currentViewState,
             viewEvent = viewEvent,
@@ -178,10 +175,10 @@ fun HomeScreen(
                 .navigationBarsPadding()
                 .testTag(HomeScreenTestTag.screen),
         )
+        RunOnFirstLifecycleStateLaunchedEffect {
+            viewEvent.onFirstLaunch(currentViewState.selectedTab)
+        }
     } ?: DeferredCircularProgressIndicator(modifier)
-    RunOnFirstLifecycleStateLaunchedEffect {
-        viewEvent.onFirstLaunch()
-    }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -213,7 +210,6 @@ internal fun Home(
     navigateToUserInvitation: (Boolean) -> Unit,
     navigateToCreateNewAlbum: () -> Unit,
     navigateToAlbum: (AlbumId) -> Unit,
-    navigateToBlackFridayPromo: () -> Unit,
 ) {
     val homeScaffoldState = rememberHomeScaffoldState()
     val isDrawerOpen = with(homeScaffoldState.scaffoldState.drawerState) {
@@ -313,7 +309,6 @@ internal fun Home(
                     navigateToUserInvitation,
                     navigateToCreateNewAlbum,
                     navigateToAlbum,
-                    navigateToBlackFridayPromo,
                 )
             }
         }

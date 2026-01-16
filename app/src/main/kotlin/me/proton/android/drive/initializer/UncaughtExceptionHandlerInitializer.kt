@@ -19,6 +19,7 @@
 package me.proton.android.drive.initializer
 
 import android.content.Context
+import android.os.Looper
 import androidx.startup.Initializer
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -56,11 +57,16 @@ class UncaughtExceptionHandlerInitializer : Initializer<Unit> {
     ) : Thread.UncaughtExceptionHandler {
 
         override fun uncaughtException(thread: Thread, error: Throwable) {
-            val isExceptionHandled = handleUncaughtException(error).getOrNull() ?: false
+            val isExceptionHandled = handleUncaughtException(
+                error = error,
+                isFromMainThread = thread.isMainThread,
+            ).getOrNull() ?: false
             if (!isExceptionHandled) {
                 CoreLogger.e(DriveLogTag.CRASH, error)
                 defaultHandler?.uncaughtException(thread, error)
             }
         }
+
+        private val Thread.isMainThread: Boolean get() = this.id == Looper.getMainLooper().thread.id
     }
 }

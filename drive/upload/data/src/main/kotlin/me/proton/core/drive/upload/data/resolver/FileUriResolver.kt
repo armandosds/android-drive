@@ -38,10 +38,11 @@ class FileUriResolver(
     override val schemes: Set<String> get() = setOf(SCHEME_FILE)
 
     override suspend fun <T> useInputStream(uriString: String, block: suspend (InputStream) -> T): T? =
-        uri(uriString)
-            .file
-            ?.inputStream()
-            ?.use { fileInputStream -> block(fileInputStream) }
+       inputStream(uriString)?.use { fileInputStream -> block(fileInputStream) }
+
+    override suspend fun inputStream(
+        uriString: String,
+    ): InputStream? = uri(uriString).file?.inputStream()
 
     override suspend fun exists(uriString: String): Boolean = coRunCatching(coroutineContext) {
         uri(uriString).file?.exists() ?: false

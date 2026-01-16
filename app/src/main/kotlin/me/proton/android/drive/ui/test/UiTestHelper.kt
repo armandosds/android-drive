@@ -39,7 +39,7 @@ class UiTestHelper @Inject constructor(
     }
 
     suspend fun doNotShowWhatsNewAfterLogin() {
-        appUiSettingsDataStore.WhatsNew(WhatsNewKey.ALBUMS.name).shown = 1L
+        appUiSettingsDataStore.WhatsNew(WhatsNewKey.UPLOAD_FOLDER.name).shown = 1L
     }
 
     suspend fun doNotShowRatingBoosterAfterLogin() {

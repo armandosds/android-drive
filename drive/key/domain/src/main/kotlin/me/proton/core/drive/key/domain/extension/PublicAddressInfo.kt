@@ -37,3 +37,7 @@ fun PublicAddressInfo.primaryPublicKey(
 } else {
     error("No primary key found: keys(${address.keys.size})")
 }
+
+fun PublicAddressInfo.publicKeys(
+    unverified: Boolean = false
+): List<PublicAddressKey> = address.keys + this.unverified?.takeIf { unverified }?.keys.orEmpty()

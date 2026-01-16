@@ -20,13 +20,12 @@ package me.proton.android.drive.ui.dialog
 
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import me.proton.android.drive.ui.viewmodel.ComputerOptionsViewModel
-import me.proton.core.compose.flow.rememberFlowWithLifecycle
 import me.proton.core.drive.base.presentation.component.RunAction
 import me.proton.core.drive.device.domain.entity.Device
 import me.proton.core.drive.device.domain.entity.DeviceId
@@ -41,7 +40,9 @@ fun ComputerOptions(
     modifier: Modifier = Modifier,
 ) {
     val viewModel = hiltViewModel<ComputerOptionsViewModel>()
-    val viewModelDevice by rememberFlowWithLifecycle(viewModel.device).collectAsState(initial = null)
+    val viewModelDevice by viewModel.device.collectAsStateWithLifecycle(
+        initialValue = null
+    )
     viewModelDevice?.let { device ->
         val entries = viewModel.entries(
             runAction,

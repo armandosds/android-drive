@@ -35,6 +35,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.transform
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.base.data.entity.LoggerLevel.ERROR
@@ -88,7 +90,7 @@ import kotlin.coroutines.cancellation.CancellationException
 
 @Singleton
 class DownloadManagerImpl @Inject constructor(
-    @ApplicationContext private val appContext: Context,
+    @param:ApplicationContext private val appContext: Context,
     private val pipelineManager: PipelineManager<DownloadFileTask>,
     private val downloadFileRepository: DownloadFileRepository,
     private val downloadParentLinkRepository: DownloadParentLinkRepository,
@@ -109,7 +111,10 @@ class DownloadManagerImpl @Inject constructor(
 ) : DownloadManager, DownloadManager.FileDownloader, PipelineManager.TaskProvider<DownloadFileTask> {
     private var userId: UserId? = null
     private val runningTasks = MutableStateFlow(emptySet<DownloadFileTask>())
+    private val cancelingFiles = MutableStateFlow(emptySet<Pair<VolumeId, FileId>>())
     private val currentNetworkTypes: MutableStateFlow<Set<NetworkType>> = MutableStateFlow(emptySet())
+    private val awaitingCancelCompletion: MutableList<DownloadInfo> = mutableListOf()
+    private val mutex = Mutex()
 
     override suspend fun start(
         userId: UserId,
@@ -124,6 +129,7 @@ class DownloadManagerImpl @Inject constructor(
         observeIdleFiles(userId, coroutineContext)
         observeParents(userId, coroutineContext)
         observeNetworkTypes(userId, coroutineContext)
+        observeCancelingFiles(coroutineContext)
     }
 
     override suspend fun stop(userId: UserId): Result<Unit> = coRunCatching {
@@ -138,52 +144,37 @@ class DownloadManagerImpl @Inject constructor(
         priority: Long,
         retryable: Boolean,
         networkType: NetworkType,
-    ) {
-        CoreLogger.d(LogTag.DOWNLOAD, "download(driveLinkId=${driveLink.id.id.logId()}, priority=$priority, retryable=$retryable, networkType=$networkType)")
-        when (driveLink) {
-            is DriveLink.File -> downloadFile(
-                volumeId = driveLink.volumeId,
-                fileId = driveLink.id,
-                revisionId = driveLink.activeRevisionId,
-                priority = priority,
-                retryable = retryable,
-                networkType = networkType,
+    ) = mutex.withLock {
+        CoreLogger.d(
+            LogTag.DOWNLOAD,
+            "download(driveLinkId=${driveLink.id.id.logId()}, priority=$priority, retryable=$retryable, networkType=$networkType)"
+        )
+        if (driveLink.isCanceling) {
+            CoreLogger.d(
+                LogTag.DOWNLOAD,
+                "Link ${driveLink.id.id.logId()} is currently canceling, it should be re-downloaded once cancel is complete"
             )
-            is DriveLink.Folder -> downloadFolder(
-                volumeId = driveLink.volumeId,
-                parentLink = driveLink.link,
-                priority = priority,
-                retryable = retryable,
-                networkType = networkType,
+            awaitingCancelCompletion.add(
+                DownloadInfo(
+                    driveLink = driveLink,
+                    priority = priority,
+                    retryable = retryable,
+                    networkType = networkType,
+                )
             )
-            is DriveLink.Album -> downloadAlbum(
-                volumeId = driveLink.volumeId,
-                albumId = driveLink.id,
+        } else {
+            driveLink.download(
                 priority = priority,
                 retryable = retryable,
                 networkType = networkType,
             )
         }
-        startFileDownloaderWorker(driveLink.userId)
+        Unit
     }
 
     override suspend fun cancel(driveLink: DriveLink) {
         CoreLogger.d(LogTag.DOWNLOAD, "cancel(driveLinkId=${driveLink.id.id.logId()})")
-        when (driveLink) {
-            is DriveLink.File -> cancelFileDownload(
-                volumeId = driveLink.volumeId,
-                fileId = driveLink.id,
-                revisionId = driveLink.activeRevisionId,
-            ).getOrNull(driveLink.id.logTag, "Failed to cancel file download")
-            is DriveLink.Folder -> cancelFolderDownload(
-                volumeId = driveLink.volumeId,
-                parentLink = driveLink.link,
-            )
-            is DriveLink.Album -> cancelAlbumDownload(
-                volumeId = driveLink.volumeId,
-                albumId = driveLink.id,
-            )
-        }
+        driveLink.cancelDownload()
     }
 
     override suspend fun cancelAll(userId: UserId) {
@@ -272,6 +263,38 @@ class DownloadManagerImpl @Inject constructor(
             downloadFileCleanup(task.downloadFileLink.volumeId, task.downloadFileLink.fileId)
             downloadFileRepository.delete(task.downloadFileLink.id)
         }
+    }
+
+    @JvmName("downloadDriveLink")
+    private suspend fun DriveLink.download(
+        priority: Long,
+        retryable: Boolean,
+        networkType: NetworkType,
+    ) = when (this) {
+            is DriveLink.File -> downloadFile(
+                volumeId = volumeId,
+                fileId = id,
+                revisionId = activeRevisionId,
+                priority = priority,
+                retryable = retryable,
+                networkType = networkType,
+            )
+            is DriveLink.Folder -> downloadFolder(
+                volumeId = volumeId,
+                parentLink = link,
+                priority = priority,
+                retryable = retryable,
+                networkType = networkType,
+            )
+            is DriveLink.Album -> downloadAlbum(
+                volumeId = volumeId,
+                albumId = id,
+                priority = priority,
+                retryable = retryable,
+                networkType = networkType,
+            )
+    }.also {
+        startFileDownloaderWorker(userId)
     }
 
     private suspend fun downloadFile(
@@ -402,16 +425,33 @@ class DownloadManagerImpl @Inject constructor(
             }
     }
 
+    private suspend fun DriveLink.cancelDownload() = when (this) {
+        is DriveLink.File -> cancelFileDownload(
+            volumeId = volumeId,
+            fileId = id,
+            revisionId = activeRevisionId,
+        ).getOrNull(id.logTag, "Failed to cancel file download")
+        is DriveLink.Folder -> cancelFolderDownload(
+            volumeId = volumeId,
+            parentLink = link,
+        )
+        is DriveLink.Album -> cancelAlbumDownload(
+            volumeId = volumeId,
+            albumId = id,
+        )
+    }
+
+    private val DriveLink.isCanceling: Boolean get() =
+        cancelingFiles.value.any { (volumeId, fileId) ->
+            this.id is FileId && this.id == fileId && this.volumeId == volumeId
+        }
+
     private suspend fun cancelFileDownload(
         volumeId: VolumeId,
         fileId: FileId,
         revisionId: String,
-    ) = cancelFileDownload(
-        volumeId = volumeId,
-        fileId = fileId,
-        shouldCleanup = true,
-    ) {
-        downloadFileRepository.delete(
+    ) = mutex.withLock {
+        cancelFileDownloadInternal(
             volumeId = volumeId,
             fileId = fileId,
             revisionId = revisionId,
@@ -423,7 +463,37 @@ class DownloadManagerImpl @Inject constructor(
         fileId: FileId,
         downloadFileId: Long,
         isCancelledByStop: Boolean,
-    ) = cancelFileDownload(
+    ) = mutex.withLock {
+        cancelFileDownloadInternal(
+            volumeId = volumeId,
+            fileId = fileId,
+            downloadFileId = downloadFileId,
+            isCancelledByStop = isCancelledByStop,
+        )
+    }
+
+    private suspend fun cancelFileDownloadInternal(
+        volumeId: VolumeId,
+        fileId: FileId,
+        revisionId: String,
+    ) = cancelFileDownloadInternal(
+        volumeId = volumeId,
+        fileId = fileId,
+        shouldCleanup = true,
+    ) {
+        downloadFileRepository.delete(
+            volumeId = volumeId,
+            fileId = fileId,
+            revisionId = revisionId,
+        )
+    }
+
+    private suspend fun cancelFileDownloadInternal(
+        volumeId: VolumeId,
+        fileId: FileId,
+        downloadFileId: Long,
+        isCancelledByStop: Boolean,
+    ) = cancelFileDownloadInternal(
         volumeId = volumeId,
         fileId = fileId,
         shouldCleanup = isCancelledByStop,
@@ -431,13 +501,14 @@ class DownloadManagerImpl @Inject constructor(
         downloadFileRepository.delete(downloadFileId)
     }
 
-    private suspend fun cancelFileDownload(
+    private suspend fun cancelFileDownloadInternal(
         volumeId: VolumeId,
         fileId: FileId,
         shouldCleanup: Boolean,
         deleteFromRepository: suspend () -> Unit,
     ) = coRunCatching(NonCancellable) {
         runningTasks.value.firstOrNull(fileId)?.let { task ->
+            cancelingFiles.value += volumeId to fileId
             CoreLogger.d(fileId.logTag, "Stopping file download task")
             pipelineManager.stopPipeline(task.pipelineId)
             return@coRunCatching
@@ -446,6 +517,7 @@ class DownloadManagerImpl @Inject constructor(
             downloadFileCleanup(volumeId, fileId)
         }
         deleteFromRepository()
+        cancelingFiles.value -= volumeId to fileId
     }
 
     private suspend fun downloadFileCleanup(
@@ -469,59 +541,63 @@ class DownloadManagerImpl @Inject constructor(
         volumeId: VolumeId,
         parentLink: Link.Folder,
     ) = coRunCatching {
-        downloadCleanup(volumeId, parentLink.id)
-        downloadParentLinkRepository.delete(volumeId, parentLink.id)
-        getDescendants(parentLink, false).onFailure { error ->
-            if (error is OutOfMemoryError) {
-                System.gc()
-            }
-            error.log(LogTag.DOWNLOAD, "Failed to get descendants", ERROR)
-        }.getOrNull()
-            ?.filterNot { link -> link.isProtonCloudFile }
-            ?.let { links ->
-                links
-                    .filter { link -> isMarkedAsOffline(link.id).not() }
-                    .forEach { link ->
+        mutex.withLock {
+            downloadCleanup(volumeId, parentLink.id)
+            downloadParentLinkRepository.delete(volumeId, parentLink.id)
+            getDescendants(parentLink, false).onFailure { error ->
+                if (error is OutOfMemoryError) {
+                    System.gc()
+                }
+                error.log(LogTag.DOWNLOAD, "Failed to get descendants", ERROR)
+            }.getOrNull()
+                ?.filterNot { link -> link.isProtonCloudFile }
+                ?.let { links ->
+                    links
+                        .filter { link -> isMarkedAsOffline(link.id).not() }
+                        .forEach { link ->
 
-                        when (link) {
-                            is Link.File -> getDriveLink(link.id).toResult().getOrNull(LogTag.DOWNLOAD)
-                                ?.let { driveLink ->
-                                    cancelFileDownload(
-                                        volumeId = volumeId,
-                                        fileId = link.id,
-                                        revisionId = driveLink.activeRevisionId,
-                                    )
+                            when (link) {
+                                is Link.File -> getDriveLink(link.id).toResult().getOrNull(LogTag.DOWNLOAD)
+                                    ?.let { driveLink ->
+                                        cancelFileDownloadInternal(
+                                            volumeId = volumeId,
+                                            fileId = link.id,
+                                            revisionId = driveLink.activeRevisionId,
+                                        )
+                                    }
+                                is Link.Folder -> let {
+                                    downloadCleanup(volumeId, link.id)
+                                    downloadParentLinkRepository.delete(volumeId, link.id)
                                 }
-                            is Link.Folder -> let {
-                                downloadCleanup(volumeId, link.id)
-                                downloadParentLinkRepository.delete(volumeId, link.id)
+                                else -> error("Unexpected link type: $link")
                             }
-                            else -> error("Unexpected link type: $link")
                         }
-                    }
-            }
+                }
+        }
     }
 
     private suspend fun cancelAlbumDownload(
         volumeId: VolumeId,
         albumId: AlbumId,
     ) = coRunCatching {
-        downloadCleanup(volumeId, albumId)
-        downloadParentLinkRepository.delete(volumeId, albumId)
-        getAllAlbumChildren(
-            volumeId = volumeId,
-            albumId = albumId,
-            refresh = false,
-        ).getOrNull(LogTag.DOWNLOAD)
-            ?.forEach { fileId ->
-                getDriveLink(fileId).toResult().getOrNull(fileId.logTag)?.let { driveLink ->
-                    cancelFileDownload(
-                        volumeId = driveLink.volumeId,
-                        fileId = fileId,
-                        revisionId = driveLink.activeRevisionId,
-                    )
+        mutex.withLock {
+            downloadCleanup(volumeId, albumId)
+            downloadParentLinkRepository.delete(volumeId, albumId)
+            getAllAlbumChildren(
+                volumeId = volumeId,
+                albumId = albumId,
+                refresh = false,
+            ).getOrNull(LogTag.DOWNLOAD)
+                ?.forEach { fileId ->
+                    getDriveLink(fileId).toResult().getOrNull(fileId.logTag)?.let { driveLink ->
+                        cancelFileDownloadInternal(
+                            volumeId = driveLink.volumeId,
+                            fileId = fileId,
+                            revisionId = driveLink.activeRevisionId,
+                        )
+                    }
                 }
-            }
+        }
     }
 
     private suspend fun removeDownloadedParents(userId: UserId) {
@@ -619,6 +695,57 @@ class DownloadManagerImpl @Inject constructor(
             .launchIn(CoroutineScope(coroutineContext))
     }
 
+    private fun observeCancelingFiles(coroutineContext: CoroutineContext) {
+        cancelingFiles
+            .onEach { cancelingFiles ->
+                CoreLogger.d(
+                    tag = LogTag.DOWNLOAD,
+                    message = buildString {
+                        append("Observing canceling files ")
+                        append(cancelingFiles.joinToString { (_, fileId) -> fileId.id.logId() })
+                    }
+                )
+                val downloadInfos = mutex.withLock {
+                    val snapshot = awaitingCancelCompletion
+                        .filterNot { (driveLink, _, _, _) ->
+                            cancelingFiles.contains(driveLink.volumeId to driveLink.id)
+                        }
+                    awaitingCancelCompletion.removeAll(snapshot)
+                    CoreLogger.d(
+                        tag = LogTag.DOWNLOAD,
+                        message = buildString {
+                            append("Observing awaiting cancel completion ")
+                            append(
+                                awaitingCancelCompletion.joinToString { info ->
+                                    info.driveLink.id.id.logId()
+                                }
+                            )
+                        },
+                    )
+                    snapshot
+                }
+                downloadInfos
+                    .forEach { downloadInfo ->
+                        val driveLink = downloadInfo.driveLink
+                        CoreLogger.d(
+                            tag = LogTag.DOWNLOAD,
+                            message = buildString {
+                                append("re-download(driveLinkId=${driveLink.id.id.logId()}, ")
+                                append("priority=${downloadInfo.priority}, ")
+                                append("retryable=${downloadInfo.retryable}, ")
+                                append("networkType=${downloadInfo.networkType})")
+                            }
+                        )
+                        driveLink.download(
+                            priority = downloadInfo.priority,
+                            retryable = downloadInfo.retryable,
+                            networkType = downloadInfo.networkType,
+                        )
+                }
+            }
+            .launchIn(CoroutineScope(coroutineContext))
+    }
+
     class DownloadFileTask(
         val pipelineId: Long,
         val downloadFileLink: DownloadFileLink,
@@ -635,4 +762,11 @@ class DownloadManagerImpl @Inject constructor(
             ).getOrThrow()
         }
     }
+
+    private data class DownloadInfo(
+        val driveLink: DriveLink,
+        val priority: Long,
+        val retryable: Boolean,
+        val networkType: NetworkType,
+    )
 }

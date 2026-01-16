@@ -42,7 +42,7 @@ abstract class TaggedPhotoListingDao : BaseDao<TaggedPhotoListingEntity>() {
     )
     abstract fun getPhotoListingCount(userId: UserId, volumeId: String, tag: Long): Flow<Int>
 
-    suspend fun getPhotoListings(
+    suspend fun getPhotoListingWithFileProperties(
         userId: UserId,
         volumeId: String,
         tag: Long,
@@ -50,12 +50,43 @@ abstract class TaggedPhotoListingDao : BaseDao<TaggedPhotoListingEntity>() {
         limit: Int,
         offset: Int,
     ): List<TaggedPhotoListingWithFileProperties> = when(direction) {
+        Direction.ASCENDING -> getPhotoListingWithFilePropertiesAsc(userId, volumeId, tag, limit, offset)
+        Direction.DESCENDING -> getPhotoListingWithFilePropertiesDesc(userId, volumeId, tag, limit, offset)
+    }
+
+    suspend fun getPhotoListings(
+        userId: UserId,
+        volumeId: String,
+        tag: Long,
+        direction: Direction,
+        limit: Int,
+        offset: Int,
+    ): List<TaggedPhotoListingEntity> = when(direction) {
         Direction.ASCENDING -> getPhotoListingsAsc(userId, volumeId, tag, limit, offset)
         Direction.DESCENDING -> getPhotoListingsDesc(userId, volumeId, tag, limit, offset)
     }
 
+    @Query(PHOTO_LISTING_WITH_FILE_PROPERTIES_ASC)
+    abstract suspend fun getPhotoListingWithFilePropertiesAsc(
+        userId: UserId,
+        volumeId: String,
+        tag: Long,
+        limit: Int,
+        offset: Int,
+    ): List<TaggedPhotoListingWithFileProperties>
+
     @Query(PHOTO_LISTING_ASC)
     abstract suspend fun getPhotoListingsAsc(
+        userId: UserId,
+        volumeId: String,
+        tag: Long,
+        limit: Int,
+        offset: Int,
+    ): List<TaggedPhotoListingEntity>
+
+
+    @Query(PHOTO_LISTING_WITH_FILE_PROPERTIES_DESC)
+    abstract suspend fun getPhotoListingWithFilePropertiesDesc(
         userId: UserId,
         volumeId: String,
         tag: Long,
@@ -70,7 +101,19 @@ abstract class TaggedPhotoListingDao : BaseDao<TaggedPhotoListingEntity>() {
         tag: Long,
         limit: Int,
         offset: Int,
-    ): List<TaggedPhotoListingWithFileProperties>
+    ): List<TaggedPhotoListingEntity>
+
+    fun getPhotoListingWithFilePropertiesFlow(
+        userId: UserId,
+        volumeId: String,
+        tag: Long,
+        direction: Direction,
+        limit: Int,
+        offset: Int,
+    ): Flow<List<TaggedPhotoListingWithFileProperties>> = when (direction) {
+        Direction.ASCENDING -> getPhotoListingWithFilePropertiesAscFlow(userId, volumeId, tag, limit, offset)
+        Direction.DESCENDING -> getPhotoListingWithFilePropertiesDescFlow(userId, volumeId, tag, limit, offset)
+    }
 
     fun getPhotoListingsFlow(
         userId: UserId,
@@ -79,13 +122,31 @@ abstract class TaggedPhotoListingDao : BaseDao<TaggedPhotoListingEntity>() {
         direction: Direction,
         limit: Int,
         offset: Int,
-    ): Flow<List<TaggedPhotoListingWithFileProperties>> = when (direction) {
+    ): Flow<List<TaggedPhotoListingEntity>> = when (direction) {
         Direction.ASCENDING -> getPhotoListingsAscFlow(userId, volumeId, tag, limit, offset)
         Direction.DESCENDING -> getPhotoListingsDescFlow(userId, volumeId, tag, limit, offset)
     }
 
+    @Query(PHOTO_LISTING_WITH_FILE_PROPERTIES_ASC)
+    abstract fun getPhotoListingWithFilePropertiesAscFlow(
+        userId: UserId,
+        volumeId: String,
+        tag: Long,
+        limit: Int,
+        offset: Int,
+    ): Flow<List<TaggedPhotoListingWithFileProperties>>
+
     @Query(PHOTO_LISTING_ASC)
     abstract fun getPhotoListingsAscFlow(
+        userId: UserId,
+        volumeId: String,
+        tag: Long,
+        limit: Int,
+        offset: Int,
+    ): Flow<List<TaggedPhotoListingEntity>>
+
+    @Query(PHOTO_LISTING_WITH_FILE_PROPERTIES_DESC)
+    abstract fun getPhotoListingWithFilePropertiesDescFlow(
         userId: UserId,
         volumeId: String,
         tag: Long,
@@ -100,7 +161,7 @@ abstract class TaggedPhotoListingDao : BaseDao<TaggedPhotoListingEntity>() {
         tag: Long,
         limit: Int,
         offset: Int,
-    ): Flow<List<TaggedPhotoListingWithFileProperties>>
+    ): Flow<List<TaggedPhotoListingEntity>>
 
     @Query("DELETE FROM TaggedPhotoListingEntity WHERE user_id = :userId AND share_id = :shareId AND id in (:linkIds)")
     abstract suspend fun delete(userId: UserId, shareId: String, linkIds: List<String>)
@@ -113,7 +174,7 @@ abstract class TaggedPhotoListingDao : BaseDao<TaggedPhotoListingEntity>() {
     )
 
     private companion object{
-        const val PHOTO_LISTING_ASC = """
+        const val PHOTO_LISTING_WITH_FILE_PROPERTIES_ASC = """
             SELECT TaggedPhotoListingEntity.*, LinkFilePropertiesEntity.revision_id, LinkFilePropertiesEntity.thumbnail_id_default FROM TaggedPhotoListingEntity
             LEFT JOIN LinkFilePropertiesEntity ON
                 TaggedPhotoListingEntity.user_id = LinkFilePropertiesEntity.file_user_id AND
@@ -126,12 +187,30 @@ abstract class TaggedPhotoListingDao : BaseDao<TaggedPhotoListingEntity>() {
             ORDER BY capture_time ASC, id ASC
             LIMIT :limit OFFSET :offset
         """
-        const val PHOTO_LISTING_DESC = """
+        const val PHOTO_LISTING_ASC = """
+            SELECT * FROM TaggedPhotoListingEntity
+            WHERE
+                user_id = :userId AND
+                volume_id = :volumeId AND
+                tag = :tag
+            ORDER BY capture_time ASC, id ASC
+            LIMIT :limit OFFSET :offset
+        """
+        const val PHOTO_LISTING_WITH_FILE_PROPERTIES_DESC = """
             SELECT TaggedPhotoListingEntity.*, LinkFilePropertiesEntity.revision_id, LinkFilePropertiesEntity.thumbnail_id_default FROM TaggedPhotoListingEntity
             LEFT JOIN LinkFilePropertiesEntity ON
                 TaggedPhotoListingEntity.user_id = LinkFilePropertiesEntity.file_user_id AND
                 TaggedPhotoListingEntity.share_id = LinkFilePropertiesEntity.file_share_id AND
                 TaggedPhotoListingEntity.id = LinkFilePropertiesEntity.file_link_id
+            WHERE
+                user_id = :userId AND
+                volume_id = :volumeId AND
+                tag = :tag
+            ORDER BY capture_time DESC, id DESC
+            LIMIT :limit OFFSET :offset
+        """
+        const val PHOTO_LISTING_DESC = """
+            SELECT * FROM TaggedPhotoListingEntity
             WHERE
                 user_id = :userId AND
                 volume_id = :volumeId AND

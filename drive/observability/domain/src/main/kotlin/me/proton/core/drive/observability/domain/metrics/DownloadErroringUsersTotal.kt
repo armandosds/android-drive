@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import kotlinx.serialization.Required
 import kotlinx.serialization.Serializable
 import me.proton.core.drive.observability.domain.metrics.DownloadErroringUsersTotal.Companion.SCHEMA_ID
+import me.proton.core.drive.observability.domain.metrics.common.Plan
 import me.proton.core.drive.observability.domain.metrics.common.ShareType
 import me.proton.core.observability.domain.entity.SchemaId
 
@@ -38,14 +39,6 @@ data class DownloadErroringUsersTotal(
         val plan: Plan,
         val shareType: ShareType,
     )
-
-    @Suppress("EnumEntryName")
-    enum class Plan {
-        free,
-        paid,
-        anonymous,
-        unknown,
-    }
 
     companion object {
         const val SCHEMA_ID = "https://proton.me/drive_download_erroring_users_total_v1.schema.json"

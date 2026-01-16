@@ -20,9 +20,9 @@ package me.proton.core.drive.observability.domain.usecase
 
 import me.proton.core.drive.observability.domain.constraint.Constraint
 import me.proton.core.drive.observability.domain.constraint.NoConstraint
-import me.proton.core.drive.observability.domain.metrics.DriveObservabilityData
 import me.proton.core.observability.domain.ObservabilityManager
 import me.proton.core.observability.domain.entity.ObservabilityEvent
+import me.proton.core.observability.domain.metrics.ObservabilityData
 import java.time.Instant
 import javax.inject.Inject
 
@@ -32,7 +32,7 @@ class EnqueueObservabilityEvent @Inject constructor(
 ) {
 
     suspend operator fun invoke(
-        observabilityData: DriveObservabilityData,
+        observabilityData: ObservabilityData,
         timestamp: Instant = Instant.now(),
         constraint: Constraint = NoConstraint(),
     ) = runCatching {
