@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.Flow
 import me.proton.core.data.room.db.BaseDao
 import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.photo.data.db.entity.PhotoListingEntity
+import me.proton.core.drive.photo.data.db.entity.PhotoListingWithFileProperties
 import me.proton.core.drive.sorting.domain.entity.Direction
 
 @Dao
@@ -42,7 +43,7 @@ abstract class PhotoListingDao : BaseDao<PhotoListingEntity>() {
         direction: Direction,
         limit: Int,
         offset: Int,
-    ): List<PhotoListingEntity> = when(direction) {
+    ): List<PhotoListingWithFileProperties> = when(direction) {
         Direction.ASCENDING -> getPhotoListingsAsc(userId, volumeId, limit, offset)
         Direction.DESCENDING -> getPhotoListingsDesc(userId, volumeId, limit, offset)
     }
@@ -53,7 +54,7 @@ abstract class PhotoListingDao : BaseDao<PhotoListingEntity>() {
         volumeId: String,
         limit: Int,
         offset: Int,
-    ): List<PhotoListingEntity>
+    ): List<PhotoListingWithFileProperties>
 
     @Query(PHOTO_LISTING_DESC)
     abstract suspend fun getPhotoListingsDesc(
@@ -61,7 +62,7 @@ abstract class PhotoListingDao : BaseDao<PhotoListingEntity>() {
         volumeId: String,
         limit: Int,
         offset: Int,
-    ): List<PhotoListingEntity>
+    ): List<PhotoListingWithFileProperties>
 
     fun getPhotoListingsFlow(
         userId: UserId,
@@ -69,7 +70,7 @@ abstract class PhotoListingDao : BaseDao<PhotoListingEntity>() {
         direction: Direction,
         limit: Int,
         offset: Int,
-    ): Flow<List<PhotoListingEntity>> = when (direction) {
+    ): Flow<List<PhotoListingWithFileProperties>> = when (direction) {
         Direction.ASCENDING -> getPhotoListingsAscFlow(userId, volumeId, limit, offset)
         Direction.DESCENDING -> getPhotoListingsDescFlow(userId, volumeId, limit, offset)
     }
@@ -80,7 +81,7 @@ abstract class PhotoListingDao : BaseDao<PhotoListingEntity>() {
         volumeId: String,
         limit: Int,
         offset: Int,
-    ): Flow<List<PhotoListingEntity>>
+    ): Flow<List<PhotoListingWithFileProperties>>
 
     @Query(PHOTO_LISTING_DESC)
     abstract fun getPhotoListingsDescFlow(
@@ -88,7 +89,7 @@ abstract class PhotoListingDao : BaseDao<PhotoListingEntity>() {
         volumeId: String,
         limit: Int,
         offset: Int,
-    ): Flow<List<PhotoListingEntity>>
+    ): Flow<List<PhotoListingWithFileProperties>>
 
     @Query("DELETE FROM PhotoListingEntity WHERE user_id = :userId AND share_id = :shareId AND id in (:linkIds)")
     abstract suspend fun delete(userId: UserId, shareId: String, linkIds: List<String>)
@@ -98,7 +99,11 @@ abstract class PhotoListingDao : BaseDao<PhotoListingEntity>() {
 
     private companion object{
         const val PHOTO_LISTING_ASC = """
-            SELECT * FROM PhotoListingEntity
+            SELECT PhotoListingEntity.*, LinkFilePropertiesEntity.revision_id, LinkFilePropertiesEntity.thumbnail_id_default FROM PhotoListingEntity
+            LEFT JOIN LinkFilePropertiesEntity ON
+                PhotoListingEntity.user_id = LinkFilePropertiesEntity.file_user_id AND
+                PhotoListingEntity.share_id = LinkFilePropertiesEntity.file_share_id AND
+                PhotoListingEntity.id = LinkFilePropertiesEntity.file_link_id
             WHERE
                 user_id = :userId AND
                 volume_id = :volumeId
@@ -106,7 +111,11 @@ abstract class PhotoListingDao : BaseDao<PhotoListingEntity>() {
             LIMIT :limit OFFSET :offset
         """
         const val PHOTO_LISTING_DESC = """
-            SELECT * FROM PhotoListingEntity
+            SELECT PhotoListingEntity.*, LinkFilePropertiesEntity.revision_id, LinkFilePropertiesEntity.thumbnail_id_default FROM PhotoListingEntity
+            LEFT JOIN LinkFilePropertiesEntity ON
+                PhotoListingEntity.user_id = LinkFilePropertiesEntity.file_user_id AND
+                PhotoListingEntity.share_id = LinkFilePropertiesEntity.file_share_id AND
+                PhotoListingEntity.id = LinkFilePropertiesEntity.file_link_id
             WHERE
                 user_id = :userId AND
                 volume_id = :volumeId

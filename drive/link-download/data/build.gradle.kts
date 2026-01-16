@@ -32,5 +32,7 @@ driveModule(
     api(project(":drive:link:data"))
     api(project(":drive:link-download:domain"))
     api(project(":drive:photo:data"))
+
+    implementation(project(":drive:link-trash:data"))
 }
 

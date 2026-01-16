@@ -370,6 +370,9 @@ object FilesTestTag {
     const val multiSelectionTag = "multiSelectionTag"
     const val moreButton = "three dots button"
     const val itemWithSharedIcon = "item with shared icon"
+    const val offlineIconDownloaded = "TestTag::Offline::Icon:Downloaded"
+    const val offlineIconWaiting = "TestTag::Offline::Icon:Waiting"
+    const val offlineDownloding = "TestTag::Offline::Downloading"
 }
 
 private val GridItemWidth = 174.dp

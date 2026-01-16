@@ -33,6 +33,7 @@ import me.proton.core.drive.share.data.api.response.GetShareBootstrapResponse
 import me.proton.core.drive.share.data.api.response.GetSharesResponse
 import me.proton.core.drive.share.data.api.response.GetUnmigratedSharesResponse
 import me.proton.core.drive.share.data.api.response.UpdateUnmigratedSharesResponse
+import me.proton.core.drive.volume.data.api.entity.VolumeDto
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 
@@ -66,6 +67,7 @@ fun MockWebServer.getShareBootstrap(addressId: String = "address-id") = routing 
                 state = 1,
                 linkId = findRootId(shareId).id,
                 volumeId = volumeId.id,
+                volumeType = VolumeDto.TYPE_REGULAR,
                 creator = creator,
                 flags = 0,
                 locked = false,

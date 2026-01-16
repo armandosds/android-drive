@@ -160,6 +160,7 @@ class GetFile @Inject constructor(
         )
     } catch (e: CancellationException) {
         if (!(driveLink.isMarkedAsOffline || driveLink.isAnyAncestorMarkedAsOffline)) {
+            CoreLogger.d(LogTag.GET_FILE, "Downloading ${driveLink.id.id.logId()} will be cancelled due to CancellationException")
             withContext(NonCancellable) {
                 cancelDownload(driveLink)
             }

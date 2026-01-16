@@ -38,11 +38,11 @@ class MoveFileIfExists @Inject constructor(
     private val getDriveLink: GetDriveLink,
     private val isLinkOrAnyAncestorMarkedAsOffline: IsLinkOrAnyAncestorMarkedAsOffline,
 ) {
-    suspend operator fun invoke(fileId: FileId): Result<File?> = coRunCatching {
+    suspend operator fun invoke(fileId: FileId): Result<File> = coRunCatching {
         invoke(getDriveLink(fileId).toResult().getOrThrow()).getOrThrow()
     }
 
-    suspend operator fun invoke(driveLink: DriveLink.File): Result<File?> = coRunCatching {
+    suspend operator fun invoke(driveLink: DriveLink.File): Result<File> = coRunCatching {
         val userId = driveLink.userId
         val volumeId = driveLink.volumeId
         val fileId = driveLink.id

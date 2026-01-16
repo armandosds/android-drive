@@ -42,6 +42,7 @@ import me.proton.core.drive.linkdownload.domain.usecase.AreAllAlbumPhotosDownloa
 import me.proton.core.drive.linkdownload.domain.usecase.AreAllFilesDownloaded
 import me.proton.core.drive.linkdownload.domain.usecase.SetDownloadState
 import me.proton.core.drive.linkoffline.domain.usecase.IsMarkedAsOffline
+import me.proton.core.drive.linktrash.domain.usecase.IsLinkOrAnyAncestorTrashed
 import me.proton.core.drive.photo.domain.usecase.GetAllAlbumChildren
 import javax.inject.Singleton
 
@@ -67,6 +68,7 @@ object DownloadModule {
         areAllAlbumPhotosDownloaded: AreAllAlbumPhotosDownloaded,
         downloadErrorManager: DownloadErrorManager,
         downloadMetricsNotifier: DownloadMetricsNotifier,
+        isLinkOrAnyAncestorTrashed: IsLinkOrAnyAncestorTrashed,
     ): DownloadManager = DownloadManagerImpl(
         appContext = appContext,
         PipelineManagerImpl(configurationProvider.downloadsInParallel, LogTag.DOWNLOAD),
@@ -85,6 +87,7 @@ object DownloadModule {
         areAllAlbumPhotosDownloaded,
         downloadErrorManager,
         downloadMetricsNotifier,
+        isLinkOrAnyAncestorTrashed,
     )
 
     @Provides

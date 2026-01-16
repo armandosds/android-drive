@@ -33,6 +33,7 @@ import me.proton.core.drive.linkdownload.data.db.entity.LinkDownloadState
 import me.proton.core.drive.linkdownload.data.db.entity.LinkDownloadStateEntity
 import me.proton.core.drive.linkdownload.data.extension.toDownloadBlockEntity
 import me.proton.core.drive.linkdownload.domain.entity.DownloadState
+import me.proton.core.drive.linktrash.data.db.dao.LinkTrashDao
 
 @Dao
 interface LinkDownloadDao : LinkDao {
@@ -150,11 +151,13 @@ interface LinkDownloadDao : LinkDao {
             LinkDownloadStateEntity.user_id = LinkEntity.user_id AND 
             LinkDownloadStateEntity.share_id = LinkEntity.share_id AND 
             LinkDownloadStateEntity.link_id = LinkEntity.id
+       ${LinkTrashDao.LINK_JOIN_STATEMENT}
         WHERE
             LinkEntity.user_id = :userId AND 
             LinkEntity.share_id = :shareId AND 
             LinkEntity.parent_id = :folderId AND
-            LinkEntity.mime_type NOT IN (:excludeMimeTypes)
+            LinkEntity.mime_type NOT IN (:excludeMimeTypes) AND
+            ${LinkTrashDao.NOT_TRASHED_CONDITION}
         LIMIT :limit OFFSET :offset
     """)
     suspend fun getAllChildrenStates(
@@ -174,12 +177,14 @@ interface LinkDownloadDao : LinkDao {
         LEFT JOIN LinkDownloadStateEntity ON
             LinkDownloadStateEntity.user_id = LinkEntity.user_id AND
             LinkDownloadStateEntity.link_id = LinkEntity.id
+        ${LinkTrashDao.LINK_JOIN_STATEMENT}
         INNER JOIN AlbumPhotoListingEntity ON
             AlbumPhotoListingEntity.user_id = LinkEntity.user_id AND
             AlbumPhotoListingEntity.id = LinkEntity.id AND
             AlbumPhotoListingEntity.album_id = :albumId
         WHERE
-            LinkEntity.user_id = :userId
+            LinkEntity.user_id = :userId AND
+            ${LinkTrashDao.NOT_TRASHED_CONDITION}
         LIMIT :limit OFFSET :offset
     """)
     suspend fun getAllAlbumChildrenStates(

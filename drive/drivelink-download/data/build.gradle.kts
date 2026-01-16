@@ -30,6 +30,7 @@ driveModule(
     workManager = true,
     buildConfig = true,
     socialTest = true,
+    enableTestFixtures = true
 ) {
     api(project(":drive:drivelink-download:domain"))
 
@@ -38,10 +39,13 @@ driveModule(
     implementation(project(":drive:file:base:domain"))
     implementation(project(":drive:link:data"))
     implementation(project(":drive:link-node:domain"))
+    implementation(project(":drive:link-trash:domain"))
     implementation(project(":drive:observability:data"))
     implementation(project(":drive:thumbnail:domain"))
     implementation(project(":drive:worker:data"))
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.core.crypto)
     implementation(libs.core.network)
+
+    testImplementation(testFixtures(project(":drive:files:presentation")))
 }

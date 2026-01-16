@@ -18,6 +18,7 @@
 
 package me.proton.android.drive.db
 
+import android.app.ActivityManager
 import android.content.Context
 import androidx.room.AutoMigration
 import androidx.room.Database
@@ -58,6 +59,7 @@ abstract class AppDatabase : BaseDatabase(),
             databaseBuilder<AppDatabase>(context, "db-app")
                 .openHelperFactory(
                     factory = LoggingOpenHelperFactory(
+                        activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager,
                         delegate = FrameworkSQLiteOpenHelperFactory(),
                         clazz = AppDatabase::class.java,
                     ),

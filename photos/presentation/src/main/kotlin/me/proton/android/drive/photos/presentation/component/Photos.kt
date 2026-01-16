@@ -152,6 +152,7 @@ fun Photos(
                         selectedPhotos = selectedPhotos,
                         onClick = viewEvent.onDriveLink,
                         onLongClick = viewEvent.onSelectDriveLink,
+                        onPhotoListingItem = viewEvent.onPhotoListingItem,
                         onEnable = viewEvent.onEnable,
                         onPermissions = viewEvent.onPermissions,
                         onRetry = viewEvent.onRetry,

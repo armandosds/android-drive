@@ -70,6 +70,7 @@ fun DriveLink.File.toVolumePhotoListing(): PhotoListing.Volume =
     requireNotNull(photoCaptureTime) { "Photo drive link is required" }
         .let { captureTime ->
             PhotoListing.Volume(
+                volumeId = volumeId,
                 linkId = id,
                 captureTime = captureTime,
                 nameHash = nameHash,

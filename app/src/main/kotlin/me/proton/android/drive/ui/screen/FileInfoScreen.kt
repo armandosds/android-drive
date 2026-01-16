@@ -72,6 +72,7 @@ fun FileInfo(
             FileInfoContent(
                 driveLink = viewState.link,
                 items = viewState.items,
+                advancedItems = viewState.advancedItems,
                 modifier = Modifier
                     .padding(top = DefaultSpacing)
                     .padding(horizontal = DefaultSpacing)

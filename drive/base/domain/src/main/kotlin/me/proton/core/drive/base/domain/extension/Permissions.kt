@@ -23,3 +23,6 @@ import me.proton.core.drive.base.domain.entity.Permissions.Permission.ADMIN
 
 val Permissions.isViewerOrEditorOnly
     get() = canRead && value shr ADMIN.bitPosition == 0L
+
+val Permissions?.orOwner
+    get() = this ?: Permissions.owner

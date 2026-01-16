@@ -105,4 +105,14 @@ class FeatureFlagRepositoryImpl @Inject constructor(
             )
         }
     }
+
+    override suspend fun update(featureFlagId: FeatureFlagId.Legacy, value: Boolean): Result<Unit> =
+        coRunCatching {
+            coreFeatureFlagRepository.get(
+                userId = featureFlagId.userId,
+                featureId = FeatureId(id = featureFlagId.id),
+            )?.let { featureFlag ->
+                coreFeatureFlagRepository.update(featureFlag.copy(value = value))
+            }
+        }
 }

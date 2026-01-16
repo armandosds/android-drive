@@ -539,5 +539,22 @@ interface PhotoDatabase : Database {
                 """.trimIndent())
             }
         }
+
+        val MIGRATION_8 = object : DatabaseMigration {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("""
+                    CREATE INDEX IF NOT EXISTS `index_TaggedPhotoListingEntity_user_id_volume_id` ON `TaggedPhotoListingEntity` (`user_id`, `volume_id`)
+                """.trimIndent())
+                database.execSQL("""
+                    CREATE INDEX IF NOT EXISTS `index_TaggedPhotoListingEntity_user_id_share_id_id` ON `TaggedPhotoListingEntity` (`user_id`, `share_id`, `id`)
+                """.trimIndent())
+                database.execSQL("""
+                    CREATE INDEX IF NOT EXISTS `index_TaggedPhotoListingEntity_user_id_volume_id_tag` ON `TaggedPhotoListingEntity` (`user_id`, `volume_id`, `tag`)
+                """.trimIndent())
+                database.execSQL("""
+                    CREATE INDEX IF NOT EXISTS `index_TaggedPhotoListingEntity_user_id_volume_id_id_tag_capture_time` ON `TaggedPhotoListingEntity` (`user_id`, `volume_id`, `id`, `tag`, `capture_time`)
+                """.trimIndent())
+            }
+        }
     }
 }

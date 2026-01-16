@@ -53,6 +53,7 @@ object LogTag {
     const val FOLDER = "$DEFAULT.folder"
     const val TRACKING = "$DEFAULT.tracking"
     const val METRIC = "$DEFAULT.metric"
+    const val DRIVE_SDK = "drive.sdk.app"
     const val DATABASE = "$DEFAULT.database"
     val ViewModel.VIEW_MODEL: String get() = "$DEFAULT.view.model[${this.javaClass.simpleName}]"
 

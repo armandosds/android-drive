@@ -50,6 +50,11 @@ sealed class FeatureFlagId(open val userId: UserId, open val id: String) {
         const val DRIVE_PHOTOS_TAGS_MIGRATION_DISABLED = "DrivePhotosTagsMigrationDisabled"
         const val DRIVE_ANDROID_DOWNLOAD_MANAGER = "DriveAndroidDownloadManager"
         const val DRIVE_ANDROID_BLACK_FRIDAY_2025 = "DriveAndroidBlackFriday2025"
+        const val DRIVE_ANDROID_SDK_UPLOAD_MAIN = "DriveAndroidSDKUploadMain"
+        const val DRIVE_ANDROID_SDK_UPLOAD_PHOTO = "DriveAndroidSDKUploadPhoto"
+        const val DRIVE_ANDROID_SDK_DOWNLOAD_MAIN = "DriveAndroidSDKDownloadMain"
+        const val DRIVE_ANDROID_SDK_DOWNLOAD_PHOTO = "DriveAndroidSDKDownloadPhoto"
+        const val DRIVE_ANDROID_UPLOAD_FOLDER = "DriveAndroidUploadFolder"
 
         internal var developments : List<String> = listOf(
         )
@@ -78,5 +83,10 @@ sealed class FeatureFlagId(open val userId: UserId, open val id: String) {
         fun drivePhotosTagsMigrationDisabled(userId: UserId) = Unleash(userId, DRIVE_PHOTOS_TAGS_MIGRATION_DISABLED)
         fun driveAndroidDownloadManager(userId: UserId) = Unleash(userId, DRIVE_ANDROID_DOWNLOAD_MANAGER)
         fun driveAndroidBlackFriday2025(userId: UserId) = Unleash(userId, DRIVE_ANDROID_BLACK_FRIDAY_2025)
+        fun driveAndroidSDKUploadMain(userId: UserId) = Unleash(userId, DRIVE_ANDROID_SDK_UPLOAD_MAIN)
+        fun driveAndroidSDKUploadPhoto(userId: UserId) = Unleash(userId, DRIVE_ANDROID_SDK_UPLOAD_PHOTO)
+        fun driveAndroidSDKDownloadMain(userId: UserId) = Unleash(userId, DRIVE_ANDROID_SDK_DOWNLOAD_MAIN)
+        fun driveAndroidSDKDownloadPhoto(userId: UserId) = Unleash(userId, DRIVE_ANDROID_SDK_DOWNLOAD_PHOTO)
+        fun driveAndroidUploadFolder(userId: UserId) = Unleash(userId, DRIVE_ANDROID_UPLOAD_FOLDER)
     }
 }

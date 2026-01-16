@@ -20,6 +20,7 @@ package me.proton.core.drive.file.info.presentation
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,15 +30,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -71,11 +76,14 @@ import me.proton.core.drive.link.domain.entity.Link
 import me.proton.core.drive.share.domain.entity.ShareId
 import me.proton.core.drive.thumbnail.presentation.extension.thumbnailPainter
 import me.proton.core.drive.volume.domain.entity.VolumeId
+import me.proton.core.drive.i18n.R as I18N
+import me.proton.core.presentation.R as CorePresentation
 
 @Composable
 fun FileInfoContent(
     driveLink: DriveLink,
     items: List<Item>,
+    advancedItems: List<Item>,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -95,6 +103,13 @@ fun FileInfoContent(
                 name = item.name,
                 value = item.value,
                 isValueEncrypted = item.isValueEncrypted,
+            )
+        }
+
+        if (advancedItems.isNotEmpty()) {
+            AdvancedSection(
+                title = I18N.string.file_info_title_advanced_details,
+                items = advancedItems,
             )
         }
     }
@@ -186,6 +201,44 @@ private fun EncryptedInfoItem(
 
 private val HeaderIconSize = 40.dp
 
+@Composable
+private fun AdvancedSection(
+    title: Int,
+    items: List<Item>,
+    modifier: Modifier = Modifier,
+) {
+    val context = LocalContext.current
+    val (expanded, setExpanded) = rememberSaveable { mutableStateOf(false) }
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable { setExpanded(!expanded) }
+            .padding(vertical = SmallSpacing),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = context.getString(title),
+            style = ProtonTheme.typography.defaultSmallWeak,
+            modifier = Modifier.weight(1f)
+        )
+        val iconRes = if (expanded) CorePresentation.drawable.ic_proton_chevron_up else CorePresentation.drawable.ic_proton_chevron_down
+        Icon(
+            painter = painterResource(id = iconRes),
+            contentDescription = null,
+            modifier = Modifier.size(16.dp)
+        )
+    }
+    if (expanded) {
+        items.forEach { item ->
+            EncryptedInfoItem(
+                name = item.name,
+                value = item.value,
+                isValueEncrypted = item.isValueEncrypted,
+            )
+        }
+    }
+}
+
 @Preview
 @Composable
 @Suppress("unused")
@@ -240,7 +293,8 @@ fun PreviewFileInfoContent() {
             items = driveLink.toItems(
                 context = LocalContext.current,
                 parentPath = "/My files/deep nested/Aaaa/3/",
-            )
+            ),
+            advancedItems = emptyList(),
         )
     }
 }

@@ -22,6 +22,7 @@ import androidx.room.migration.AutoMigrationSpec
 import androidx.sqlite.db.SupportSQLiteDatabase
 import me.proton.core.data.room.db.Database
 import me.proton.core.data.room.db.migration.DatabaseMigration
+import me.proton.core.drive.base.data.db.Column
 import me.proton.core.drive.base.data.db.Column.BLOCK_SIZE
 import me.proton.core.drive.base.data.db.Column.CREATION_TIME
 import me.proton.core.drive.base.data.db.Column.FLAGS
@@ -136,6 +137,17 @@ interface ShareDatabase : Database {
                     """
                    CREATE INDEX IF NOT EXISTS `index_ShareMembershipEntity_id` ON `ShareMembershipEntity` (`id`)
                 """.trimIndent()
+                )
+            }
+        }
+
+        val MIGRATION_4 = object : DatabaseMigration {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("DELETE FROM `ShareEntity` WHERE type = 2")
+                database.execSQL(
+                    """
+                    ALTER TABLE `ShareEntity` ADD COLUMN ${Column.VOLUME_TYPE} INTEGER DEFAULT NULL
+                    """.trimIndent()
                 )
             }
         }

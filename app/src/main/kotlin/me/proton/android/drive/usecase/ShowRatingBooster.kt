@@ -22,8 +22,11 @@ import android.app.Activity
 import com.google.android.play.core.review.ReviewManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import me.proton.android.drive.log.DriveLogTag.UI
+import me.proton.core.accountmanager.domain.AccountManager
+import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.base.data.entity.LoggerLevel.WARNING
 import me.proton.core.drive.base.data.extension.log
 import me.proton.core.drive.base.domain.extension.getOrNull
@@ -32,7 +35,8 @@ import javax.inject.Inject
 
 class ShowRatingBooster @Inject constructor(
     private val markRatingBoosterAsShown: MarkRatingBoosterAsShown,
-    private val reviewManager: ReviewManager
+    private val reviewManager: ReviewManager,
+    private val accountManager: AccountManager,
 ) {
 
     operator fun invoke(activity: Activity) {
@@ -43,10 +47,14 @@ class ShowRatingBooster @Inject constructor(
                         .addOnCompleteListener { task ->
                             if (task.isSuccessful) {
                                 CoroutineScope(Dispatchers.Main).launch {
-                                    markRatingBoosterAsShown()
-                                        .getOrNull(UI, "Marking rating booster as shown failed")
+                                    accountManager.getPrimaryUserId().firstOrNull()?.let { userId ->
+                                        markRatingBoosterAsShown(userId = userId)
+                                            .getOrNull(UI, "Marking rating booster as shown failed")
+                                        CoreLogger.d(UI, "Success")
+                                    } ?: {
+                                        CoreLogger.w(UI, "User Id is null, please investigate")
+                                    }()
                                 }
-                                CoreLogger.d(UI, "Success")
                             } else {
                                 task.exception?.log(UI, "Cannot launch review", WARNING)
                             }

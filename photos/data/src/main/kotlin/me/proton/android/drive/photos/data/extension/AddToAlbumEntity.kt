@@ -23,8 +23,10 @@ import me.proton.core.drive.base.domain.entity.TimestampS
 import me.proton.core.drive.link.domain.entity.FileId
 import me.proton.core.drive.photo.domain.entity.PhotoListing
 import me.proton.core.drive.share.domain.entity.ShareId
+import me.proton.core.drive.volume.domain.entity.VolumeId
 
 fun AddToAlbumEntity.toPhotoListing() = PhotoListing.Volume(
+    volumeId = VolumeId(volumeId),
     linkId = FileId(ShareId(userId, shareId), linkId),
     captureTime = TimestampS(captureTime),
     nameHash = hash,

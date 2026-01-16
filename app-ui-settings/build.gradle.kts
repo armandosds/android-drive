@@ -27,6 +27,7 @@ android {
 driveModule(
     hilt = true,
     room = true,
+    enableTestFixtures = true,
 )
 
 dependencies {
@@ -34,4 +35,6 @@ dependencies {
     implementation(libs.androidx.core.appCompat)
     implementation(libs.androidx.dataStore.core)
     implementation(libs.androidx.dataStore.preferences)
+
+    testFixturesImplementation(project(":drive:base"))
 }

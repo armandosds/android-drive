@@ -175,6 +175,7 @@ object Column {
     const val VERIFIER_TOKEN = "verifier_token"
     const val VERSION = "version"
     const val VOLUME_ID = "volume_id"
+    const val VOLUME_TYPE = "volume_type"
     const val WORK_ID = "work_id"
     const val WORKER_ID = "worker_id"
     const val X_ATTR = "x_attr"

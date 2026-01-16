@@ -36,25 +36,35 @@ class CreateFolder @Inject constructor(
     suspend operator fun invoke(
         parentFolder: Link.Folder,
         folderName: String,
+        shouldUpdateEvent: Boolean = true,
     ): Result<Pair<String, FolderId>> = coRunCatching {
-        updateEventAction(
-            shareId = parentFolder.id.shareId,
-        ) {
+        val block: suspend () -> Pair<String, FolderId> = {
             val (name, folderInfo) = createFolderInfo(parentFolder, folderName).getOrThrow()
             name to folderRepository.createFolder(
                 shareId = parentFolder.id.shareId,
                 folderInfo = folderInfo
             ).getOrThrow()
         }
+        if (shouldUpdateEvent) {
+            updateEventAction(
+                shareId = parentFolder.id.shareId,
+            ) {
+                block.invoke()
+            }
+        } else {
+            block.invoke()
+        }
     }
 
     suspend operator fun invoke(
         parentFolderId: FolderId,
         folderName: String,
+        shouldUpdateEvent: Boolean = true,
     ): Result<Pair<String, FolderId>> = coRunCatching {
         invoke(
             parentFolder = getLink(parentFolderId).toResult().getOrThrow(),
             folderName = folderName,
+            shouldUpdateEvent = shouldUpdateEvent,
         ).getOrThrow()
     }
 }

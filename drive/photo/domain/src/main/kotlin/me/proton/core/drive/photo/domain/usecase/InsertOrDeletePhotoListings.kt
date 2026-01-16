@@ -34,7 +34,7 @@ class InsertOrDeletePhotoListings @Inject constructor(
         links: List<Link.File>,
     ): Result<Unit> = coRunCatching {
         links
-            .map { link -> link.toPhotoListing(links) to link.state }
+            .map { link -> link.toPhotoListing(volumeId, links) to link.state }
             .insertOrIgnorePhotoListings(volumeId)
             .deletePhotoListings()
     }
@@ -64,7 +64,10 @@ class InsertOrDeletePhotoListings @Inject constructor(
             }
     }
 
-    private fun Link.File.toPhotoListing(links: List<Link.File>): List<PhotoListing> {
+    private fun Link.File.toPhotoListing(
+        volumeId: VolumeId,
+        links: List<Link.File>,
+    ): List<PhotoListing> {
         val relatedPhotos = relatedPhotoIds.mapNotNull { relatedPhotoId ->
             links.firstOrNull { link -> link.id == id }
         }.mapNotNull { link ->
@@ -80,6 +83,7 @@ class InsertOrDeletePhotoListings @Inject constructor(
         return photoCaptureTime?.let { captureTime ->
             (tags).map { tag ->
                 PhotoListing.Volume(
+                    volumeId = volumeId,
                     linkId = id,
                     captureTime = captureTime,
                     nameHash = hash,
@@ -88,6 +92,7 @@ class InsertOrDeletePhotoListings @Inject constructor(
                     relatedPhotos = relatedPhotos,
                 )
             } + PhotoListing.Volume(
+                volumeId = volumeId,
                 linkId = id,
                 captureTime = captureTime,
                 nameHash = hash,

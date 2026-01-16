@@ -33,7 +33,7 @@ class InsertOrDeleteAlbumPhotoListings @Inject constructor(
     suspend operator fun invoke(volumeId: VolumeId, links: List<Link.File>): Result<Unit> = coRunCatching {
         links
             .filterRelatedPhotos()
-            .map { link -> link.toPhotoListing(links) }
+            .map { link -> link.toPhotoListing(volumeId, links) }
             .insertOrIgnorePhotoListings(volumeId)
             .deletePhotoListings(volumeId)
     }
@@ -73,7 +73,10 @@ class InsertOrDeleteAlbumPhotoListings @Inject constructor(
             links.filter { link -> link.id !in relatedPhotos }
         }
 
-    private fun Link.File.toPhotoListing(links: List<Link.File>): Pair<List<PhotoListing.Album>, Link.State> {
+    private fun Link.File.toPhotoListing(
+        volumeId: VolumeId,
+        links: List<Link.File>,
+    ): Pair<List<PhotoListing.Album>, Link.State> {
         val relatedPhotos = relatedPhotoIds.mapNotNull { relatedPhotoId ->
             links.firstOrNull { link -> link.id == relatedPhotoId }
         }.mapNotNull { link ->
@@ -88,6 +91,7 @@ class InsertOrDeleteAlbumPhotoListings @Inject constructor(
         }
         return albumsInfos.map { info ->
             PhotoListing.Album(
+                volumeId = volumeId,
                 linkId = id,
                 captureTime = requireNotNull(photoCaptureTime),
                 nameHash = info.hash,

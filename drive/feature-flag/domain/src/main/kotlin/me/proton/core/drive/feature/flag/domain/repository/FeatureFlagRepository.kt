@@ -36,6 +36,8 @@ interface FeatureFlagRepository {
 
     suspend fun getLastRefreshTimestamp(userId: UserId, refreshId: RefreshId = RefreshId.Default): TimestampMs?
 
+    suspend fun update(featureFlagId: FeatureFlagId.Legacy, value: Boolean): Result<Unit>
+
     sealed class RefreshId(val id: String) {
         data object Default : RefreshId("default_id")
         data object ApiErrorFeatureDisabled : RefreshId("api_error_feature_disabled_id")

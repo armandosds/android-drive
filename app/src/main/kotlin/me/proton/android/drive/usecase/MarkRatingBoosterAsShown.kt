@@ -18,15 +18,27 @@
 
 package me.proton.android.drive.usecase
 
+import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.base.domain.entity.TimestampS
 import me.proton.core.drive.base.domain.util.coRunCatching
+import me.proton.core.drive.feature.flag.domain.entity.FeatureFlagId.Companion.ratingAndroidDrive
+import me.proton.core.drive.feature.flag.domain.repository.FeatureFlagRepository
 import me.proton.drive.android.settings.domain.UiSettingsRepository
 import javax.inject.Inject
 
 class MarkRatingBoosterAsShown @Inject constructor(
     private val uiSettingsRepository: UiSettingsRepository,
+    private val featureFlagRepository: FeatureFlagRepository,
 ) {
-    suspend operator fun invoke(timestamp: TimestampS = TimestampS()): Result<Unit> = coRunCatching {
-        uiSettingsRepository.updateRatingBoosterShown(timestamp)
-    }
+    suspend operator fun invoke(
+        timestamp: TimestampS = TimestampS(),
+        userId: UserId
+    ): Result<Unit> =
+        coRunCatching {
+            uiSettingsRepository.updateRatingBoosterShown(timestamp)
+            featureFlagRepository.update(
+                featureFlagId = ratingAndroidDrive(userId),
+                value = false,
+            ).getOrThrow()
+        }
 }

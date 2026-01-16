@@ -17,9 +17,11 @@
  */
 package me.proton.core.drive.files.preview.presentation.component
 
+import android.content.Context
 import android.net.Uri
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
+import android.webkit.WebView
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.slideInVertically
@@ -61,6 +63,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -68,10 +71,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import coil.compose.LocalImageLoader
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOf
 import me.proton.core.compose.component.ErrorPadding
 import me.proton.core.compose.component.ProtonErrorMessage
@@ -96,6 +101,7 @@ import me.proton.core.drive.files.preview.presentation.component.event.PreviewVi
 import me.proton.core.drive.files.preview.presentation.component.state.ContentState
 import me.proton.core.drive.files.preview.presentation.component.state.PreviewContentState
 import me.proton.core.drive.files.preview.presentation.component.state.PreviewViewState
+import me.proton.core.drive.thumbnail.presentation.extension.preCache
 import me.proton.core.util.kotlin.exhaustive
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -147,6 +153,7 @@ fun Preview(
             modifier = Modifier.testTag(PreviewComponentTestTag.pager)
         ) { page ->
             takeIf { page in viewState.items.indices }?.let {
+                PreCachePhotoItems(viewState.items, page)
                 PreviewContent(
                     viewState.items[page],
                     isFullScreen,
@@ -198,6 +205,25 @@ private val appBarGradient: Brush @Composable get() = Brush.verticalGradient(
         ProtonTheme.colors.backgroundNorm.copy(alpha = alpha)
     }
 )
+
+@Composable
+fun PreCachePhotoItems(items: List<PreviewViewState.Item>, currentPage: Int) {
+    val localContext = LocalContext.current
+    val imageLoader = LocalImageLoader.current
+    LaunchedEffect(currentPage, items) {
+        items.forEachIndexed { index, item ->
+            if (index == currentPage - 1 || index == currentPage + 1) {
+                item.contentState.firstOrNull()?.let { contentState ->
+                    when (contentState) {
+                        is ContentState.Downloading -> contentState.thumbnail
+                        is ContentState.Decrypting -> contentState.thumbnail
+                        else -> null
+                    }?.preCache(localContext, imageLoader)
+                }
+            }
+        }
+    }
+}
 
 @Composable
 fun PreviewContent(
@@ -356,6 +382,9 @@ fun PreviewContent(
             )
         }
 
+    val context = LocalContext.current
+    val isWebViewAvailable = isWebViewAvailable(context)
+
     when (previewComposable) {
         PreviewComposable.Image -> ImagePreviewWithThumbnail(
             modifier = pointerInputModifier,
@@ -389,17 +418,26 @@ fun PreviewContent(
             onRenderFailed = viewEvent.onRenderFailed,
         )
         PreviewComposable.ProtonDoc -> when (source) {
-            is String -> ProtonDocumentPreview(
-                uriString = requireIsInstance(source),
-                title = title,
-                host = host,
-                appVersionHeader = appVersionHeader,
-                modifier = pointerInputModifier.padding(top = topBarHeight),
-                onWebViewRelease = viewEvent.onWebViewRelease,
-                onDownloadResult = viewEvent.onProtonDocsDownloadResult,
-                onShowFileChooser = viewEvent.onProtonDocsShowFileChooser,
-                onContentShown = { viewEvent.onRenderSucceeded(source) }
-            )
+            is String -> {
+                if (isWebViewAvailable) {
+                    ProtonDocumentPreview(
+                        uriString = requireIsInstance(source),
+                        title = title,
+                        host = host,
+                        appVersionHeader = appVersionHeader,
+                        modifier = pointerInputModifier.padding(top = topBarHeight),
+                        onWebViewRelease = viewEvent.onWebViewRelease,
+                        onDownloadResult = viewEvent.onProtonDocsDownloadResult,
+                        onShowFileChooser = viewEvent.onProtonDocsShowFileChooser,
+                        onContentShown = { viewEvent.onRenderSucceeded(source) }
+                    )
+                } else {
+                    ProtonDocumentPreview(
+                        modifier = pointerInputModifier.padding(top = topBarHeight),
+                        onOpenInBrowser = viewEvent.onOpenInBrowser,
+                    )
+                }
+            }
             is Uri -> ProtonDocumentPreview(
                 modifier = pointerInputModifier.padding(top = topBarHeight),
                 onOpenInBrowser = viewEvent.onOpenInBrowser,
@@ -407,15 +445,24 @@ fun PreviewContent(
             else -> Unit
         }
         PreviewComposable.ProtonSheet -> when (source) {
-            is String -> ProtonSpreadsheetPreview(
-                uriString = requireIsInstance(source),
-                title = title,
-                host = host,
-                appVersionHeader = appVersionHeader,
-                modifier = pointerInputModifier.padding(top = topBarHeight),
-                onWebViewRelease = viewEvent.onWebViewRelease,
-                onContentShown = { viewEvent.onRenderSucceeded(source) }
-            )
+            is String -> {
+                if (isWebViewAvailable) {
+                    ProtonSpreadsheetPreview(
+                        uriString = requireIsInstance(source),
+                        title = title,
+                        host = host,
+                        appVersionHeader = appVersionHeader,
+                        modifier = pointerInputModifier.padding(top = topBarHeight),
+                        onWebViewRelease = viewEvent.onWebViewRelease,
+                        onContentShown = { viewEvent.onRenderSucceeded(source) }
+                    )
+                } else {
+                    ProtonSpreadsheetPreview(
+                        modifier = pointerInputModifier.padding(top = topBarHeight),
+                        onOpenInBrowser = viewEvent.onOpenInBrowser,
+                    )
+                }
+            }
             is Uri -> ProtonSpreadsheetPreview(
                 modifier = pointerInputModifier.padding(top = topBarHeight),
                 onOpenInBrowser = viewEvent.onOpenInBrowser,
@@ -425,6 +472,14 @@ fun PreviewContent(
         PreviewComposable.Unknown -> UnknownPreview()
     }.exhaustive
 }
+
+private fun isWebViewAvailable(context: Context): Boolean =
+    try {
+        WebView(context).destroy()
+        true
+    } catch (e: Throwable) {
+        false
+    }
 
 @Composable
 fun PreviewError(

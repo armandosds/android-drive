@@ -27,9 +27,12 @@ driveModule(
     hilt = true,
     room = true,
     workManager = true,
+    enableTestFixtures = true,
 ) {
     api(project(":drive:base:data"))
     api(project(":drive:feature-flag:domain"))
     implementation(libs.core.featureFlag.data)
     implementation(libs.core.presentation)
+
+    testFixturesImplementation(project(":drive:feature-flag:domain"))
 }

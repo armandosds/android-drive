@@ -17,8 +17,23 @@
  */
 package me.proton.core.drive.linkdownload.data.db
 
+import androidx.sqlite.db.SupportSQLiteDatabase
 import me.proton.core.data.room.db.Database
+import me.proton.core.data.room.db.migration.DatabaseMigration
 
 interface LinkDownloadDatabase : Database {
     val linkDownloadDao: LinkDownloadDao
+
+    companion object {
+        val MIGRATION_0 = object : DatabaseMigration {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("""
+                    CREATE INDEX IF NOT EXISTS `index_LinkDownloadStateEntity_user_id_state` ON `LinkDownloadStateEntity` (`user_id`, `state`)
+                """.trimIndent())
+                database.execSQL("""
+                    CREATE INDEX IF NOT EXISTS `index_LinkDownloadStateEntity_user_id_share_id_link_id_revision_id` ON `LinkDownloadStateEntity` (`user_id`, `share_id`, `link_id`, `revision_id`)
+                """.trimIndent())
+            }
+        }
+    }
 }

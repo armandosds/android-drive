@@ -363,6 +363,22 @@ sealed class Option(
         )
     }
 
+    data object UploadFolder : Option(
+        ApplicableQuantity.Single,
+        setOf(ApplicableTo.FOLDER),
+        setOf(State.NOT_TRASHED) + State.ANY_SHARED,
+    ) {
+        fun build(
+            notificationDotVisible: Boolean = false,
+            showFolderPicker: () -> Unit,
+        ) = FolderEntry(
+            icon = CorePresentation.drawable.ic_proton_folder_arrow_up,
+            labelResId = I18N.string.folder_option_import_folder,
+            notificationDotVisible = notificationDotVisible,
+            onClick = { showFolderPicker() }
+        )
+    }
+
     data object ManageAccess : Option(
         ApplicableQuantity.Single,
         setOf(ApplicableTo.FOLDER, ApplicableTo.ALBUM) + ApplicableTo.ANY_FILE,
@@ -611,6 +627,7 @@ fun Iterable<Option>.filterPermissions(
         Option.TakeAPhoto -> permissions.canWrite
         Option.Trash -> permissions.isAdmin
         Option.UploadFile -> permissions.canWrite
+        Option.UploadFolder -> permissions.canWrite
     }
 }
 

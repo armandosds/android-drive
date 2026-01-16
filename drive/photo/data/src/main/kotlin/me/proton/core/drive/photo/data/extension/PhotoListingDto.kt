@@ -31,8 +31,9 @@ import me.proton.core.drive.photo.domain.entity.PhotoListing.RelatedPhoto
 import me.proton.core.drive.share.domain.entity.ShareId
 import me.proton.core.drive.volume.domain.entity.VolumeId
 
-fun PhotoListingDto.toPhotoListing(shareId: ShareId, tag: PhotoTag? = null) =
+fun PhotoListingDto.toPhotoListing(volumeId: VolumeId, shareId: ShareId, tag: PhotoTag? = null) =
     PhotoListing.Volume(
+        volumeId = volumeId,
         linkId = FileId(shareId, linkId),
         captureTime = TimestampS(captureTime),
         nameHash = hash,

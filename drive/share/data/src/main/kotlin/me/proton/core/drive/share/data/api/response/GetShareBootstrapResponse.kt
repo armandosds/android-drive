@@ -34,6 +34,7 @@ import me.proton.core.drive.base.data.api.Dto.SHARE_ID
 import me.proton.core.drive.base.data.api.Dto.STATE
 import me.proton.core.drive.base.data.api.Dto.TYPE
 import me.proton.core.drive.base.data.api.Dto.VOLUME_ID
+import me.proton.core.drive.base.data.api.Dto.VOLUME_TYPE
 import me.proton.core.drive.share.data.api.MembershipDto
 
 @Serializable
@@ -50,6 +51,8 @@ data class GetShareBootstrapResponse(
     val linkId: String,
     @SerialName(VOLUME_ID)
     val volumeId: String,
+    @SerialName(VOLUME_TYPE)
+    val volumeType: Long,
     @SerialName(CREATOR)
     val creator: String,
     @SerialName(FLAGS)

@@ -77,6 +77,7 @@ import me.proton.core.drive.linkdownload.domain.usecase.AreAllAlbumPhotosDownloa
 import me.proton.core.drive.linkdownload.domain.usecase.AreAllFilesDownloaded
 import me.proton.core.drive.linkdownload.domain.usecase.SetDownloadState
 import me.proton.core.drive.linkoffline.domain.usecase.IsMarkedAsOffline
+import me.proton.core.drive.linktrash.domain.usecase.IsLinkOrAnyAncestorTrashed
 import me.proton.core.drive.photo.domain.usecase.GetAllAlbumChildren
 import me.proton.core.drive.volume.domain.entity.VolumeId
 import me.proton.core.util.kotlin.CoreLogger
@@ -104,6 +105,7 @@ class DownloadManagerImpl @Inject constructor(
     private val areAllAlbumPhotosDownloaded: AreAllAlbumPhotosDownloaded,
     private val downloadErrorManager: DownloadErrorManager,
     private val downloadMetricsNotifier: DownloadMetricsNotifier,
+    private val isLinkOrAnyAncestorTrashed: IsLinkOrAnyAncestorTrashed,
 ) : DownloadManager, DownloadManager.FileDownloader, PipelineManager.TaskProvider<DownloadFileTask> {
     private var userId: UserId? = null
     private val runningTasks = MutableStateFlow(emptySet<DownloadFileTask>())
@@ -310,6 +312,7 @@ class DownloadManagerImpl @Inject constructor(
             error.log(LogTag.DOWNLOAD, "Failed to get descendants", ERROR)
         }.getOrNull()
             ?.filterNot { link -> link.isProtonCloudFile }
+            ?.filter { link ->  !isLinkOrAnyAncestorTrashed.invoke(link.id) }
             ?.let { links ->
                 CoreLogger.d(LogTag.DOWNLOAD, "downloadFolder descendants=${links.size}")
                 if (links.isNotEmpty()) {

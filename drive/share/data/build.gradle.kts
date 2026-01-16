@@ -31,6 +31,7 @@ driveModule(
 ) {
     api(project(":drive:base:data"))
     api(project(":drive:share:domain"))
+    api(project(":drive:volume:data"))
     implementation(libs.retrofit)
     implementation(libs.androidx.dataStore.preferences)
 }

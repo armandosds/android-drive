@@ -48,7 +48,9 @@ import me.proton.core.drive.link.data.db.entity.LinkEntity
         Index(value = [LINK_ID]),
         Index(value = [REVISION_ID]),
         Index(value = [STATE]),
+        Index(value = [USER_ID, STATE]),
         Index(value = [USER_ID, SHARE_ID, LINK_ID]),
+        Index(value = [USER_ID, SHARE_ID, LINK_ID, REVISION_ID]),
     ],
 )
 data class LinkDownloadStateEntity(

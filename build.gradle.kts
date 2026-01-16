@@ -60,6 +60,12 @@ allprojects {
             exclude(group = "io.mockk", module = "mockk-agent-jvm")
             exclude(group = "org.checkerframework", module = "checker")
         }
+        configurations.all {
+            resolutionStrategy.dependencySubstitution {
+                substitute(module("com.google.protobuf:protobuf-lite"))
+                    .using(module("com.google.protobuf:protobuf-javalite:${libs.versions.protobufJavaLite.get()}"))
+            }
+        }
     }
 }
 

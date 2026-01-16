@@ -29,8 +29,9 @@ import me.proton.core.drive.photo.domain.entity.PhotoListing.RelatedPhoto
 import me.proton.core.drive.share.domain.entity.ShareId
 import me.proton.core.drive.volume.domain.entity.VolumeId
 
-fun AlbumPhotoListingDto.toAlbumPhotoListing(shareId: ShareId, albumId: AlbumId) =
+fun AlbumPhotoListingDto.toAlbumPhotoListing(volumeId: VolumeId, shareId: ShareId, albumId: AlbumId) =
     PhotoListing.Album(
+        volumeId = volumeId,
         linkId = FileId(shareId, linkId),
         albumId = albumId,
         captureTime = TimestampS(captureTime),

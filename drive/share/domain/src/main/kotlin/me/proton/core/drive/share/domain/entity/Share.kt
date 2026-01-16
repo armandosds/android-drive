@@ -20,6 +20,7 @@ package me.proton.core.drive.share.domain.entity
 import kotlinx.serialization.Serializable
 import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.base.domain.entity.TimestampS
+import me.proton.core.drive.volume.domain.entity.Volume
 import me.proton.core.drive.volume.domain.entity.VolumeId
 import me.proton.core.user.domain.entity.AddressId
 
@@ -29,6 +30,7 @@ data class ShareId(val userId: UserId, val id: String)
 data class Share(
     val id: ShareId,
     val volumeId: VolumeId,
+    val volumeType: Volume.Type? = null,
     val rootLinkId: String,
     val addressId: AddressId?,
     val isMain: Boolean,

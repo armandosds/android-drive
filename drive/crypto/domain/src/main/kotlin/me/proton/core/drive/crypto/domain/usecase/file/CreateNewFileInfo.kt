@@ -17,7 +17,6 @@
  */
 package me.proton.core.drive.crypto.domain.usecase.file
 
-import me.proton.core.drive.base.domain.extension.toResult
 import me.proton.core.drive.base.domain.usecase.GetOrCreateClientUid
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.crypto.domain.usecase.HmacSha256
@@ -37,9 +36,6 @@ import me.proton.core.drive.key.domain.usecase.GetNodeKey
 import me.proton.core.drive.link.domain.entity.Link
 import me.proton.core.drive.link.domain.extension.shareId
 import me.proton.core.drive.link.domain.extension.userId
-import me.proton.core.drive.link.domain.usecase.ValidateLinkName
-import me.proton.core.drive.share.domain.entity.Share
-import me.proton.core.drive.share.domain.usecase.GetShare
 import me.proton.core.drive.share.domain.usecase.GetSignatureAddress
 import javax.inject.Inject
 
@@ -50,12 +46,10 @@ class CreateNewFileInfo @Inject constructor(
     private val generateNodeKey: GenerateNodeKey,
     private val generateContentKey: GenerateContentKey,
     private val encryptText: EncryptText,
-    private val validateLinkName: ValidateLinkName,
     private val hmacSha256: HmacSha256,
     private val getSignatureAddress: GetSignatureAddress,
-    private val avoidDuplicateFileName: AvoidDuplicateFileName,
     private val getOrCreateClientUid: GetOrCreateClientUid,
-    private val getShare: GetShare,
+    private val getFileName: GetFileName,
 ) {
 
     suspend operator fun invoke(
@@ -67,15 +61,7 @@ class CreateNewFileInfo @Inject constructor(
     ): Result<NewFileInfo> = coRunCatching {
         val folderKey = getNodeKey(folder).getOrThrow()
         val folderHashKey = getNodeHashKey(folder, folderKey).getOrThrow()
-        val fileName = if (folder.allowDuplicateFileName()) {
-            validateLinkName(name).getOrThrow()
-        } else {
-            avoidDuplicateFileName(
-                fileName = validateLinkName(name).getOrThrow(),
-                parentFolderId = folder.id,
-                folderHashKey = folderHashKey,
-            ).getOrThrow()
-        }
+        val fileName = getFileName(name, folder, folderHashKey).getOrThrow()
         val userId = folder.userId
         val signatureAddress = getSignatureAddress(folder.shareId).getOrThrow()
         NewFileInfo(
@@ -119,6 +105,4 @@ class CreateNewFileInfo @Inject constructor(
         ).getOrThrow()
     }
 
-    private suspend fun Link.Folder.allowDuplicateFileName() =
-        getShare(id.shareId).toResult().getOrThrow().type == Share.Type.PHOTO
 }

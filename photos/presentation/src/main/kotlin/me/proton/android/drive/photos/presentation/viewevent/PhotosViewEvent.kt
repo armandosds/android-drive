@@ -20,20 +20,18 @@ package me.proton.android.drive.photos.presentation.viewevent
 
 import android.content.Context
 import androidx.paging.CombinedLoadStates
-import me.proton.android.drive.photos.presentation.state.PhotosItem
 import me.proton.core.drive.backup.domain.entity.BackupPermissions
-import me.proton.core.drive.base.domain.entity.FastScrollAnchor
 import me.proton.core.drive.drivelink.domain.entity.DriveLink
+import me.proton.core.drive.link.domain.entity.FileId
 import me.proton.core.drive.link.domain.entity.LinkId
 import me.proton.core.drive.link.domain.entity.PhotoTag
-import me.proton.core.drive.photo.domain.entity.AlbumListing
 
 interface PhotosViewEvent {
     val onScroll: (Int, Set<LinkId>) -> Unit get() = { _, _ -> }
     val onStatusClicked: () -> Unit get() = {}
     val onTopAppBarNavigation: () -> Unit get() = {}
     val onDriveLink: (DriveLink) -> Unit get() = {}
-
+    val onPhotoListingItem: (FileId) -> Unit get() = {}
     val onLoadState: (CombinedLoadStates, Int) -> Unit
     val onRefresh: () -> Unit get() = {}
     val onErrorAction: () -> Unit get() = {}
@@ -54,5 +52,5 @@ interface PhotosViewEvent {
     val onResolve: () -> Unit get() = {}
     val onShowUpsell: () -> Unit
     val onFilterSelected: (PhotoTag?) -> Unit get() = {}
-    val onRenderThumbnail: (DriveLink) -> Unit get() = {}
+    val onRenderThumbnail: (LinkId) -> Unit get() = {}
 }

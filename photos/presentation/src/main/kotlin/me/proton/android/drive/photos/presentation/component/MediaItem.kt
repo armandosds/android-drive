@@ -54,7 +54,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.ImageLoader
 import coil.compose.LocalImageLoader
-import coil.request.ImageRequest
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
@@ -84,41 +83,68 @@ import me.proton.core.drive.files.presentation.extension.driveLinkSemantics
 import me.proton.core.drive.link.domain.entity.FileId
 import me.proton.core.drive.link.domain.entity.FolderId
 import me.proton.core.drive.link.domain.entity.Link
+import me.proton.core.drive.link.domain.entity.LinkId
 import me.proton.core.drive.link.domain.entity.PhotoTag
 import me.proton.core.drive.link.domain.entity.SharingDetails
 import me.proton.core.drive.linkdownload.domain.entity.DownloadState
 import me.proton.core.drive.share.domain.entity.ShareId
 import me.proton.core.drive.shareurl.base.domain.entity.ShareUrlId
-import me.proton.core.drive.thumbnail.presentation.extension.cacheKey
+import me.proton.core.drive.thumbnail.presentation.entity.ThumbnailVO
+import me.proton.core.drive.thumbnail.presentation.extension.painter
+import me.proton.core.drive.thumbnail.presentation.extension.preCache
 import me.proton.core.drive.thumbnail.presentation.extension.thumbnailVO
 import me.proton.core.drive.volume.domain.entity.VolumeId
-import me.proton.core.presentation.R
 import java.util.concurrent.TimeUnit.MINUTES
 import me.proton.core.drive.base.presentation.R as BasePresentation
+import me.proton.core.presentation.R as CorePresentation
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MediaItem(
     link: DriveLink?,
     index: Int,
     modifier: Modifier = Modifier,
+    thumbnailVO: ThumbnailVO? = null,
     isSelected: Boolean = false,
     inMultiselect: Boolean = false,
     onClick: (DriveLink) -> Unit,
     onLongClick: (DriveLink) -> Unit,
-    onRenderThumbnail: (DriveLink) -> Unit,
+    onPhotoListingItem: (FileId) -> Unit,
+    onRenderThumbnail: (LinkId) -> Unit,
 ) {
-    if (link != null) {
-        MediaItem(
-            link = link,
-            modifier = modifier,
-            isSelected = isSelected,
-            inMultiselect = inMultiselect,
-            onClick = onClick,
-            onLongClick = onLongClick,
-            onRenderThumbnail = onRenderThumbnail,
-        )
-        if (BuildConfig.DEBUG) {
-            Text(text = "index $index")
+    val painterWrapper = thumbnailVO?.painter() ?: link?.thumbnailPainter()
+    if (painterWrapper != null) {
+        Box(
+            modifier = modifier
+                .aspectRatio(0.75F)
+                .background(ProtonTheme.colors.backgroundSecondary),
+        ) {
+            val linkId = thumbnailVO?.fileId ?: link?.id
+            Image(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .combinedClickable(
+                        enabled = linkId != null,
+                        onClick = {
+                            (linkId as? FileId)?.let { onPhotoListingItem(linkId) }
+                        },
+                        onLongClick = {},
+                    )
+                    .placeholder(
+                        visible = painterWrapper.isLoading,
+                        color = ProtonTheme.colors.backgroundSecondary,
+                        highlight = PlaceholderHighlight.shimmer(ProtonTheme.colors.backgroundNorm)
+                    )
+                    .drawWithContent {
+                        drawContent()
+                        if (linkId != null) {
+                            onRenderThumbnail(linkId)
+                        }
+                    },
+                painter = painterWrapper.painter,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+            )
         }
     } else {
         Box(
@@ -135,6 +161,19 @@ fun MediaItem(
             Text(text = "index $index")
         }
     }
+    if (link != null) {
+        MediaItem(
+            link = link,
+            modifier = modifier,
+            isSelected = isSelected,
+            inMultiselect = inMultiselect,
+            onClick = onClick,
+            onLongClick = onLongClick,
+        )
+        if (BuildConfig.DEBUG) {
+            Text(text = "index $index")
+        }
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -146,7 +185,6 @@ private fun MediaItem(
     inMultiselect: Boolean = false,
     onClick: (DriveLink) -> Unit,
     onLongClick: (DriveLink) -> Unit,
-    onRenderThumbnail: (DriveLink) -> Unit,
 ) {
     val haptic = LocalHapticFeedback.current
     Box(
@@ -161,7 +199,7 @@ private fun MediaItem(
                     onLongClick(link)
                 },
             )
-            .background(ProtonTheme.colors.backgroundSecondary)
+            .background(Color.Transparent)
             .testTag(ProtonMediaItemTestTags.mediaItemPreviewBox)
     ) {
         val localContext = LocalContext.current
@@ -169,23 +207,6 @@ private fun MediaItem(
         LaunchedEffect(localContext) {
             link.preCachePhotoThumbnail(localContext, imageLoader)
         }
-        val painterWrapper = link.thumbnailPainter()
-        Image(
-            modifier = Modifier
-                .fillMaxSize()
-                .placeholder(
-                    visible = painterWrapper.isLoading,
-                    color = ProtonTheme.colors.backgroundSecondary,
-                    highlight = PlaceholderHighlight.shimmer(ProtonTheme.colors.backgroundNorm)
-                )
-                .drawWithContent {
-                    drawContent()
-                    onRenderThumbnail(link)
-                },
-            painter = painterWrapper.painter,
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-        )
         Crossfade(
             targetState = inMultiselect,
         ) { inMultiselect ->
@@ -245,7 +266,7 @@ fun FileOverlay(
                 PhotoDownloadIcon(file)
             }
             if (file.isSharedByLinkOrWithUsers) {
-                PhotoIcon(R.drawable.ic_proton_users, null)
+                PhotoIcon(CorePresentation.drawable.ic_proton_users, null)
             }
         }
         when (file.mimeType.toFileTypeCategory()) {
@@ -264,7 +285,7 @@ fun FileOverlay(
 private fun PhotoDownloadIcon(file: DriveLink) {
     when (file.downloadState) {
         is DownloadState.Downloaded,
-        is DownloadState.Ready -> PhotoIcon(R.drawable.ic_proton_arrow_down, null)
+        is DownloadState.Ready -> PhotoIcon(CorePresentation.drawable.ic_proton_arrow_down, null)
         DownloadState.Downloading -> PhotoIconContainer {
             CircularProgressIndicator(
                 modifier = Modifier
@@ -275,7 +296,7 @@ private fun PhotoDownloadIcon(file: DriveLink) {
             )
         }
 
-        DownloadState.Error -> PhotoIcon(R.drawable.ic_proton_pause_filled, null)
+        DownloadState.Error -> PhotoIcon(CorePresentation.drawable.ic_proton_pause_filled, null)
         null -> Unit
     }
 }
@@ -312,14 +333,14 @@ fun VideoFileOverlay(
                 style = ProtonTheme.typography.captionNorm.copy(color = ProtonTheme.colors.shade0)
             )
             PhotoIcon(
-                id = R.drawable.ic_proton_play_filled,
+                id = CorePresentation.drawable.ic_proton_play_filled,
                 contentDescription = null,
             )
         }
     } else {
         PhotoIcon(
             modifier = modifier,
-            id = R.drawable.ic_proton_play_filled,
+            id = CorePresentation.drawable.ic_proton_play_filled,
             contentDescription = null,
         )
     }
@@ -367,15 +388,7 @@ private fun DriveLink.preCachePhotoThumbnail(context: Context, imageLoader: Imag
             photoDriveLink.getThumbnailId(ThumbnailType.PHOTO)?.let {
                 photoDriveLink.thumbnailVO(ThumbnailType.PHOTO)
             }
-        }
-        ?.let { source ->
-            imageLoader.enqueue(
-                ImageRequest.Builder(context)
-                    .data(source)
-                    .memoryCacheKey(source.cacheKey)
-                    .build()
-            )
-        }
+        }?.preCache(context, imageLoader)
 }
 
 private val iconSize = 12.dp
@@ -442,11 +455,10 @@ fun MediaItemPreview() {
 
     ProtonTheme {
         MediaItem(
-            driveLink,
+            link = driveLink,
             modifier = Modifier.width(120.dp),
             onClick = {},
             onLongClick = {},
-            onRenderThumbnail = {},
         )
     }
 }

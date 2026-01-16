@@ -104,3 +104,12 @@ includeCoreBuild {
     branch.set("main")
     includeBuild("gopenpgp")
 }
+
+val driveSdkPath = extra.properties["me.proton.drive.sdk.path"] as String?
+if (driveSdkPath != null) {
+    includeBuild(driveSdkPath) {
+        dependencySubstitution {
+            substitute(module("me.proton.drive:sdk")).using(project(":sdk"))
+        }
+    }
+}

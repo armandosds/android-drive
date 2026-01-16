@@ -27,6 +27,7 @@ fun ShareDto.toShareEntity(userId: UserId) =
         id = id,
         userId = userId,
         volumeId = volumeId,
+        volumeType= volumeType,
         addressId = addressId?.let { AddressId(addressId) },
         flags = flags,
         linkId = linkId,

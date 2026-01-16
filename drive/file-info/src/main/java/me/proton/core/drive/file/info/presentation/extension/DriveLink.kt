@@ -19,17 +19,16 @@
 package me.proton.core.drive.file.info.presentation.extension
 
 import android.content.Context
-import android.os.Build
 import me.proton.core.drive.base.domain.entity.TimestampS
-import me.proton.core.drive.base.domain.entity.toFileTypeCategory
 import me.proton.core.drive.base.presentation.extension.asHumanReadableString
-import me.proton.core.drive.base.presentation.extension.labelResId
 import me.proton.core.drive.base.presentation.extension.toPermissionLabel
 import me.proton.core.drive.base.presentation.extension.toReadableDate
+import me.proton.core.drive.file.base.domain.extension.toXAttr
 import me.proton.core.drive.drivelink.domain.entity.DriveLink
 import me.proton.core.drive.drivelink.domain.extension.hasShareLink
 import me.proton.core.drive.drivelink.domain.extension.isNameEncrypted
 import me.proton.core.drive.drivelink.domain.extension.isSharedByLinkOrWithUsers
+import me.proton.core.drive.base.presentation.BuildConfig
 import me.proton.core.drive.file.info.presentation.entity.Item
 import me.proton.core.drive.link.domain.entity.BaseLink
 import me.proton.core.drive.link.domain.entity.Folder
@@ -120,6 +119,61 @@ fun DriveLink.toItems(
         )
     }
 )
+
+fun DriveLink.toAdvancedItems(
+    context: Context,
+    contentAuthor: String? = null,
+): List<Item> {
+    if (!BuildConfig.DEBUG) return emptyList()
+
+    val xAttr = cryptoXAttr.value?.toXAttr()?.getOrNull() ?: return emptyList()
+    val common = xAttr.common
+
+    val sha1 = common.digests?.get("SHA1") ?: common.digests?.get("sha1")
+    val clearTextSize = common.size
+
+    val contentAuthorNormalized = contentAuthor?.takeUnless { it.isBlank() }
+    val keyAuthor = link.signatureEmail.takeUnless { it.isBlank() }
+    val nameAuthor = link.nameSignatureEmail?.takeUnless { it.isBlank() }
+    val normalizedSha1 = sha1?.takeUnless { it.isBlank() }
+
+    return listOfNotNull(
+        clearTextSize?.let {
+            Item(
+                name = context.getString(I18N.string.file_info_title_original_size_bytes),
+                value = it.toString(),
+            )
+        },
+        Item(
+            name = context.getString(I18N.string.file_title_info_size_bytes),
+            value = size.value.toString(),
+        ),
+        normalizedSha1?.let {
+            Item(
+                name = context.getString(I18N.string.file_info_title_sha1),
+                value = it,
+            )
+        },
+        contentAuthorNormalized?.let {
+            Item(
+                name = context.getString(I18N.string.file_info_title_content_author),
+                value = it,
+            )
+        },
+        keyAuthor?.let {
+            Item(
+                name = context.getString(I18N.string.file_info_title_key_author),
+                value = it,
+            )
+        },
+        nameAuthor?.let {
+            Item(
+                name = context.getString(I18N.string.file_info_title_name_author),
+                value = it,
+            )
+        }
+    )
+}
 
 private fun BaseLink.getType(context: Context): String =
     context.contentResolver.getTypeInfo(mimeType).label.toString()

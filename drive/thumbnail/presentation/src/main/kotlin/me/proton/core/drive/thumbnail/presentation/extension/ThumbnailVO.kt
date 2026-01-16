@@ -18,6 +18,33 @@
 
 package me.proton.core.drive.thumbnail.presentation.extension
 
+import android.content.Context
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
+import coil.ImageLoader
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
+import coil.size.Scale
+import coil.size.Size
 import me.proton.core.drive.thumbnail.presentation.entity.ThumbnailVO
+import me.proton.core.drive.thumbnail.presentation.painter.ThumbnailPainterWrapper
 
 val ThumbnailVO.cacheKey: String get() = "${revisionId}_${thumbnailId.type}"
+
+fun ThumbnailVO.preCache(context: Context, imageLoader: ImageLoader) = imageLoader.enqueue(
+    request = ImageRequest.Builder(context)
+        .data(this)
+        .memoryCacheKey(cacheKey)
+        .build()
+)
+
+@Composable
+fun ThumbnailVO.painter() = ThumbnailPainterWrapper(
+    painter = rememberAsyncImagePainter(
+        ImageRequest.Builder(LocalContext.current)
+            .scale(Scale.FILL)
+            .data(this)
+            .size(Size.ORIGINAL)
+            .build()
+    )
+)

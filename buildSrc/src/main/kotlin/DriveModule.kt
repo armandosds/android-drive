@@ -47,6 +47,7 @@ fun Project.driveModule(
     kapt: Boolean = hilt || room || socialTest,
     showkase: Boolean = false,
     buildConfig: Boolean = false,
+    enableTestFixtures: Boolean = false,
     dependencies: DependencyHandler.() -> Unit = {},
 ) {
     val catalog = extensions.getByType<VersionCatalogsExtension>().named("libs")
@@ -110,6 +111,12 @@ fun Project.driveModule(
 
     extensions.findByType<LibraryExtension>()?.apply {
         compileSdk = Config.compileSdk
+
+        if (enableTestFixtures) {
+            testFixtures {
+                enable = true
+            }
+        }
 
         defaultConfig {
             javaCompileOptions {

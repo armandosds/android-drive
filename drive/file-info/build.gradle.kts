@@ -28,6 +28,7 @@ driveModule(
     i18n = true,
     kapt = true,
     showkase = true,
+    buildConfig = true,
 ) {
     api(project(":drive:base:presentation"))
     api(project(":drive:drivelink"))

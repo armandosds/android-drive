@@ -74,6 +74,7 @@ class MainInitializer : Initializer<Unit> {
             with(AppInitializer.getInstance(appContext)) {
                 // WorkManager need to be initialized before any other dependant initializer.
                 initializeComponent(WorkManagerInitializer::class.java)
+                initializeComponent(ProtonDriveSdkInitializer::class.java)
                 initializeComponent(MainInitializer::class.java)
             }
         }

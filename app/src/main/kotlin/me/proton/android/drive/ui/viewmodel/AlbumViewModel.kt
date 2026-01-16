@@ -48,6 +48,7 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
 import me.proton.android.drive.extension.getDefaultMessage
+import me.proton.android.drive.extension.thumbnailVO
 import me.proton.android.drive.photos.domain.usecase.AddPhotosToStream
 import me.proton.android.drive.photos.domain.usecase.AddToAlbumInfo
 import me.proton.android.drive.photos.domain.usecase.GetAddToAlbumPhotoListings
@@ -88,7 +89,6 @@ import me.proton.core.drive.drivelink.photo.domain.usecase.GetPagedAlbumPhotoLis
 import me.proton.core.drive.drivelink.selection.domain.usecase.GetSelectedDriveLinks
 import me.proton.core.drive.drivelink.selection.domain.usecase.SelectAll
 import me.proton.core.drive.drivelink.shared.presentation.extension.toViewState
-import me.proton.core.drive.feature.flag.domain.usecase.GetFeatureFlagFlow
 import me.proton.core.drive.link.domain.entity.AlbumId
 import me.proton.core.drive.link.domain.entity.FileId
 import me.proton.core.drive.link.domain.entity.LinkId
@@ -124,9 +124,8 @@ class AlbumViewModel @Inject constructor(
     removeFromAlbumInfo: RemoveFromAlbumInfo,
     getAddToAlbumPhotoListings: GetAddToAlbumPhotoListings,
     getPhotoShare: GetPhotoShare,
-    getFeatureFlagFlow: GetFeatureFlagFlow,
     getShareUsers: GetShareUsers,
-    @ApplicationContext private val appContext: Context,
+    @param:ApplicationContext private val appContext: Context,
     private val onFilesDriveLinkError: OnFilesDriveLinkError,
     private val photoDriveLinks: PhotoDriveLinks,
     private val getPagedAlbumPhotoListingsList: GetPagedAlbumPhotoListingsList,
@@ -296,9 +295,10 @@ class AlbumViewModel @Inject constructor(
                         .map { pagingData ->
                             pagingData.map { albumPhotoListing ->
                                 PhotosItem.PhotoListing(
-                                    albumPhotoListing.linkId,
-                                    albumPhotoListing.captureTime,
-                                    null
+                                    id = albumPhotoListing.linkId,
+                                    captureTime = albumPhotoListing.captureTime,
+                                    link = null,
+                                    thumbnailVO = albumPhotoListing.thumbnailVO,
                                 )
                             }
                         }
@@ -342,6 +342,9 @@ class AlbumViewModel @Inject constructor(
             onBackPressed()
         }
         override val onBackPressed = { navigateBack() }
+        override val onPhotoListingItem = { fileId: FileId ->
+            navigateToPreview(fileId, albumId)
+        }
         override val onLoadState: (CombinedLoadStates, Int) -> Unit = onLoadState(
             appContext = appContext,
             useExceptionMessage = configurationProvider.useExceptionMessage,

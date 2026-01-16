@@ -31,7 +31,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted.Companion.Eagerly
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -47,8 +46,8 @@ import me.proton.android.drive.usecase.NotifyActivityNotFound
 import me.proton.core.compose.component.bottomsheet.RunAction
 import me.proton.core.domain.arch.mapSuccessValueOrNull
 import me.proton.core.drive.base.data.extension.getDefaultMessage
+import me.proton.core.drive.base.domain.extension.combine
 import me.proton.core.drive.base.domain.extension.mapWithPrevious
-import me.proton.core.drive.base.domain.log.LogTag.UPLOAD
 import me.proton.core.drive.base.domain.log.LogTag.VIEW_MODEL
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.usecase.BroadcastMessages
@@ -59,6 +58,7 @@ import me.proton.core.drive.document.base.domain.entity.DocumentType
 import me.proton.core.drive.drivelink.crypto.domain.usecase.GetDecryptedDriveLink
 import me.proton.core.drive.drivelink.domain.entity.DriveLink
 import me.proton.core.drive.drivelink.upload.domain.usecase.UploadFiles
+import me.proton.core.drive.drivelink.upload.domain.usecase.UploadFolder
 import me.proton.core.drive.feature.flag.domain.entity.FeatureFlag
 import me.proton.core.drive.feature.flag.domain.entity.FeatureFlag.State.NOT_FOUND
 import me.proton.core.drive.feature.flag.domain.entity.FeatureFlagId
@@ -87,8 +87,9 @@ class ParentFolderOptionsViewModel @Inject constructor(
     getDriveLink: GetDecryptedDriveLink,
     getFeatureFlagFlow: GetFeatureFlagFlow,
     private val savedStateHandle: SavedStateHandle,
-    @ApplicationContext private val appContext: Context,
+    @param:ApplicationContext private val appContext: Context,
     private val uploadFiles: UploadFiles,
+    private val uploadFolder: UploadFolder,
     private val getCacheTempFolder: GetCacheTempFolder,
     private val getUriForFile: GetUriForFile,
     private val notifyActivityNotFound: NotifyActivityNotFound,
@@ -121,6 +122,8 @@ class ParentFolderOptionsViewModel @Inject constructor(
         .stateIn(viewModelScope, Eagerly, FeatureFlag(FeatureFlagId.docsSheetsEnabled(userId), NOT_FOUND))
     private val createSheetOnMobileFeatureFlag = getFeatureFlagFlow(FeatureFlagId.docsCreateNewSheetOnMobileEnabled(userId))
         .stateIn(viewModelScope, Eagerly, FeatureFlag(FeatureFlagId.docsCreateNewSheetOnMobileEnabled(userId), NOT_FOUND))
+    private val uploadFolderFeatureFlag = getFeatureFlagFlow(FeatureFlagId.driveAndroidUploadFolder(userId))
+        .stateIn(viewModelScope, Eagerly, FeatureFlag(FeatureFlagId.driveAndroidUploadFolder(userId), NOT_FOUND))
 
     fun entries(
         runAction: RunAction,
@@ -128,6 +131,7 @@ class ParentFolderOptionsViewModel @Inject constructor(
         navigateToPreview: (FileId) -> Unit,
         showFilePicker: (() -> Unit) -> Unit,
         takeAPhoto: (Uri, () -> Unit) -> Unit,
+        showFolderPicker: (() -> Unit) -> Unit,
         dismiss: () -> Unit,
     ): Flow<List<FileOptionEntry<DriveLink.Folder>>> = combine(
         driveLink.filterNotNull(),
@@ -135,11 +139,13 @@ class ParentFolderOptionsViewModel @Inject constructor(
         sheetsKillSwitch,
         sheetsFeatureFlag,
         createSheetOnMobileFeatureFlag,
-    ) { folder, protonDocsKillSwitch, _, _, _ ->
+        uploadFolderFeatureFlag,
+    ) { folder, protonDocsKillSwitch, _, _, _, uploadFolder ->
         options
             .filter(folder)
             .filterProtonDocs(protonDocsKillSwitch)
             .filterProtonSheets(isProtonSheetsEnabled)
+            .filterUploadFolder(uploadFolder.on)
             .map { option ->
                 when (option) {
                     is Option.CreateDocument -> option.build(
@@ -156,6 +162,9 @@ class ParentFolderOptionsViewModel @Inject constructor(
                     is Option.TakeAPhoto -> option.build { onTakeAPhoto(takeAPhoto) }
                     is Option.UploadFile -> option.build {
                         showFilePicker { handleActivityNotFound(I18N.string.operation_open_document) }
+                    }
+                    is Option.UploadFolder -> option.build {
+                        showFolderPicker { handleActivityNotFound(I18N.string.operation_open_document) }
                     }
                     else -> throw IllegalStateException(
                         "Option ${option.javaClass.simpleName} is not found. Did you forget to add it?"
@@ -175,11 +184,27 @@ class ParentFolderOptionsViewModel @Inject constructor(
                     priority = UploadFileLink.USER_PRIORITY,
                 )
                     .onFailure { error ->
-                        error.log(UPLOAD)
+                        error.log(VIEW_MODEL, "Upload files failed")
                         if (error is NotEnoughSpaceException) {
                             navigateToStorageFull()
                             return@launch
                         }
+                    }
+            }
+            dismiss()
+        }
+    }
+
+    fun onAddFolderResult(uriString: String, dismiss: () -> Unit) {
+        viewModelScope.launch {
+            driveLink.value?.let { folder ->
+                uploadFolder(
+                    folderId = folder.id,
+                    uriString = uriString,
+                    shouldBroadcastMessage = true,
+                )
+                    .onFailure { error ->
+                        error.log(VIEW_MODEL, "Upload folder failed")
                     }
             }
             dismiss()
@@ -198,7 +223,7 @@ class ParentFolderOptionsViewModel @Inject constructor(
                         priority = UploadFileLink.USER_PRIORITY,
                     )
                         .onFailure { error ->
-                            error.log(UPLOAD)
+                            error.log(VIEW_MODEL, "Upload file failed")
                             if (error is NotEnoughSpaceException) {
                                 navigateToStorageFull()
                                 updatePhotoUri(null)
@@ -271,6 +296,14 @@ class ParentFolderOptionsViewModel @Inject constructor(
     private val isProtonSheetsEnabled: Boolean get() =
         sheetsFeatureFlag.value.on && createSheetOnMobileFeatureFlag.value.on && sheetsKillSwitch.value.off
 
+    private fun Iterable<Option>.filterUploadFolder(isUploadFolderEnabled: Boolean): List<Option> =
+        filter { option ->
+            when (option) {
+                is Option.UploadFolder -> isUploadFolderEnabled
+                else -> true
+            }
+        }
+
     companion object {
         const val KEY_SHARE_ID = "shareId"
         const val KEY_FOLDER_ID = "folderId"
@@ -278,6 +311,7 @@ class ParentFolderOptionsViewModel @Inject constructor(
 
         private val options = setOf(
             Option.UploadFile,
+            Option.UploadFolder,
             Option.TakeAPhoto,
             Option.CreateFolder,
             Option.CreateDocument,

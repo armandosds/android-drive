@@ -69,7 +69,9 @@ import me.proton.core.compose.theme.ProtonTheme
 import me.proton.core.compose.theme.textNorm
 import me.proton.core.drive.base.presentation.component.ProtonIconTextButton
 import me.proton.core.drive.drivelink.domain.entity.DriveLink
+import me.proton.core.drive.link.domain.entity.FileId
 import me.proton.core.drive.link.domain.entity.LinkId
+import me.proton.core.drive.thumbnail.presentation.entity.ThumbnailVO
 import me.proton.core.presentation.R as CorePresentation
 import me.proton.core.drive.i18n.R as I18N
 
@@ -256,11 +258,13 @@ fun PhotosToAddToAlbum(
                 AddToAlbumItem(
                     driveLink = driveLinksMap[item.id] as? DriveLink.File,
                     index = index,
+                    thumbnailVO = item.thumbnailVO,
                     isSelected = false,
                     inMultiselect = false,
                     isRemoveEnabled = isRemoveEnabled,
                     onClick = {},
                     onLongClick = {},
+                    onPhotoListingItem = {},
                     onRemove = onRemove,
                 )
             }
@@ -272,11 +276,13 @@ fun PhotosToAddToAlbum(
 fun AddToAlbumItem(
     driveLink: DriveLink.File?,
     index: Int,
+    thumbnailVO: ThumbnailVO?,
     isSelected: Boolean,
     inMultiselect: Boolean,
     isRemoveEnabled: Boolean,
     onClick: (DriveLink) -> Unit,
     onLongClick: (DriveLink) -> Unit,
+    onPhotoListingItem: (FileId) -> Unit,
     onRemove: (DriveLink.File) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -288,11 +294,13 @@ fun AddToAlbumItem(
                 .padding(all = ProtonDimens.DefaultSpacing)
                 .clip(ProtonTheme.shapes.small),
             link = driveLink,
+            thumbnailVO = thumbnailVO,
             index = index,
             isSelected = isSelected,
             inMultiselect = inMultiselect,
             onClick = onClick,
             onLongClick = onLongClick,
+            onPhotoListingItem = onPhotoListingItem,
             onRenderThumbnail = {},
         )
         driveLink?.let {

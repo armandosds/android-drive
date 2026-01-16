@@ -36,6 +36,7 @@ import me.proton.core.drive.base.data.db.Column.PASSPHRASE_SIGNATURE
 import me.proton.core.drive.base.data.db.Column.TYPE
 import me.proton.core.drive.base.data.db.Column.USER_ID
 import me.proton.core.drive.base.data.db.Column.VOLUME_ID
+import me.proton.core.drive.base.data.db.Column.VOLUME_TYPE
 import me.proton.core.user.domain.entity.AddressId
 
 @Entity(
@@ -62,6 +63,8 @@ data class ShareEntity(
     val userId: UserId,
     @ColumnInfo(name = VOLUME_ID)
     val volumeId: String,
+    @ColumnInfo(name = VOLUME_TYPE)
+    val volumeType: Long? = null,
     @ColumnInfo(name = ADDRESS_ID)
     val addressId: AddressId? = null,
     @ColumnInfo(name = FLAGS)

@@ -40,6 +40,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import me.proton.android.drive.extension.getDefaultMessage
 import me.proton.android.drive.extension.log
+import me.proton.android.drive.extension.thumbnailVO
 import me.proton.android.drive.photos.domain.usecase.ClearNewAlbum
 import me.proton.android.drive.photos.domain.usecase.CreateNewAlbum
 import me.proton.android.drive.photos.domain.usecase.GetNewAlbumName
@@ -71,7 +72,7 @@ import me.proton.core.drive.i18n.R as I18N
 class CreateNewAlbumViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     getPagedAddToAlbumPhotoListings: GetPagedAddToAlbumPhotoListings,
-    @ApplicationContext private val appContext: Context,
+    @param:ApplicationContext private val appContext: Context,
     private val broadcastMessages: BroadcastMessages,
     private val configurationProvider: ConfigurationProvider,
     private val updateAlbumName: UpdateAlbumName,
@@ -131,6 +132,7 @@ class CreateNewAlbumViewModel @Inject constructor(
                     id = photoListing.linkId,
                     captureTime = photoListing.captureTime,
                     link = null,
+                    thumbnailVO = photoListing.thumbnailVO,
                 )
             }
         }
@@ -155,7 +157,10 @@ class CreateNewAlbumViewModel @Inject constructor(
             currentAlbumName.value?.let { albumName ->
                 isCreationInProgress.value = true
                 showAddToAlbumStartMessage()
-                createNewAlbum(userId = userId, isLocked = false)
+                createNewAlbum(
+                    userId = userId,
+                    isLocked = false,
+                )
                     .onFailure { error ->
                         isCreationInProgress.value = false
                         error.log(VIEW_MODEL, "Creating new album failed")

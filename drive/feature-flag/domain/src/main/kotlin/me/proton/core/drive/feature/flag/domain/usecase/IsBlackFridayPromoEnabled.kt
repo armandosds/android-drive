@@ -21,6 +21,8 @@ package me.proton.core.drive.feature.flag.domain.usecase
 import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.feature.flag.domain.entity.FeatureFlagId.Companion.driveAndroidBlackFriday2025
 import me.proton.core.drive.feature.flag.domain.extension.on
+import me.proton.core.user.domain.UserManager
+import me.proton.core.user.domain.extension.hasSubscription
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
@@ -28,6 +30,7 @@ import javax.inject.Inject
 
 class IsBlackFridayPromoEnabled @Inject constructor(
     private val getFeatureFlag: GetFeatureFlag,
+    private val userManager: UserManager,
 ) {
     private val limitUtc = ZonedDateTime
         .of(2025, 12, 3, 23, 59, 59, 0, ZoneOffset.UTC)
@@ -35,8 +38,13 @@ class IsBlackFridayPromoEnabled @Inject constructor(
     private val nowUtc: Instant = Instant.now()
 
     suspend operator fun invoke(userId: UserId) =
-        nowUtc.isBefore(limitUtc) && isBlackFridayPromoEnabled(userId)
+        nowUtc.isBefore(limitUtc) &&
+                isBlackFridayPromoEnabled(userId) &&
+                isUserWithoutProtonSubscription(userId)
 
     private suspend fun isBlackFridayPromoEnabled(userId: UserId) =
         getFeatureFlag(driveAndroidBlackFriday2025(userId)).on
+
+    private suspend fun isUserWithoutProtonSubscription(userId: UserId) =
+        userManager.getUser(userId).hasSubscription().not()
 }

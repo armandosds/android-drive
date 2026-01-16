@@ -234,5 +234,6 @@ object Dto {
     const val VOLUME_ID = "VolumeID"
     const val VOLUME_NAME = "VolumeName"
     const val VOLUME_MAX_SPACE = "VolumeMaxSpace"
+    const val VOLUME_TYPE = "VolumeType"
     const val X_ATTR = "XAttr"
 }

@@ -20,6 +20,7 @@ package me.proton.core.drive.test.entity
 
 import me.proton.core.drive.db.test.volumeId
 import me.proton.core.drive.share.data.api.ShareDto
+import me.proton.core.drive.volume.data.api.entity.VolumeDto
 
 fun NullableShareDto(
     id: String,
@@ -30,6 +31,7 @@ fun NullableShareDto(
     state = 1,
     linkId = "root-id-$id",
     volumeId = volumeId.id,
+    volumeType = VolumeDto.TYPE_REGULAR,
     creator = "",
     flags = 0,
     locked = false,

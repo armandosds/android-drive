@@ -19,7 +19,6 @@
 package me.proton.android.drive.ui
 
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
@@ -179,7 +178,7 @@ class MainActivity : FragmentActivity() {
                         navigateToSecurityKeys = accountViewModel::startSecurityKeys,
                         navigateToBugReport = bugReportViewModel::sendBugReport,
                         navigateToSubscription = plansViewModel::showCurrentPlans,
-                        navigateToRatingBooster = { showRatingBooster(this@MainActivity) },
+                        navigateToRatingBooster = { showRatingBooster(activity = this@MainActivity) },
                         navigateToUpgradePlan = plansViewModel::startUpgrade,
                     ) { isOpen ->
                         isDrawerOpen = isOpen
@@ -318,6 +317,7 @@ class MainActivity : FragmentActivity() {
                     is AccountViewModel.State.Processing,
                     is AccountViewModel.State.StepNeeded,
                     is AccountViewModel.State.AccountReady -> Unit
+
                     is AccountViewModel.State.PrimaryNeeded -> {
                         clearBackstackTrigger.emit(Unit)
                         activityLauncher {
@@ -325,6 +325,7 @@ class MainActivity : FragmentActivity() {
                             accountViewModel.startAddAccount()
                         }
                     }
+
                     is AccountViewModel.State.ExitApp -> finish()
                 }
             }

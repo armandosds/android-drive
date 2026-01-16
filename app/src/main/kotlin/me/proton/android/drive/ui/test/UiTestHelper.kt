@@ -20,16 +20,12 @@ package me.proton.android.drive.ui.test
 
 import androidx.annotation.RestrictTo
 import androidx.datastore.preferences.core.edit
-import me.proton.android.drive.usecase.MarkOnboardingAsShown
-import me.proton.android.drive.usecase.MarkRatingBoosterAsShown
-import me.proton.android.drive.usecase.MarkWhatsNewAsShown
 import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.base.data.datastore.GetUserDataStore
 import me.proton.core.drive.base.data.datastore.GetUserDataStore.Keys.subscriptionLastUpdate
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.drive.android.settings.data.datastore.AppUiSettingsDataStore
 import me.proton.drive.android.settings.domain.entity.WhatsNewKey
-import java.util.Date
 import javax.inject.Inject
 
 @RestrictTo(RestrictTo.Scope.TESTS)

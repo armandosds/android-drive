@@ -33,6 +33,7 @@ driveModule(
     api(libs.core.domain)
     api(libs.core.user.domain)
     api(libs.core.userSettings.domain)
+    api(libs.drive.sdk)
 
     implementation(libs.core.accountManager.domain)
     implementation(libs.core.data)

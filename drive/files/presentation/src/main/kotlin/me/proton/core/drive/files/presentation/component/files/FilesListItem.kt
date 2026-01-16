@@ -352,23 +352,23 @@ fun OfflineIcon(
     link: DriveLink,
     modifier: Modifier = Modifier,
 ) {
-    if (!(link.isMarkedAsOffline || link.isAnyAncestorMarkedAsOffline) || link.isProtonCloudFile) {
+    if (link.isTrashed || !(link.isMarkedAsOffline || link.isAnyAncestorMarkedAsOffline) || link.isProtonCloudFile) {
         return
     }
     when (link.downloadState) {
         is DownloadState.Downloaded,
         is DownloadState.Ready -> Icon(
-            modifier = modifier.size(ExtraSmallIconSize),
+            modifier = modifier.size(ExtraSmallIconSize).testTag(FilesTestTag.offlineIconDownloaded),
             painter = painterResource(id = BasePresentation.drawable.ic_status_downloaded),
             tint = ProtonTheme.colors.iconWeak,
             contentDescription = null
         )
         is DownloadState.Downloading -> CircularProgressIndicator(
-            modifier = modifier.size(ExtraSmallIconSize),
+            modifier = modifier.size(ExtraSmallIconSize).testTag(FilesTestTag.offlineDownloding),
             strokeWidth = 1.dp,
         )
         else -> Icon(
-            modifier = modifier.size(ExtraSmallIconSize),
+            modifier = modifier.size(ExtraSmallIconSize).testTag(FilesTestTag.offlineIconWaiting),
             painter = painterResource(id = BasePresentation.drawable.ic_status_waiting_for_download),
             tint = ProtonTheme.colors.iconWeak,
             contentDescription = null

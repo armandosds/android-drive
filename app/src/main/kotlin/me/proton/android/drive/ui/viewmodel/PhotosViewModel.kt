@@ -53,6 +53,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
+import me.proton.android.drive.extension.thumbnailVO
 import me.proton.android.drive.photos.domain.entity.PhotoBackupState
 import me.proton.android.drive.photos.domain.usecase.AddToAlbumInfo
 import me.proton.android.drive.photos.domain.usecase.EnablePhotosBackup
@@ -334,9 +335,10 @@ class PhotosViewModel @Inject constructor(
             .map { pagingData ->
                 pagingData.map { photoListing ->
                     PhotosItem.PhotoListing(
-                        photoListing.linkId,
-                        photoListing.captureTime,
-                        null
+                        id = photoListing.linkId,
+                        captureTime = photoListing.captureTime,
+                        link = null,
+                        thumbnailVO = photoListing.thumbnailVO,
                     )
                 }
             }
@@ -547,6 +549,9 @@ class PhotosViewModel @Inject constructor(
                 Unit
             }
         }
+        override val onPhotoListingItem = { fileId: FileId ->
+            navigateToPreview(fileId, photoListingsFilter.value)
+        }
         override val onLoadState: (CombinedLoadStates, Int) -> Unit = onLoadState(
             appContext = appContext,
             useExceptionMessage = configurationProvider.useExceptionMessage,
@@ -593,11 +598,11 @@ class PhotosViewModel @Inject constructor(
         }
         override val onShowUpsell = navigateToPhotosUpsell
         override val onFilterSelected = this@PhotosViewModel::onFilterSelected
-        override val onRenderThumbnail: (DriveLink) -> Unit = { driveLink ->
+        override val onRenderThumbnail: (LinkId) -> Unit = { linkId ->
             val stopTime = TimestampMs(SystemClock.elapsedRealtime())
             viewModelScope.launch {
                 toFirstItemMetricsNotifier.itemThumbnailRendered(
-                    userId = driveLink.userId,
+                    userId = linkId.userId,
                     pageType = PageType.photos,
                     stopTime = stopTime,
                 )

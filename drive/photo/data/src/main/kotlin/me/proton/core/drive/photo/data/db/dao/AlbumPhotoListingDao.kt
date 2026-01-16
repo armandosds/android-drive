@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.Flow
 import me.proton.core.data.room.db.BaseDao
 import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.photo.data.db.entity.AlbumPhotoListingEntity
+import me.proton.core.drive.photo.data.db.entity.AlbumPhotoListingWithFileProperties
 import me.proton.core.drive.photo.domain.entity.PhotoListing
 import me.proton.core.drive.sorting.domain.entity.Direction
 
@@ -55,7 +56,7 @@ abstract class AlbumPhotoListingDao : BaseDao<AlbumPhotoListingEntity>() {
         direction: Direction,
         limit: Int,
         offset: Int,
-    ): List<AlbumPhotoListingEntity> = when(direction){
+    ): List<AlbumPhotoListingWithFileProperties> = when(direction){
         Direction.ASCENDING -> getAlbumPhotoListingsAsc(
             userId = userId,
             volumeId = volumeId,
@@ -82,7 +83,7 @@ abstract class AlbumPhotoListingDao : BaseDao<AlbumPhotoListingEntity>() {
         direction: Direction,
         limit: Int,
         offset: Int,
-    ): Flow<List<AlbumPhotoListingEntity>> = when (direction) {
+    ): Flow<List<AlbumPhotoListingWithFileProperties>> = when (direction) {
         Direction.ASCENDING -> getAlbumPhotoListingsAscFlow(
             userId = userId,
             volumeId = volumeId,
@@ -110,7 +111,7 @@ abstract class AlbumPhotoListingDao : BaseDao<AlbumPhotoListingEntity>() {
         sortingBy: PhotoListing.Album.SortBy,
         limit: Int,
         offset: Int,
-    ): List<AlbumPhotoListingEntity>
+    ): List<AlbumPhotoListingWithFileProperties>
 
     @Query(ALBUM_PHOTO_LISTING_ASC)
     internal abstract fun getAlbumPhotoListingsAscFlow(
@@ -120,7 +121,7 @@ abstract class AlbumPhotoListingDao : BaseDao<AlbumPhotoListingEntity>() {
         sortingBy: PhotoListing.Album.SortBy,
         limit: Int,
         offset: Int,
-    ): Flow<List<AlbumPhotoListingEntity>>
+    ): Flow<List<AlbumPhotoListingWithFileProperties>>
 
     @Query(ALBUM_PHOTO_LISTING_DESC)
     internal abstract suspend fun getAlbumPhotoListingsDesc(
@@ -130,7 +131,7 @@ abstract class AlbumPhotoListingDao : BaseDao<AlbumPhotoListingEntity>() {
         sortingBy: PhotoListing.Album.SortBy,
         limit: Int,
         offset: Int,
-    ): List<AlbumPhotoListingEntity>
+    ): List<AlbumPhotoListingWithFileProperties>
 
     @Query(ALBUM_PHOTO_LISTING_DESC)
     internal abstract fun getAlbumPhotoListingsDescFlow(
@@ -140,7 +141,7 @@ abstract class AlbumPhotoListingDao : BaseDao<AlbumPhotoListingEntity>() {
         sortingBy: PhotoListing.Album.SortBy,
         limit: Int,
         offset: Int,
-    ): Flow<List<AlbumPhotoListingEntity>>
+    ): Flow<List<AlbumPhotoListingWithFileProperties>>
 
     @Query("""
         DELETE FROM AlbumPhotoListingEntity WHERE
@@ -159,7 +160,11 @@ abstract class AlbumPhotoListingDao : BaseDao<AlbumPhotoListingEntity>() {
 
     companion object {
         const val ALBUM_PHOTO_LISTING_ASC = """
-            SELECT * FROM AlbumPhotoListingEntity
+            SELECT AlbumPhotoListingEntity.*, LinkFilePropertiesEntity.revision_id, LinkFilePropertiesEntity.thumbnail_id_default FROM AlbumPhotoListingEntity
+            LEFT JOIN LinkFilePropertiesEntity ON
+                AlbumPhotoListingEntity.user_id = LinkFilePropertiesEntity.file_user_id AND
+                AlbumPhotoListingEntity.share_id = LinkFilePropertiesEntity.file_share_id AND
+                AlbumPhotoListingEntity.id = LinkFilePropertiesEntity.file_link_id
             WHERE
                 user_id = :userId AND
                 volume_id = :volumeId AND
@@ -171,7 +176,11 @@ abstract class AlbumPhotoListingDao : BaseDao<AlbumPhotoListingEntity>() {
             LIMIT :limit OFFSET :offset
         """
         const val ALBUM_PHOTO_LISTING_DESC = """
-            SELECT * FROM AlbumPhotoListingEntity
+            SELECT AlbumPhotoListingEntity.*, LinkFilePropertiesEntity.revision_id, LinkFilePropertiesEntity.thumbnail_id_default FROM AlbumPhotoListingEntity
+            LEFT JOIN LinkFilePropertiesEntity ON
+                AlbumPhotoListingEntity.user_id = LinkFilePropertiesEntity.file_user_id AND
+                AlbumPhotoListingEntity.share_id = LinkFilePropertiesEntity.file_share_id AND
+                AlbumPhotoListingEntity.id = LinkFilePropertiesEntity.file_link_id
             WHERE
                 user_id = :userId AND
                 volume_id = :volumeId AND

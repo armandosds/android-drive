@@ -69,11 +69,11 @@ driveModule(
     implementation(libs.androidx.webkit)
     implementation(libs.bundles.accompanist)
     implementation(libs.bundles.core)
+    implementation(libs.drive.sdk)
     implementation(libs.google.play.review)
     implementation(libs.lottie.compose)
     implementation(libs.material)
     implementation(libs.okhttp)
-    implementation(libs.plumber)
     implementation(libs.sentry)
     implementation(libs.timber)
     implementation(libs.treessence)
@@ -87,6 +87,8 @@ driveModule(
 
     testImplementation(project(":drive:db-test"))
     testImplementation(project(":drive:test"))
+    testImplementation(testFixtures(project(":app-ui-settings")))
+    testImplementation(testFixtures(project(":drive:feature-flag:domain")))
     androidTestImplementation(libs.androidx.navigation.compose)
     androidTestImplementation(libs.androidx.test.espresso.contrib)
     androidTestImplementation(libs.bundles.core.test)
@@ -145,6 +147,14 @@ android {
 
             // Should be replaced with 'userProxy=true' after TPE-511 is fixed
             buildConfigField("String", "proxyToken", "\"$proxyToken\"")
+        }
+        ndk {
+            abiFilters += listOf(
+                // x86 will never be supported by drive SDK
+                "x86_64",
+                "armeabi-v7a",
+                "arm64-v8a",
+            )
         }
 
         buildConfigField("String", "APP_VERSION_HEADER", "\"android-drive@$versionName\"")

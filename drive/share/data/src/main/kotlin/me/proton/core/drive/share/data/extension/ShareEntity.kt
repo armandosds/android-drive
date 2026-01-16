@@ -24,12 +24,14 @@ import me.proton.core.drive.share.data.db.ShareEntity
 import me.proton.core.drive.share.data.db.ShareEntity.Companion.PRIMARY_BIT
 import me.proton.core.drive.share.domain.entity.Share
 import me.proton.core.drive.share.domain.entity.ShareId
+import me.proton.core.drive.volume.data.extension.toVolumeType
 import me.proton.core.drive.volume.domain.entity.VolumeId
 
 fun ShareEntity.toShare(userId: UserId) =
     Share(
         id = ShareId(userId, id),
         volumeId = VolumeId(volumeId),
+        volumeType = volumeType?.toVolumeType(),
         rootLinkId = linkId,
         addressId = addressId,
         isMain = (flags and PRIMARY_BIT) == 1L,

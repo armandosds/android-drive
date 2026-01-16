@@ -67,6 +67,7 @@ import me.proton.core.drive.base.domain.entity.FastScrollAnchor
 import me.proton.core.drive.base.presentation.component.FastScroller
 import me.proton.core.drive.base.presentation.component.ProtonPullToRefresh
 import me.proton.core.drive.drivelink.domain.entity.DriveLink
+import me.proton.core.drive.link.domain.entity.FileId
 import me.proton.core.drive.link.domain.entity.LinkId
 import me.proton.core.drive.user.presentation.quota.component.StorageBanner
 import me.proton.core.drive.base.presentation.R as BasePresentation
@@ -84,6 +85,7 @@ fun PhotosContent(
     isFastScrollEnabled: Boolean = false,
     onClick: (DriveLink) -> Unit,
     onLongClick: (DriveLink) -> Unit,
+    onPhotoListingItem: (FileId) -> Unit,
     onEnable: () -> Unit,
     onPermissions: () -> Unit,
     onRetry: () -> Unit,
@@ -98,7 +100,7 @@ fun PhotosContent(
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
     getFastScrollAnchors: suspend (List<PhotosItem>, Int, Int) -> List<FastScrollAnchor>,
-    onRenderThumbnail: (DriveLink) -> Unit,
+    onRenderThumbnail: (LinkId) -> Unit,
 ) {
     ProtonPullToRefresh(
         isPullToRefreshEnabled = isRefreshEnabled,
@@ -117,6 +119,7 @@ fun PhotosContent(
             isFastScrollEnabled = isFastScrollEnabled,
             onClick = onClick,
             onLongClick = onLongClick,
+            onPhotoListingItem = onPhotoListingItem,
             onEnable = onEnable,
             onPermissions = onPermissions,
             onRetry = onRetry,
@@ -146,6 +149,7 @@ fun PhotosContent(
     isFastScrollEnabled: Boolean = false,
     onClick: (DriveLink) -> Unit,
     onLongClick: (DriveLink) -> Unit,
+    onPhotoListingItem: (FileId) -> Unit,
     onEnable: () -> Unit,
     onPermissions: () -> Unit,
     onRetry: () -> Unit,
@@ -157,7 +161,7 @@ fun PhotosContent(
     onIgnoreBackgroundRestrictions: () -> Unit,
     onDismissBackgroundRestrictions: () -> Unit,
     getFastScrollAnchors: suspend (List<PhotosItem>, Int, Int) -> List<FastScrollAnchor>,
-    onRenderThumbnail: (DriveLink) -> Unit,
+    onRenderThumbnail: (LinkId) -> Unit,
 ) {
     val gridState = items.rememberLazyGridState()
     val driveLinksMap by driveLinksFlow.collectAsStateWithLifecycle(initialValue = emptyMap())
@@ -227,11 +231,13 @@ fun PhotosContent(
                                 modifier = Modifier
                                     .clip(ProtonTheme.shapes.small),
                                 link = driveLinksMap[item.id],
+                                thumbnailVO = item.thumbnailVO,
                                 index = index,
                                 isSelected = selected,
                                 inMultiselect = selected || selectedPhotos.isNotEmpty() || inMultiselect,
                                 onClick = onClick,
                                 onLongClick = onLongClick,
+                                onPhotoListingItem = onPhotoListingItem,
                                 onRenderThumbnail = onRenderThumbnail,
                             )
                         }

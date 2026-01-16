@@ -34,4 +34,12 @@
     <string name="file_info_captured_on">Captured on</string>
     <string name="file_info_permissions">Permissions</string>
     <string name="file_info_uploaded_by_anonymous">Anonymous</string>
+    <string name="file_info_title_advanced_details" translatable="false">Advanced details</string>
+    <string name="file_info_title_sha1" translatable="false">SHA1</string>
+    <string name="file_info_title_block_sizes" translatable="false">Block sizes</string>
+    <string name="file_info_title_original_size_bytes" translatable="false">Original size in bytes</string>
+    <string name="file_title_info_size_bytes" translatable="false">Size in bytes</string>
+    <string name="file_info_title_key_author" translatable="false">Key author</string>
+    <string name="file_info_title_name_author" translatable="false">Name author</string>
+    <string name="file_info_title_content_author" translatable="false">Content author</string>
 </resources>

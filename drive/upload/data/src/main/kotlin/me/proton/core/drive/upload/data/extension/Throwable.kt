@@ -17,20 +17,23 @@
  */
 package me.proton.core.drive.upload.data.extension
 
+import android.content.Context
 import android.system.OsConstants
 import me.proton.android.drive.verifier.data.extension.log
 import me.proton.android.drive.verifier.domain.exception.VerifierException
 import me.proton.core.drive.announce.event.domain.entity.Event
-import me.proton.core.drive.base.domain.api.ProtonApiCode
 import me.proton.core.drive.base.data.extension.isErrno
 import me.proton.core.drive.base.data.extension.isHttpError
 import me.proton.core.drive.base.data.extension.isRetryable
+import me.proton.core.drive.base.domain.api.ProtonApiCode
 import me.proton.core.drive.cryptobase.domain.exception.VerificationException
 import me.proton.core.drive.observability.domain.metrics.UploadErrorsTotal
 import me.proton.core.drive.upload.domain.exception.InconsistencyException
+import me.proton.core.drive.upload.domain.exception.NotEnoughSpaceException
 import me.proton.core.network.domain.ApiException
 import me.proton.core.network.domain.hasProtonErrorCode
 import me.proton.core.network.domain.isHttpError
+import me.proton.core.drive.base.data.extension.getDefaultMessage as baseGetDefaultMessage
 import me.proton.core.drive.base.data.extension.log as baseLog
 
 internal val Throwable.isRetryable: Boolean
@@ -44,6 +47,7 @@ internal fun Throwable.log(tag: String, message: String? = null): Throwable = th
     when (this) {
         is VerifierException -> this.log(tag, message.orEmpty())
         is InconsistencyException -> this.log(tag, message.orEmpty())
+        is NotEnoughSpaceException -> this.log(tag, message.orEmpty())
         else -> this.baseLog(tag, message)
     }
 }
@@ -73,4 +77,12 @@ fun Throwable.toUploadErrorType(): UploadErrorsTotal.Type = when(this) {
     }
     is VerifierException, is VerificationException -> UploadErrorsTotal.Type.integrity_error
     else -> UploadErrorsTotal.Type.unknown
+}
+
+fun Throwable.getDefaultMessage(
+    context: Context,
+    useExceptionMessage: Boolean,
+): String = when (this) {
+    is NotEnoughSpaceException -> this.getDefaultMessage(context, useExceptionMessage)
+    else -> baseGetDefaultMessage(context, useExceptionMessage)
 }

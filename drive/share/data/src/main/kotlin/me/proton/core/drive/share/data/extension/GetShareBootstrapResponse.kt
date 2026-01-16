@@ -26,6 +26,7 @@ fun GetShareBootstrapResponse.toShareEntity(userId: UserId) = ShareEntity(
     id = shareId,
     userId = userId,
     volumeId = volumeId,
+    volumeType = volumeType,
     addressId = addressId?.let { AddressId(addressId) },
     flags = flags,
     linkId = linkId,

@@ -28,6 +28,7 @@ driveModule(
     compose = true,
     i18n = true,
     showkase = true,
+    enableTestFixtures = true,
 ) {
     api(project(":drive:base:presentation"))
     api(project(":drive:files:domain"))
@@ -38,5 +39,7 @@ driveModule(
     implementation(project(":drive:link-upload:presentation"))
     implementation(project(":drive:thumbnail:presentation"))
     implementation(libs.coil.compose)
+
+    androidTestImplementation(testFixtures(project(":drive:files:presentation")))
 }
 

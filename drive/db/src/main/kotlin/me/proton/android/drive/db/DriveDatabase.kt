@@ -18,6 +18,7 @@
 
 package me.proton.android.drive.db
 
+import android.app.ActivityManager
 import android.content.Context
 import androidx.room.AutoMigration
 import androidx.room.Database
@@ -51,6 +52,7 @@ import me.proton.core.data.room.db.BaseDatabase
 import me.proton.core.data.room.db.CommonConverters
 import me.proton.core.drive.announce.event.data.db.EventConverters
 import me.proton.core.drive.backup.data.db.BackupDatabase
+import me.proton.core.drive.backup.data.db.BackupErrorTypeConverters
 import me.proton.core.drive.backup.data.db.entity.BackupConfigurationEntity
 import me.proton.core.drive.backup.data.db.entity.BackupDuplicateEntity
 import me.proton.core.drive.backup.data.db.entity.BackupErrorEntity
@@ -370,7 +372,8 @@ import me.proton.core.notification.data.local.db.NotificationDatabase as CoreNot
     AuthConverters::class,
     // Drive
     EventConverters::class,
-    LinkSelectionConverters::class
+    LinkSelectionConverters::class,
+    BackupErrorTypeConverters::class
 )
 abstract class DriveDatabase :
     BaseDatabase(),
@@ -433,7 +436,7 @@ abstract class DriveDatabase :
     DriveObservabilityDatabase {
 
     companion object {
-        const val VERSION = 97
+        const val VERSION = 100
 
         private val migrations = listOf(
             DriveDatabaseMigrations.MIGRATION_1_2,
@@ -532,13 +535,16 @@ abstract class DriveDatabase :
             DriveDatabaseMigrations.MIGRATION_94_95,
             DriveDatabaseMigrations.MIGRATION_95_96,
             DriveDatabaseMigrations.MIGRATION_96_97,
+            DriveDatabaseMigrations.MIGRATION_97_98,
+            DriveDatabaseMigrations.MIGRATION_98_99,
+            DriveDatabaseMigrations.MIGRATION_99_100,
         )
 
         fun buildDatabase(context: Context): DriveDatabase =
             databaseBuilder<DriveDatabase>(context, "db-drive")
-                .fallbackToDestructiveMigrationOnDowngrade()
                 .openHelperFactory(
                     factory = LoggingOpenHelperFactory(
+                        activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager,
                         delegate = FrameworkSQLiteOpenHelperFactory(),
                         clazz = DriveDatabase::class.java,
                     ),

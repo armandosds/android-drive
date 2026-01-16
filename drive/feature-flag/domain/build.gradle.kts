@@ -26,6 +26,7 @@ android {
 driveModule(
     hilt = true,
     socialTest = true,
+    enableTestFixtures = true,
 ) {
     api(project(":drive:base:domain"))
     api(libs.core.domain)

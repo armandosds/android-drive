@@ -221,7 +221,7 @@ class AlbumRepositoryImpl @Inject constructor(
             includeTrashedChildren = includeTrashedChildren,
         ).let { response ->
             val albumPhotoListings = response.photos.map { albumPhotoListingDto ->
-                albumPhotoListingDto.toAlbumPhotoListing(albumId.shareId, albumId)
+                albumPhotoListingDto.toAlbumPhotoListing(volumeId, albumId.shareId, albumId)
             }
             AlbumPhotoListingList(
                 list = albumPhotoListings,
@@ -229,7 +229,7 @@ class AlbumRepositoryImpl @Inject constructor(
                 hasMore = response.hasMore,
             ) to SaveAction {
                 val map = albumPhotoListings.associate { albumPhotoListing ->
-                    albumPhotoListing.toAlbumPhotoListingEntity(volumeId)
+                    albumPhotoListing.toAlbumPhotoListingEntity()
                 }
                 db.inTransaction {
                     db.albumPhotoListingDao.insertOrUpdate(*map.keys.toTypedArray())
@@ -267,7 +267,7 @@ class AlbumRepositoryImpl @Inject constructor(
             db.albumRelatedPhotoDao.insertOrUpdate(*map.values.flatten().toTypedArray())
         }
         return albumPhotoListingDtos.map { albumPhotoListingDto ->
-            albumPhotoListingDto.toAlbumPhotoListing(shareId, albumId)
+            albumPhotoListingDto.toAlbumPhotoListing(volumeId, shareId, albumId)
         }
     }
 
@@ -288,7 +288,7 @@ class AlbumRepositoryImpl @Inject constructor(
             direction = sortingDirection,
             limit = count,
             offset = fromIndex,
-        ).map { albumPhotoListingEntity -> albumPhotoListingEntity.toAlbumPhotoListing() }
+        ).map { albumPhotoListingWithFileProperties -> albumPhotoListingWithFileProperties.toAlbumPhotoListing() }
 
     override fun getAlbumPhotoListingsFlow(
         userId: UserId,
@@ -309,8 +309,8 @@ class AlbumRepositoryImpl @Inject constructor(
             offset = fromIndex,
         ).map { entities ->
             coRunCatching {
-                entities.map { albumPhotoListingEntity ->
-                    albumPhotoListingEntity.toAlbumPhotoListing()
+                entities.map { albumPhotoListingWithFileProperties ->
+                    albumPhotoListingWithFileProperties.toAlbumPhotoListing()
                 }
             }
         }
@@ -346,7 +346,7 @@ class AlbumRepositoryImpl @Inject constructor(
         photoListings: List<PhotoListing.Album>,
     ) {
         val map = photoListings.associate { photoListing ->
-            photoListing.toAlbumPhotoListingEntity(volumeId)
+            photoListing.toAlbumPhotoListingEntity()
         }
         db.inTransaction {
             db.albumPhotoListingDao.insertOrIgnore(*map.keys.toTypedArray())

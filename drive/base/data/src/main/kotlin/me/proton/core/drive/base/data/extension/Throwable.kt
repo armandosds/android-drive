@@ -31,6 +31,7 @@ import me.proton.core.network.data.ProtonErrorException
 import me.proton.core.network.domain.ApiException
 import me.proton.core.network.domain.ApiResult
 import me.proton.core.network.domain.isRetryable
+import me.proton.drive.sdk.ProtonDriveSdkException
 import retrofit2.HttpException
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -62,6 +63,7 @@ fun Throwable.getDefaultMessage(
             cause?.getDefaultMessage(context, useExceptionMessage)
                 ?: getDefaultMessage(context)
         }
+        is ProtonDriveSdkException -> getDefaultMessage(context)
         else -> unhandled
     }
 }
@@ -82,6 +84,7 @@ fun Throwable.log(tag: String, message: String? = null, level: LoggerLevel? = nu
         is IOException -> log(tag, message, level)
         is SecurityException -> log(tag, message, level)
         is RuntimeException -> log(tag, message, level)
+        is ProtonDriveSdkException -> log(tag, message, level)
         else -> level.log(tag, this, message)
     }
 }

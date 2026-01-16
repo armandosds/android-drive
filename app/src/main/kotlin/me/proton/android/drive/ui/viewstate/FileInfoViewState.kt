@@ -26,4 +26,5 @@ import me.proton.core.drive.file.info.presentation.entity.Item
 data class FileInfoViewState(
     val link: DriveLink,
     val items: List<Item>,
+    val advancedItems: List<Item>,
 )

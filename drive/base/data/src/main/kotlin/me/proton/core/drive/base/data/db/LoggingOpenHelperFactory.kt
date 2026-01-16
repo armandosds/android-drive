@@ -18,6 +18,7 @@
 
 package me.proton.core.drive.base.data.db
 
+import android.app.ActivityManager
 import android.database.Cursor
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -26,6 +27,7 @@ import androidx.sqlite.db.SupportSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteStatement
 import me.proton.core.drive.base.data.entity.LoggerLevel
 import me.proton.core.drive.base.data.extension.log
+import me.proton.core.drive.base.data.extension.logMemoryInfo
 import me.proton.core.drive.base.domain.log.LogTag
 import me.proton.core.util.kotlin.CoreLogger
 import kotlin.system.measureNanoTime
@@ -34,16 +36,18 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.nanoseconds
 
 class LoggingOpenHelperFactory<T : RoomDatabase>(
+    private val activityManager: ActivityManager,
     private val delegate: SupportSQLiteOpenHelper.Factory,
     private val clazz: Class<T>,
     private val slowThreshold: Duration = 20.milliseconds,
-    private val captureStackForSlow: Duration = 200.milliseconds,
+    private val captureStackForSlow: Duration = 300.milliseconds,
 ) : SupportSQLiteOpenHelper.Factory {
 
     override fun create(configuration: SupportSQLiteOpenHelper.Configuration): SupportSQLiteOpenHelper {
         val default = delegate.create(configuration)
         val loggingDatabase = {
             LoggingDatabase(
+                activityManager = activityManager,
                 delegate = default.readableDatabase,
                 clazz = clazz,
                 slowThreshold = slowThreshold,
@@ -61,17 +65,17 @@ class LoggingOpenHelperFactory<T : RoomDatabase>(
 }
 
 private class LoggingDatabase<T : RoomDatabase>(
+    private val activityManager: ActivityManager,
     private val delegate: SupportSQLiteDatabase,
     private val slowThreshold: Duration,
     private val captureStackForSlow: Duration,
     private val clazz: Class<T>,
 ) : SupportSQLiteDatabase by delegate {
-
     private val Duration.shouldLog: Boolean get() = this > slowThreshold
     private val Duration.throwable: Throwable? get() = takeIf {
         this > captureStackForSlow && captureStackForSlow > Duration.ZERO
     }?.let {
-        RuntimeException("Slow DB query detected.").apply {
+        RuntimeException("Slow DB query detected (${activityManager.logMemoryInfo}).").apply {
             stackTrace = Thread.currentThread().stackTrace
         }
     }
@@ -84,7 +88,7 @@ private class LoggingDatabase<T : RoomDatabase>(
                 level = LoggerLevel.WARNING,
             ) ?: CoreLogger.d(
                 tag = tag,
-                message = message,
+                message = message + "\n${activityManager.logMemoryInfo}",
             )
         }
     }
@@ -139,6 +143,7 @@ private class LoggingDatabase<T : RoomDatabase>(
     }
 
     override fun compileStatement(sql: String): SupportSQLiteStatement = LoggingStatement(
+        activityManager = activityManager,
         delegate = delegate.compileStatement(sql),
         clazz = clazz,
         sqlPreview = sql,
@@ -148,18 +153,18 @@ private class LoggingDatabase<T : RoomDatabase>(
 }
 
 private class LoggingStatement<T : RoomDatabase>(
+    private val activityManager: ActivityManager,
     private val delegate: SupportSQLiteStatement,
     private val clazz: Class<T>,
     private val sqlPreview: String,
     private val slowThreshold: Duration,
     private val captureStackForSlow: Duration,
 ) : SupportSQLiteStatement by delegate {
-
     private val Duration.shouldLog: Boolean get() = this > slowThreshold
     private val Duration.throwable: Throwable? get() = takeIf {
         this > captureStackForSlow && captureStackForSlow > Duration.ZERO
     }?.let {
-        RuntimeException("Slow DB query detected.").apply {
+        RuntimeException("Slow DB query detected (${activityManager.logMemoryInfo}).").apply {
             stackTrace = Thread.currentThread().stackTrace
         }
     }
@@ -171,7 +176,7 @@ private class LoggingStatement<T : RoomDatabase>(
                 message = message,
             ) ?: CoreLogger.d(
                 tag = tag,
-                message = message,
+                message = message + "\n${activityManager.logMemoryInfo}",
             )
         }
     }

@@ -25,7 +25,6 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.await
-import androidx.work.impl.awaitWithin
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CancellationException
@@ -35,6 +34,7 @@ import me.proton.core.drive.base.data.entity.LoggerLevel.WARNING
 import me.proton.core.drive.base.data.extension.isRetryable
 import me.proton.core.drive.base.data.extension.log
 import me.proton.core.drive.base.data.workmanager.addTags
+import me.proton.core.drive.base.domain.extension.getOrNull
 import me.proton.core.drive.base.domain.log.LogTag.UPLOAD
 import me.proton.core.drive.linkupload.domain.entity.NetworkTypeProviderType
 import me.proton.core.drive.linkupload.domain.entity.UploadFileLink
@@ -56,6 +56,7 @@ class UploadThrottleWorker @AssistedInject constructor(
     private val getNextUploadFileLinks: GetNextUploadFileLinks,
     private val networkTypeProviders: @JvmSuppressWildcards Map<NetworkTypeProviderType, NetworkTypeProvider>,
     private val cleanupWorkers: CleanupWorkers,
+    private val useSdkForUpload: UseSdkForUpload,
 ) : CoroutineWorker(appContext, workerParams) {
     private val userId =
         UserId(requireNotNull(inputData.getString(WorkerKeys.KEY_USER_ID)) { "User id is required" })
@@ -65,7 +66,20 @@ class UploadThrottleWorker @AssistedInject constructor(
             CoreLogger.d(UPLOAD, "UploadThrottleWorker($runAttemptCount) upload ${uploadFileLinks.size} files")
         }.forEach { uploadFileLink ->
             if (uploadFileLink.isNotEnqueued()) {
-                uploadFileLink.enqueue(userId).await()
+                val useSdk = useSdkForUpload(uploadFileLink.parentLinkId)
+                    .getOrNull(UPLOAD, "Cannot check for sdk usage")
+                if (useSdk == true) {
+                    workManager.enqueue(
+                        UploadFileSdkWorker.getWorkRequest(
+                            userId = userId,
+                            uploadFileLinkId = uploadFileLink.id,
+                            uriString = requireNotNull(uploadFileLink.uriString),
+                            tags = listOf("sdk", uploadFileLink.id.uniqueUploadWorkName),
+                        )
+                    )
+                } else {
+                    uploadFileLink.enqueue(userId).await()
+                }
                 updateUploadState(uploadFileLink.id, UploadState.IDLE)
                 CoreLogger.d(
                     tag = uploadFileLink.logTag(),

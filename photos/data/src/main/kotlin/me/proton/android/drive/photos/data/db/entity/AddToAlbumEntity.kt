@@ -34,6 +34,7 @@ import me.proton.core.drive.base.data.db.Column.ID
 import me.proton.core.drive.base.data.db.Column.LINK_ID
 import me.proton.core.drive.base.data.db.Column.SHARE_ID
 import me.proton.core.drive.base.data.db.Column.USER_ID
+import me.proton.core.drive.base.data.db.Column.VOLUME_ID
 import me.proton.core.drive.link.data.db.entity.LinkEntity
 import me.proton.core.drive.share.data.db.ShareEntity
 
@@ -76,6 +77,8 @@ import me.proton.core.drive.share.data.db.ShareEntity
 data class AddToAlbumEntity(
     @ColumnInfo(name = USER_ID)
     val userId: UserId,
+    @ColumnInfo(name = VOLUME_ID)
+    val volumeId: String,
     @ColumnInfo(name = SHARE_ID)
     val shareId: String,
     @ColumnInfo(name = LINK_ID)

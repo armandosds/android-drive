@@ -28,7 +28,7 @@ import me.proton.core.drive.photo.data.db.entity.TaggedRelatedPhotoEntity
 import me.proton.core.drive.photo.domain.entity.PhotoListing
 import me.proton.core.drive.volume.domain.entity.VolumeId
 
-fun PhotoListing.toPhotoListingEntity(volumeId: VolumeId) =
+fun PhotoListing.toPhotoListingEntity() =
     PhotoListingEntity(
         userId = linkId.userId,
         volumeId = volumeId.id,
@@ -50,7 +50,7 @@ fun PhotoListing.toPhotoListingEntity(volumeId: VolumeId) =
         )
     }
 
-fun PhotoListing.toTaggedPhotoListingEntity(volumeId: VolumeId) =
+fun PhotoListing.toTaggedPhotoListingEntity() =
     TaggedPhotoListingEntity(
         userId = linkId.userId,
         volumeId = volumeId.id,
@@ -74,7 +74,7 @@ fun PhotoListing.toTaggedPhotoListingEntity(volumeId: VolumeId) =
         )
     }
 
-fun PhotoListing.Album.toAlbumPhotoListingEntity(volumeId: VolumeId) =
+fun PhotoListing.Album.toAlbumPhotoListingEntity() =
     AlbumPhotoListingEntity(
         userId = linkId.userId,
         volumeId = volumeId.id,

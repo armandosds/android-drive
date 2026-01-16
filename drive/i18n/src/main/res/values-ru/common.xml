@@ -29,7 +29,7 @@
   <string name="common_type">Тип</string>
   <string name="common_yes">Да</string>
   <string name="common_download">Скачать</string>
-  <string name="common_downloading">Загрузка</string>
+  <string name="common_downloading">Скачивание</string>
   <string name="common_link">Ссылка</string>
   <string name="common_password">Пароль</string>
   <string name="common_retry">Повторить попытку</string>
@@ -37,7 +37,7 @@
   <string name="common_trash">Корзина</string>
   <string name="common_uploading">Загрузка</string>
   <string name="common_on">Включено</string>
-  <string name="common_off">Отключено</string>
+  <string name="common_off">Выкл.</string>
   <string name="common_all">Все</string>
   <string name="common_unknown">Неизвестно</string>
   <string name="common_month">Month</string>
@@ -68,7 +68,7 @@
   <string name="common_open_in_browser_action">Открыть в браузере</string>
   <string name="common_done_action">Готово</string>
   <string name="common_create_album_action">Создать альбом</string>
-  <string name="common_set_as_album_cover_action">Установить как обложку альбома</string>
+  <string name="common_set_as_album_cover_action">Сделать обложкой альбома</string>
   <string name="common_add_action">Добавить</string>
   <string name="common_remove_from_album_action">Удалить из альбома</string>
   <string name="common_leave_album_action">Покинуть альбом</string>
@@ -173,7 +173,7 @@
             "Link copied to clipboard"
     -->
   <string name="common_in_app_notification_copied_to_clipboard">%1$s скопирован в буфер обмена</string>
-  <string name="common_in_app_notification_download_started">Загрузка началась</string>
+  <string name="common_in_app_notification_download_started">Скачивание началось</string>
   <!--
         Variable %1$s is a file name
         Example:

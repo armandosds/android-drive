@@ -20,18 +20,15 @@ package me.proton.core.drive.upload.data.manager
 import android.content.Context
 import androidx.lifecycle.asFlow
 import androidx.work.ExistingWorkPolicy
-import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.await
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.withContext
 import me.proton.core.domain.entity.UserId
@@ -39,6 +36,7 @@ import me.proton.core.drive.announce.event.domain.entity.Event
 import me.proton.core.drive.base.data.extension.log
 import me.proton.core.drive.base.data.workmanager.getLong
 import me.proton.core.drive.base.domain.entity.Percentage
+import me.proton.core.drive.base.domain.extension.bytes
 import me.proton.core.drive.base.domain.log.LogTag.NOTIFICATION
 import me.proton.core.drive.base.domain.log.LogTag.UPLOAD
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
@@ -154,7 +152,7 @@ class UploadWorkManagerImpl @Inject constructor(
                     }
                 }
             }.getOrNull().orEmpty()
-        if(uploadFileLinks.isNotEmpty()) {
+        if (uploadFileLinks.isNotEmpty()) {
             workManager.enqueueUpload(userId, shouldAnnounceEvent)
         }
         return uploadFileLinks
@@ -196,7 +194,7 @@ class UploadWorkManagerImpl @Inject constructor(
         workManager.enqueueUpload(userId)
     }
 
-    override suspend fun cancel(uploadFileLink: UploadFileLink): Unit = with (uploadFileLink) {
+    override suspend fun cancel(uploadFileLink: UploadFileLink): Unit = with(uploadFileLink) {
         workManager.cancelAllWorkByTag(id.uniqueUploadWorkName).await()
         if (!linkId.isNullOrEmpty()) {
             workManager.enqueue(
@@ -263,26 +261,23 @@ class UploadWorkManagerImpl @Inject constructor(
         } else {
             //workManager.pruneWork()
             flow {
-                getUploadBlocks(uploadFileLink)
-                    .getOrNull()
-                    ?.sumOf { uploadBlock -> uploadBlock.size.value }
-                    ?.takeIf { uploadFileLinkSize -> uploadFileLinkSize > 0L }
-                    ?.let { uploadFileLinkSize ->
-                        emitAll(
-                            workManager.getWorkInfosByTagLiveData(uploadFileLink.id.uniqueUploadWorkName)
-                                .asFlow()
-                                .transform { workInfos ->
-                                    emit(
-                                        Percentage(
-                                            workInfos
-                                                .sumOf { workInfo -> workInfo.getLong(KEY_SIZE) }
-                                                .toFloat()
-                                                .div(uploadFileLinkSize)
-                                        )
+                val uploadFileLinkSize = uploadFileLink.size?.value ?: 0L
+                if (uploadFileLinkSize > 0L) {
+                    emitAll(
+                        workManager.getWorkInfosByTagLiveData(uploadFileLink.id.uniqueUploadWorkName)
+                            .asFlow()
+                            .transform { workInfos ->
+                                emit(
+                                    Percentage(
+                                        workInfos
+                                            .sumOf { workInfo -> workInfo.getLong(KEY_SIZE) }
+                                            .toFloat()
+                                            .div(uploadFileLinkSize)
                                     )
-                                }
-                        )
-                    }
+                                )
+                            }
+                    )
+                }
             }
         }
     }

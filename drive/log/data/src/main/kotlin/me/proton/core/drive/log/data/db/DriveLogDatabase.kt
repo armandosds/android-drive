@@ -18,6 +18,7 @@
 
 package me.proton.core.drive.log.data.db
 
+import android.app.ActivityManager
 import android.content.Context
 import androidx.room.Database
 import androidx.room.TypeConverters
@@ -51,6 +52,7 @@ abstract class DriveLogDatabase : BaseDatabase(), LogDatabase {
             databaseBuilder<DriveLogDatabase>(context, "db-drive-log")
                 .openHelperFactory(
                     factory = LoggingOpenHelperFactory(
+                        activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager,
                         delegate = FrameworkSQLiteOpenHelperFactory(),
                         clazz = DriveLogDatabase::class.java,
                     ),

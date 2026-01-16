@@ -43,7 +43,6 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -195,6 +194,7 @@ fun Album(
         onErrorAction = viewEvent.onErrorAction,
         onClick = viewEvent.onDriveLink,
         onLongClick = viewEvent.onSelectDriveLink,
+        onPhotoListingItem = viewEvent.onPhotoListingItem,
         onAddToAlbum = viewEvent.onAddToAlbum,
         onSaveAll = viewEvent.onSaveAll,
         onShare = viewEvent.onShare,
@@ -232,6 +232,7 @@ fun Album(
     onErrorAction: () -> Unit,
     onClick: (DriveLink) -> Unit,
     onLongClick: (DriveLink) -> Unit,
+    onPhotoListingItem: (FileId) -> Unit,
     onAddToAlbum: () -> Unit,
     onSaveAll: () -> Unit,
     onShare: () -> Unit,
@@ -283,6 +284,7 @@ fun Album(
         onErrorAction = onErrorAction,
         onClick = onClick,
         onLongClick = onLongClick,
+        onPhotoListingItem = onPhotoListingItem,
         onAddToAlbum = onAddToAlbum,
         onShare = onShare,
         onShareUsers = onShareUsers,
@@ -319,6 +321,7 @@ fun Album(
     onErrorAction: () -> Unit,
     onClick: (DriveLink) -> Unit,
     onLongClick: (DriveLink) -> Unit,
+    onPhotoListingItem: (FileId) -> Unit,
     onAddToAlbum: () -> Unit,
     onSaveAll: () -> Unit,
     onShare: () -> Unit,
@@ -465,11 +468,13 @@ fun Album(
                             modifier = Modifier
                                 .clip(ProtonTheme.shapes.small),
                             link = driveLinksMap[item.id],
+                            thumbnailVO = item.thumbnailVO,
                             index = index,
                             isSelected = selected,
                             inMultiselect = selected || selectedPhotos.isNotEmpty() || inMultiselect,
                             onClick = onClick,
                             onLongClick = onLongClick,
+                            onPhotoListingItem = onPhotoListingItem,
                             onRenderThumbnail = {},
                         )
                     }

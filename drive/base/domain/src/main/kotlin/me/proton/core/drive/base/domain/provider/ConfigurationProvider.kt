@@ -124,6 +124,9 @@ interface ConfigurationProvider {
     val photoListingsPageSize: Int get() = 25_000
     val sendPhotoTagsInCommit: Boolean get() = true
     val preferPipelineBasedDownloadManager: Boolean get() = true
+    val preferSdkForUpload: Boolean get() = false
+    val preferSdkForDownload: Boolean get() = false
+    val createFolderInParallel: Int get() = 16
 
     data class Thumbnail(
         val maxWidth: Int,

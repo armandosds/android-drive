@@ -482,14 +482,17 @@ class PreviewViewModel @Inject constructor(
                         )
                 }
             } else {
-                trigger.filter { trigger -> trigger.fileId == id }.flatMapLatest { trigger ->
-                    combine(
-                        getFile(this, trigger.verifySignature),
-                        renderFailed,
-                    ) { fileState, renderFailed ->
-                        getContentState(this, fileState, renderFailed, previewFallbackSources)
+                trigger
+                    .filter { trigger -> trigger.fileId == id }
+                    .flatMapLatest { trigger ->
+                        combine(
+                            getFile(this, trigger.verifySignature),
+                            renderFailed,
+                        ) { fileState, renderFailed ->
+                            getContentState(this, fileState, renderFailed, previewFallbackSources)
+                        }
                     }
-                }
+                    .shareIn(viewModelScope, SharingStarted.Lazily, replay = 1)
             }
         }
 

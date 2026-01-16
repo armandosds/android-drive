@@ -98,12 +98,12 @@ class PhotoRepositoryImpl @Inject constructor(
             minimumCaptureTime = minimumCaptureTime,
             tag = tag
         ).map { photoListingDto ->
-            photoListingDto.toPhotoListing(shareId, tag)
+            photoListingDto.toPhotoListing(volumeId, shareId, tag)
         }.let { photoListings ->
             photoListings to SaveAction {
                 if (tag == null) {
                     val map = photoListings.associate { photoListing ->
-                        photoListing.toPhotoListingEntity(volumeId)
+                        photoListing.toPhotoListingEntity()
                     }
                     db.inTransaction {
                         db.photoListingDao.insertOrIgnore(*map.keys.toTypedArray())
@@ -111,7 +111,7 @@ class PhotoRepositoryImpl @Inject constructor(
                     }
                 } else {
                     val map = photoListings.associate { photoListing ->
-                        photoListing.toTaggedPhotoListingEntity(volumeId)
+                        photoListing.toTaggedPhotoListingEntity()
                     }
                     db.inTransaction {
                         db.taggedPhotoListingDao.insertOrUpdate(*map.keys.toTypedArray())
@@ -155,6 +155,7 @@ class PhotoRepositoryImpl @Inject constructor(
         }
         return photoListingDtos.map { photoListingDto ->
             photoListingDto.toPhotoListing(
+                volumeId,
                 shareId,
                 tag
             )
@@ -175,7 +176,7 @@ class PhotoRepositoryImpl @Inject constructor(
             direction = sortingDirection,
             limit = count,
             offset = fromIndex,
-        ).map { photoListingEntity -> photoListingEntity.toPhotoListing() }
+        ).map { photoListingWithFileProperties -> photoListingWithFileProperties.toPhotoListing() }
     } else {
         db.taggedPhotoListingDao.getPhotoListings(
             userId = userId,
@@ -184,7 +185,7 @@ class PhotoRepositoryImpl @Inject constructor(
             direction = sortingDirection,
             limit = count,
             offset = fromIndex,
-        ).map { photoListingEntity -> photoListingEntity.toPhotoListing() }
+        ).map { taggedPhotoListingWithFileProperties -> taggedPhotoListingWithFileProperties.toPhotoListing() }
 
     }
 
@@ -222,7 +223,7 @@ class PhotoRepositoryImpl @Inject constructor(
             offset = fromIndex,
         ).map { entities ->
             coRunCatching {
-                entities.map { photoListingEntity -> photoListingEntity.toPhotoListing() }
+                entities.map { photoListingWithFileProperties -> photoListingWithFileProperties.toPhotoListing() }
             }
         }
     } else {
@@ -235,7 +236,7 @@ class PhotoRepositoryImpl @Inject constructor(
             offset = fromIndex,
         ).map { entities ->
             coRunCatching {
-                entities.map { photoListingEntity -> photoListingEntity.toPhotoListing() }
+                entities.map { taggedPhotoListingWithFileProperties -> taggedPhotoListingWithFileProperties.toPhotoListing() }
             }
         }
     }
@@ -294,14 +295,14 @@ class PhotoRepositoryImpl @Inject constructor(
             .forEach { (tagged, photoListings) ->
                 if (tagged) {
                     val map = photoListings.associate { photoListing ->
-                        photoListing.toTaggedPhotoListingEntity(volumeId)
+                        photoListing.toTaggedPhotoListingEntity()
                     }
                     db.taggedPhotoListingDao.insertOrUpdate(*map.keys.toTypedArray())
                     db.taggedRelatedPhotoDao.insertOrUpdate(*map.values.flatten().toTypedArray())
 
                 } else {
                     val map = photoListings.associate { photoListing ->
-                        photoListing.toPhotoListingEntity(volumeId)
+                        photoListing.toPhotoListingEntity()
                     }
                     db.photoListingDao.insertOrIgnore(*map.keys.toTypedArray())
                     db.relatedPhotoDao.insertOrIgnore(*map.values.flatten().toTypedArray())

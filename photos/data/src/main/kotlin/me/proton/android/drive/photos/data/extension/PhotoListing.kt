@@ -25,6 +25,7 @@ import me.proton.core.drive.photo.domain.entity.PhotoListing
 
 fun PhotoListing.toAddToAlbumEntity(albumId: AlbumId?) = AddToAlbumEntity(
     userId = linkId.userId,
+    volumeId = volumeId.id,
     shareId = linkId.shareId.id,
     linkId = linkId.id,
     albumShareId = albumId?.shareId?.id,
