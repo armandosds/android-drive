@@ -25,6 +25,7 @@ import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import me.proton.android.drive.document.scanner.domain.usecase.ClearAllScanResults
 import me.proton.core.accountmanager.domain.AccountManager
 import me.proton.core.accountmanager.presentation.observe
 import me.proton.core.accountmanager.presentation.onAccountReady
@@ -46,6 +47,7 @@ class CleanupInitializer : Initializer<Unit> {
                 .onAccountReady { account ->
                     cleanupSelections(account.userId)
                     cleanupConstraints(account.userId)
+                    clearAllScanResults(account.userId)
                 }
         }
     }
@@ -62,5 +64,6 @@ class CleanupInitializer : Initializer<Unit> {
         val appLifecycleProvider: AppLifecycleProvider
         val cleanupSelections: CleanupSelections
         val cleanupConstraints: CleanupConstraints
+        val clearAllScanResults: ClearAllScanResults
     }
 }

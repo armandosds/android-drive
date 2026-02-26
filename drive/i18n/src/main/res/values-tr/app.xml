@@ -48,6 +48,7 @@
   <string name="folder_option_create_document">Belge oluştur</string>
   <string name="folder_option_create_spreadsheet">Hesap tablosu oluştur</string>
   <string name="folder_option_import_folder">Klasör yükle</string>
+  <string name="folder_option_scan_document">Belge tara</string>
   <string name="settings_theme_system_default">Sistem varsayılanı</string>
   <string name="settings_theme_dark">Koyu</string>
   <string name="settings_theme_light">Açık</string>
@@ -199,6 +200,7 @@
   <string name="operation_open_document">bir belge aç</string>
   <string name="operation_create_document">bir belge oluştur</string>
   <string name="operation_take_picture">bir fotoğraf çek</string>
+  <string name="operation_scan_document">bir belge tara</string>
   <!-- region Get more free storage -->
   <!--
         Variable %1$s is a quantity (formatted) of max free storage

@@ -47,6 +47,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
+import me.proton.android.drive.document.scanner.domain.usecase.IsScannerAvailable
 import me.proton.android.drive.ui.common.onClick
 import me.proton.android.drive.ui.effect.HomeEffect
 import me.proton.android.drive.ui.effect.HomeTabViewModel
@@ -141,6 +142,7 @@ class FilesViewModel @Inject constructor(
     private val openProtonDocumentInBrowser: OpenProtonDocumentInBrowser,
     private val configurationProvider: ConfigurationProvider,
     private val toFirstItemMetricsNotifier: ToFirstItemMetricsNotifier,
+    private val isScannerAvailable: IsScannerAvailable,
 ) : SelectionViewModel(savedStateHandle, selectLinks, deselectLinks, selectAll, getSelectedDriveLinks),
     HomeTabViewModel,
     NotificationDotViewModel by NotificationDotViewModel(shouldUpgradeStorage) {
@@ -209,9 +211,10 @@ class FilesViewModel @Inject constructor(
     private val selectedOptionsAction get() = selectedOptionsAction {
         viewEvent?.onSelectedOptions?.invoke()
     }
-    private val uploadFolderNotificationDotViewModel = UploadFolderNotificationDotViewModel(
+    private val scanDocumentNotificationDotViewModel = ScanDocumentNotificationDotViewModel(
         userId = userId,
         getUserDataStore = getUserDataStore,
+        isScannerAvailable = isScannerAvailable,
     )
     private val topBarActions: MutableStateFlow<Set<Action>> = MutableStateFlow(emptySet())
     val isBottomNavigationEnabled: Flow<Boolean> = selected.map { set -> set.isEmpty() }
@@ -240,9 +243,9 @@ class FilesViewModel @Inject constructor(
         layoutType,
         selected,
         notificationDotRequested,
-        uploadFolderNotificationDotViewModel.notificationDotRequested,
+        scanDocumentNotificationDotViewModel.notificationDotRequested,
         userManager.observeUser(userId),
-    ) { driveLink, sorting, contentState, appendingState, layoutType, selected, notificationDotRequested, uploadFolderNotificationDotRequested, user ->
+    ) { driveLink, sorting, contentState, appendingState, layoutType, selected, notificationDotRequested, scanDocumentNotificationDotRequested, user ->
         val listContentState = when (contentState) {
             is ListContentState.Empty -> contentState.copy(
                 imageResId = emptyStateImageResId,
@@ -260,7 +263,7 @@ class FilesViewModel @Inject constructor(
                             }
                         },
                     addFilesAction.copy(
-                        notificationDotVisible = uploadFolderNotificationDotRequested,
+                        notificationDotVisible = scanDocumentNotificationDotRequested,
                     )
                 )
             } else {

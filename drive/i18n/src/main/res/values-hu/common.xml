@@ -76,6 +76,7 @@
   <string name="common_save_all_action">Összes mentése</string>
   <string name="common_add_to_albums_action">Hozzáadás albumokhoz</string>
   <string name="common_tag_photo_action">Fénykép szkennelése címkézéshez</string>
+  <string name="common_save_as_action">Save as</string>
   <!-- endregion -->
   <!-- region Common file types -->
   <string name="common_type_audio">Hang</string>

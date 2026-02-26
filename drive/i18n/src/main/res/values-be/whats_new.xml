@@ -18,4 +18,6 @@
   -->
 <resources>
   <string name="whats_new_title">Новыя функцыі</string>
+  <string name="whats_new_upload_folder_title">Рэзервовае капіяванне ўсяго змесціва папак адным націскам</string>
+  <string name="whats_new_upload_folder_description">Запампуйце ўсю папку ў Proton Drive, націснуўшы + у правым верхнім куце і выбраўшы \"Запампаваць папку\".</string>
 </resources>

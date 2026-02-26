@@ -24,6 +24,10 @@ import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.TypeConverters
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
+import me.proton.android.drive.document.scanner.data.db.DocumentScannerDatabase
+import me.proton.android.drive.document.scanner.data.db.entity.ScanResultDocumentEntity
+import me.proton.android.drive.document.scanner.data.db.entity.ScanResultInfoEntity
+import me.proton.android.drive.document.scanner.data.db.entity.ScanResultPageEntity
 import me.proton.android.drive.photos.data.db.PhotosDatabase
 import me.proton.android.drive.photos.data.db.entity.AddToAlbumEntity
 import me.proton.android.drive.photos.data.db.entity.MediaStoreVersionEntity
@@ -339,6 +343,10 @@ import me.proton.core.notification.data.local.db.NotificationDatabase as CoreNot
         StalePublicAddressKeyEntity::class,
         // Observability
         CounterEntity::class,
+        // Document scanner
+        ScanResultInfoEntity::class,
+        ScanResultDocumentEntity::class,
+        ScanResultPageEntity::class,
     ],
     version = DriveDatabase.VERSION,
     autoMigrations = [
@@ -435,10 +443,11 @@ abstract class DriveDatabase :
     DeviceRecoveryDatabase,
     PublicAddressKeyDatabase,
     AuthDatabase,
-    DriveObservabilityDatabase {
+    DriveObservabilityDatabase,
+    DocumentScannerDatabase {
 
     companion object {
-        const val VERSION = 101
+        const val VERSION = 102
 
         private val migrations = listOf(
             DriveDatabaseMigrations.MIGRATION_1_2,
@@ -541,6 +550,7 @@ abstract class DriveDatabase :
             DriveDatabaseMigrations.MIGRATION_98_99,
             DriveDatabaseMigrations.MIGRATION_99_100,
             DriveDatabaseMigrations.MIGRATION_100_101,
+            DriveDatabaseMigrations.MIGRATION_101_102,
         )
 
         fun buildDatabase(context: Context): DriveDatabase =

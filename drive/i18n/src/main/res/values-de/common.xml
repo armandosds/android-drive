@@ -76,6 +76,7 @@
   <string name="common_save_all_action">Alle speichern</string>
   <string name="common_add_to_albums_action">Zum Album hinzufügen</string>
   <string name="common_tag_photo_action">Foto für Tags scannen</string>
+  <string name="common_save_as_action">Speichern unter</string>
   <!-- endregion -->
   <!-- region Common file types -->
   <string name="common_type_audio">Audio</string>

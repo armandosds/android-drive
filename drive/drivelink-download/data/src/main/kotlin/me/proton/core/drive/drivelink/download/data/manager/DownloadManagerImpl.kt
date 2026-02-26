@@ -40,6 +40,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.base.data.entity.LoggerLevel.ERROR
+import me.proton.core.drive.base.data.extension.isRetryable
 import me.proton.core.drive.base.data.extension.log
 import me.proton.core.drive.base.domain.entity.Percentage
 import me.proton.core.drive.base.domain.extension.getOrNull
@@ -59,6 +60,7 @@ import me.proton.core.drive.drivelink.download.domain.entity.NetworkType
 import me.proton.core.drive.drivelink.download.domain.extension.post
 import me.proton.core.drive.drivelink.download.domain.manager.DownloadErrorManager
 import me.proton.core.drive.drivelink.download.domain.manager.DownloadManager
+import me.proton.core.drive.drivelink.download.domain.manager.DownloadSdkManager
 import me.proton.core.drive.drivelink.download.domain.manager.PipelineManager
 import me.proton.core.drive.drivelink.download.domain.repository.DownloadFileRepository
 import me.proton.core.drive.drivelink.download.domain.repository.DownloadParentLinkRepository
@@ -108,6 +110,7 @@ class DownloadManagerImpl @Inject constructor(
     private val downloadErrorManager: DownloadErrorManager,
     private val downloadMetricsNotifier: DownloadMetricsNotifier,
     private val isLinkOrAnyAncestorTrashed: IsLinkOrAnyAncestorTrashed,
+    private val downloadSdkManager: DownloadSdkManager,
 ) : DownloadManager, DownloadManager.FileDownloader, PipelineManager.TaskProvider<DownloadFileTask> {
     private var userId: UserId? = null
     private val runningTasks = MutableStateFlow(emptySet<DownloadFileTask>())
@@ -246,17 +249,23 @@ class DownloadManagerImpl @Inject constructor(
 
     private suspend fun taskCompleteSuccessfully(task: DownloadFileTask) {
         CoreLogger.d(task.downloadFileLink.fileId.logTag, "taskCompleted pipelineId=${task.pipelineId}")
+        downloadSdkManager.close(
+            volumeId = task.downloadFileLink.volumeId,
+            fileId = task.downloadFileLink.fileId,
+            revisionId = task.downloadFileLink.revisionId,
+        )
         downloadMetricsNotifier(task.downloadFileLink.fileId, true)
         runningTasks.value -= task
         downloadFileRepository.delete(task.downloadFileLink.id)
     }
 
     private suspend fun taskCompletedWithException(task: DownloadFileTask, throwable: Throwable) {
-        CoreLogger.d(task.downloadFileLink.fileId.logTag, throwable, "taskCompleted pipelineId=${task.pipelineId}")
+        throwable.log(task.downloadFileLink.fileId.logTag, "taskCompleted pipelineId=${task.pipelineId}")
         downloadErrorManager.post(task.downloadFileLink.fileId, throwable)
         downloadMetricsNotifier(task.downloadFileLink.fileId, false, throwable)
         runningTasks.value -= task
-        if (task.downloadFileLink.retryable && task.downloadFileLink.numberOfRetries < configurationProvider.maxApiAutoRetries) {
+
+        if (task.downloadFileLink.retryable && throwable.isRetryable && task.downloadFileLink.numberOfRetries < configurationProvider.maxApiAutoRetries) {
             downloadFileRepository.updateStateToFailed(task.downloadFileLink.id)
             startFileDownloaderWorker(task.downloadFileLink.fileId.userId)
         } else {

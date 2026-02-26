@@ -28,7 +28,8 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import me.proton.android.drive.provider.AppDriveClientProvider
+import me.proton.android.drive.provider.AppProtonDriveClientProvider
+import me.proton.android.drive.provider.AppProtonPhotosClientProvider
 import me.proton.core.accountmanager.domain.AccountManager
 import me.proton.core.accountmanager.presentation.observe
 import me.proton.core.accountmanager.presentation.onAccountRemoved
@@ -48,7 +49,8 @@ class ProtonDriveSdkInitializer : Initializer<Unit> {
         ).run {
             accountManager.observe(appLifecycleProvider.lifecycle, Lifecycle.State.RESUMED)
                 .onAccountRemoved { account ->
-                    appDriveClientProvider.remove(account.userId)
+                    appProtonDriveClientProvider.remove(account.userId)
+                    appProtonPhotosClientProvider.remove(account.userId)
                 }
         }
     }
@@ -64,5 +66,6 @@ interface SdkInitializerEntryPoint {
     val configurationProvider: ConfigurationProvider
     val accountManager: AccountManager
     val appLifecycleProvider: AppLifecycleProvider
-    val appDriveClientProvider: AppDriveClientProvider
+    val appProtonDriveClientProvider: AppProtonDriveClientProvider
+    val appProtonPhotosClientProvider: AppProtonPhotosClientProvider
 }

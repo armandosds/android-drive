@@ -18,4 +18,6 @@
   -->
 <resources>
   <string name="whats_new_title">Novedades</string>
+  <string name="whats_new_upload_folder_title">Haga una copia de seguridad de carpetas completas con un solo toque</string>
+  <string name="whats_new_upload_folder_description">Cargue una carpeta completa en Proton Drive pulsando + en la esquina superior derecha y seleccionando «Cargar una carpeta».</string>
 </resources>

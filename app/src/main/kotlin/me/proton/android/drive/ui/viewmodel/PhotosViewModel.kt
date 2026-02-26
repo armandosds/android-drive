@@ -49,6 +49,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.transformLatest
@@ -239,7 +240,9 @@ class PhotosViewModel @Inject constructor(
     val photosEffect: Flow<PhotosEffect> = merge(
         _photosEffect.asSharedFlow(),
         photosEffectShowUpsell,
-    )
+    ).onEach {
+        CoreLogger.e(BACKUP, "effect: $it")
+    }
     private val photoListingsFilter: MutableStateFlow<PhotoTag?> =
         MutableStateFlow(null)
 
@@ -515,6 +518,7 @@ class PhotosViewModel @Inject constructor(
         navigateToPhotosIssues: (FolderId) -> Unit,
         navigateToPhotosUpsell: () -> Unit,
         navigateToBackupSettings: () -> Unit,
+        navigateToEnableBackupDialog: () -> Unit,
         lifecycle: Lifecycle,
     ): PhotosViewEvent = object : PhotosViewEvent {
 
@@ -581,6 +585,7 @@ class PhotosViewModel @Inject constructor(
         override val onGetStorage: () -> Unit = { navigateToSubscription() }
         override val onResolveMissingFolder: () -> Unit = navigateToBackupSettings
         override val onChangeNetwork: () -> Unit = navigateToBackupSettings
+        override val onEnableBackupDialog: () -> Unit = navigateToEnableBackupDialog
         override val onIgnoreBackgroundRestrictions: (Context) -> Unit = {context ->
             context.launchIgnoreBatteryOptimizations()
         }
@@ -665,13 +670,9 @@ class PhotosViewModel @Inject constructor(
     private fun onPhotoBackupState(state: PhotoBackupState) {
         when (state) {
             is PhotoBackupState.NoFolder -> {
-                broadcastMessages(
-                    userId = userId,
-                    message = appContext
-                        .getString(I18N.string.photos_error_no_folders)
-                        .format(state.folderName),
-                    type = BroadcastMessage.Type.WARNING,
-                )
+                viewModelScope.launch {
+                    _photosEffect.emit(PhotosEffect.ShowEnableBackupDialog)
+                }
             }
 
             is PhotoBackupState.Enabled -> {

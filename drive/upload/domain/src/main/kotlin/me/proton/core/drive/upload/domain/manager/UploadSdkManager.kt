@@ -18,20 +18,13 @@
 
 package me.proton.core.drive.upload.domain.manager
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
 import me.proton.core.drive.base.domain.log.LogTag.UploadTag.logTag
-import me.proton.core.drive.base.domain.provider.DriveClientProvider
+import me.proton.core.drive.base.domain.provider.ProtonDriveClientProvider
 import me.proton.core.drive.linkupload.domain.entity.UploadFileLink
-import me.proton.core.drive.upload.domain.exception.InconsistencyException
 import me.proton.core.util.kotlin.CoreLogger
-import me.proton.drive.sdk.DriveClient
+import me.proton.drive.sdk.ProtonDriveClient
 import me.proton.drive.sdk.UploadController
 import me.proton.drive.sdk.Uploader
 import java.util.concurrent.ConcurrentHashMap
@@ -40,11 +33,10 @@ import javax.inject.Singleton
 
 @Singleton
 class UploadSdkManager @Inject constructor(
-    private val driveClientProvider: DriveClientProvider,
+    private val protonDriveClientProvider: ProtonDriveClientProvider,
 ) {
 
     private data class UploadState(
-        val scope: CoroutineScope,
         val mutex: Mutex,
         var uploader: Uploader? = null,
         var controller: UploadController? = null
@@ -52,17 +44,15 @@ class UploadSdkManager @Inject constructor(
 
     private val states = ConcurrentHashMap<Long, UploadState>()
 
-    suspend fun enqueue(uploadFileLink: UploadFileLink, block: suspend (DriveClient) -> Uploader) {
+    suspend fun enqueue(uploadFileLink: UploadFileLink, block: suspend (ProtonDriveClient) -> Uploader) {
         with(uploadFileLink.state()) {
             mutex.withLock {
-                withContext(scope.coroutineContext) {
-                    if (uploader == null) {
-                        CoreLogger.i(uploadFileLink.id.logTag(), "Creating uploader")
-                        val driveClient = driveClientProvider
-                            .getOrCreate(uploadFileLink.userId)
-                            .getOrThrow()
-                        uploader = block(driveClient)
-                    }
+                if (uploader == null) {
+                    CoreLogger.i(uploadFileLink.id.logTag(), "Creating uploader")
+                    val driveClient = protonDriveClientProvider
+                        .getOrCreate(uploadFileLink.userId)
+                        .getOrThrow()
+                    uploader = block(driveClient)
                 }
             }
         }
@@ -73,12 +63,10 @@ class UploadSdkManager @Inject constructor(
         block: suspend (Uploader) -> UploadController
     ): UploadController = with(uploadFileLink.state()) {
         mutex.withLock {
-            withContext(scope.coroutineContext) {
-                val uploader = uploader
-                    ?: error("Upload was not enqueued or cancelled for ${uploadFileLink.id}")
+            val uploader = uploader
+                ?: error("Upload was not enqueued or cancelled for ${uploadFileLink.id}")
 
-                controller ?: block(uploader).also { controller = it }
-            }
+            controller ?: block(uploader).also { controller = it }
         }
     }
 
@@ -89,14 +77,12 @@ class UploadSdkManager @Inject constructor(
             CoreLogger.i(
                 id.logTag(), "Closing sdk: " +
                         "uploader: ${uploader != null}, " +
-                        "controller: ${controller != null}, " +
-                        "scope: ${scope.isActive}"
+                        "controller: ${controller != null}"
             )
 
             mutex.withLock {
                 controller?.close()
                 uploader?.close()
-                scope.cancel()
             }
         }
     }
@@ -108,8 +94,7 @@ class UploadSdkManager @Inject constructor(
             CoreLogger.i(
                 id.logTag(), "Cancelling sdk: " +
                         "uploader: ${uploader != null}, " +
-                        "controller: ${controller != null}, " +
-                        "scope: ${scope.isActive}"
+                        "controller: ${controller != null}"
             )
             mutex.withLock {
                 controller?.apply {
@@ -121,17 +106,12 @@ class UploadSdkManager @Inject constructor(
                     cancel()
                     close()
                 }
-                scope.cancel()
             }
         }
     }
 
     private fun UploadFileLink.state(): UploadState =
         states.computeIfAbsent(id) {
-            UploadState(
-                scope = CoroutineScope(Dispatchers.IO + Job()),
-                mutex = Mutex(),
-            )
+            UploadState(mutex = Mutex())
         }
-
 }

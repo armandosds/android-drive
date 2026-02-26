@@ -18,4 +18,6 @@
   -->
 <resources>
   <string name="whats_new_title">Novidades</string>
+  <string name="whats_new_upload_folder_title">Faça backup de todas as pastas com apenas um toque.</string>
+  <string name="whats_new_upload_folder_description">Envie uma pasta inteira para o Proton Drive tocando o + no canto superior direito e selecionando \'Enviar uma pasta\'.</string>
 </resources>

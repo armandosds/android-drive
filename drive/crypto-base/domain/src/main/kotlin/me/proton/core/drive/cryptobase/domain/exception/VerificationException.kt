@@ -20,25 +20,7 @@ package me.proton.core.drive.cryptobase.domain.exception
 
 import me.proton.core.crypto.common.pgp.exception.CryptoException
 
-class VerificationException : CryptoException {
-
-    /**
-     * Creates an instance of [VerificationException] without any details.
-     */
-    constructor() : super()
-
-    /**
-     * Creates an instance of [VerificationException] with the specified detail [message].
-     */
-    constructor(message: String?) : super(message)
-
-    /**
-     * Creates an instance of [VerificationException] with the specified detail [message], and the given [cause].
-     */
-    constructor(message: String?, cause: Throwable?) : super(message, cause)
-
-    /**
-     * Creates an instance of [VerificationException] with the specified [cause].
-     */
-    constructor(cause: Throwable?) : super(cause)
-}
+open class VerificationException(
+    message: String? = null,
+    cause: Throwable? = null,
+) : CryptoException(message, cause)

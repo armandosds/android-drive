@@ -38,6 +38,7 @@ import me.proton.core.network.data.di.DohProviderUrls
 import me.proton.core.network.domain.ApiClient
 import me.proton.core.network.domain.client.ExtraHeaderProvider
 import me.proton.core.network.domain.interceptor.InterceptorInfo
+import me.proton.core.network.domain.interceptor.InterceptorInfo.Priority
 import me.proton.core.network.domain.serverconnection.DohAlternativesListener
 import me.proton.core.util.kotlin.takeIfNotBlank
 import okhttp3.HttpUrl
@@ -94,7 +95,7 @@ object NetworkModule {
     fun provideInterceptor(
         interceptor: DriveHttpLoggingInterceptor,
     ): Pair<InterceptorInfo, Interceptor> =
-        InterceptorInfo() to interceptor
+        InterceptorInfo(priority = Priority(Priority.MEDIUM.value + 1)) to interceptor
 }
 
 @Module

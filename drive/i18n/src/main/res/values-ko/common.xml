@@ -76,6 +76,7 @@
   <string name="common_save_all_action">모두 저장</string>
   <string name="common_add_to_albums_action">앨범으로 추가</string>
   <string name="common_tag_photo_action">사진 태그 검색</string>
+  <string name="common_save_as_action">Save as</string>
   <!-- endregion -->
   <!-- region Common file types -->
   <string name="common_type_audio">오디오</string>

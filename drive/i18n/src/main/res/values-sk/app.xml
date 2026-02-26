@@ -48,6 +48,7 @@
   <string name="folder_option_create_document">Vytvoriť dokument</string>
   <string name="folder_option_create_spreadsheet">Vytvoriť tabuľku</string>
   <string name="folder_option_import_folder">Nahrať priečinok</string>
+  <string name="folder_option_scan_document">Skenovať dokument</string>
   <string name="settings_theme_system_default">Podľa systému</string>
   <string name="settings_theme_dark">Tmavý</string>
   <string name="settings_theme_light">Svetlý</string>
@@ -209,6 +210,7 @@
   <string name="operation_open_document">otvoriť dokument</string>
   <string name="operation_create_document">vytvoriť dokument</string>
   <string name="operation_take_picture">odfotiť</string>
+  <string name="operation_scan_document">skenovať dokument</string>
   <!-- region Get more free storage -->
   <!--
         Variable %1$s is a quantity (formatted) of max free storage

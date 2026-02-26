@@ -48,6 +48,7 @@
   <string name="folder_option_create_document">ドキュメントを作成</string>
   <string name="folder_option_create_spreadsheet">スプレッドシートを作成</string>
   <string name="folder_option_import_folder">フォルダをアップロードする</string>
+  <string name="folder_option_scan_document">Scan document</string>
   <string name="settings_theme_system_default">システム標準</string>
   <string name="settings_theme_dark">ダーク</string>
   <string name="settings_theme_light">ライト</string>
@@ -194,6 +195,7 @@
   <string name="operation_open_document">ドキュメントを開く</string>
   <string name="operation_create_document">ドキュメントの作成</string>
   <string name="operation_take_picture">写真を撮らせて</string>
+  <string name="operation_scan_document">scan a document</string>
   <!-- region Get more free storage -->
   <!--
         Variable %1$s is a quantity (formatted) of max free storage

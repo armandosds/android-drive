@@ -25,9 +25,11 @@ class DeleteAllFolders @Inject constructor(
     private val getCacheFolder: GetCacheFolder,
     private val getPermanentFolder: GetPermanentFolder,
     private val getCacheTempFolder: GetCacheTempFolder,
+    private val getPermanentTempFolder: GetPermanentTempFolder,
 ) {
     suspend operator fun invoke(userId: UserId) {
         getPermanentFolder(userId).deleteRecursively()
+        getPermanentTempFolder(userId).deleteRecursively()
         getCacheFolder(userId).deleteRecursively()
         getCacheTempFolder(userId).deleteRecursively()
     }

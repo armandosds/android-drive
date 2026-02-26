@@ -18,4 +18,6 @@
   -->
 <resources>
   <string name="whats_new_title">Cosa c\'è di nuovo</string>
+  <string name="whats_new_upload_folder_title">Esegui il backup di intere cartelle con un tocco</string>
+  <string name="whats_new_upload_folder_description">Carica un\'intera cartella su Proton Drive toccando + nell\'angolo in alto a destra e selezionando ‘Carica una cartella’.</string>
 </resources>

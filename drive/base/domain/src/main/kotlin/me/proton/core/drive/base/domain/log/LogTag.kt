@@ -55,6 +55,7 @@ object LogTag {
     const val METRIC = "$DEFAULT.metric"
     const val DRIVE_SDK = "drive.sdk.app"
     const val DATABASE = "$DEFAULT.database"
+    const val DOCUMENT_SCANNER = "$DEFAULT.document.scanner"
     val ViewModel.VIEW_MODEL: String get() = "$DEFAULT.view.model[${this.javaClass.simpleName}]"
 
     object UploadTag {

@@ -48,6 +48,7 @@
   <string name="folder_option_create_document">Δημιουργία εγγράφου</string>
   <string name="folder_option_create_spreadsheet">Δημιουργία υπολογιστικού φύλλου</string>
   <string name="folder_option_import_folder">Ανέβασμα φακέλου</string>
+  <string name="folder_option_scan_document">Σάρωση εγγράφου</string>
   <string name="settings_theme_system_default">Προεπιλογή συστήματος</string>
   <string name="settings_theme_dark">Σκοτεινό</string>
   <string name="settings_theme_light">Φωτεινό</string>
@@ -199,6 +200,7 @@
   <string name="operation_open_document">άνοιξε ένα έγγραφο</string>
   <string name="operation_create_document">δημιούργησε ένα έγγραφο</string>
   <string name="operation_take_picture">βγάλτε φωτογραφία</string>
+  <string name="operation_scan_document">σαρώστε ένα έγγραφο</string>
   <!-- region Get more free storage -->
   <!--
         Variable %1$s is a quantity (formatted) of max free storage

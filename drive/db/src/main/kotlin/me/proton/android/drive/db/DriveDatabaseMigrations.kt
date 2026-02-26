@@ -20,6 +20,7 @@ package me.proton.android.drive.db
 
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import me.proton.android.drive.document.scanner.data.db.DocumentScannerDatabase
 import me.proton.android.drive.photos.data.db.PhotosDatabase
 import me.proton.core.account.data.db.AccountDatabase
 import me.proton.core.auth.data.db.AuthDatabase
@@ -653,6 +654,12 @@ object DriveDatabaseMigrations {
     val MIGRATION_100_101 = object : Migration(100, 101) {
         override fun migrate(db: SupportSQLiteDatabase) {
             LinkDownloadDatabase.MIGRATION_1.migrate(db)
+        }
+    }
+
+    val MIGRATION_101_102 = object : Migration(101, 102) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            DocumentScannerDatabase.MIGRATION_0.migrate(db)
         }
     }
 }

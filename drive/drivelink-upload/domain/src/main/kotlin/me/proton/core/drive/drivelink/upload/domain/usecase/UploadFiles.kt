@@ -76,7 +76,7 @@ class UploadFiles @Inject constructor(
         } else {
             processInForeground(
                 folder = folder,
-                uriStrings = uploadFileDescriptions.map { description -> description.uri },
+                uploadFileDescriptions = uploadFileDescriptions,
                 notifications = notifications,
                 cacheOption = cacheOption,
                 networkTypeProviderType = networkTypeProviderType,
@@ -89,14 +89,14 @@ class UploadFiles @Inject constructor(
 
     private suspend fun processInForeground(
         folder: DriveLink.Folder,
-        uriStrings: List<String>,
+        uploadFileDescriptions: List<UploadFileDescription>,
         notifications: Notifications,
         cacheOption: CacheOption,
         networkTypeProviderType: NetworkTypeProviderType,
         priority: Long,
         shouldBroadcastErrorMessage: Boolean,
         shouldDeleteSource: Boolean = false,
-    ) =
+    ) = uploadFileDescriptions.map { description -> description.uri }.let { uriStrings ->
         if (!hasEnoughAvailableSpace(folder.userId, uriStrings)) {
             if (shouldDeleteSource) {
                 uriStrings.forEach { uriString ->
@@ -110,7 +110,7 @@ class UploadFiles @Inject constructor(
                     userId = folder.userId,
                     volumeId = folder.volumeId,
                     folderId = folder.id,
-                    uriStrings = uriStrings,
+                    uploadFileDescriptions = uploadFileDescriptions,
                     shouldDeleteSource = shouldDeleteSource,
                     networkTypeProviderType = networkTypeProviderType,
                     shouldAnnounceEvent = notifications.system.announceUpload,
@@ -127,6 +127,7 @@ class UploadFiles @Inject constructor(
                 }
             }
         }
+    }
 
     private suspend fun processInBackground(
         folder: DriveLink.Folder,

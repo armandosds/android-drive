@@ -48,6 +48,7 @@
   <string name="folder_option_create_document">创建文档</string>
   <string name="folder_option_create_spreadsheet">创建电子表格</string>
   <string name="folder_option_import_folder">上传文件夹</string>
+  <string name="folder_option_scan_document">扫描文档</string>
   <string name="settings_theme_system_default">跟随系统</string>
   <string name="settings_theme_dark">深色主题</string>
   <string name="settings_theme_light">浅色主题</string>
@@ -194,6 +195,7 @@
   <string name="operation_open_document">打开文档</string>
   <string name="operation_create_document">创建文档</string>
   <string name="operation_take_picture">拍摄一张照片</string>
+  <string name="operation_scan_document">扫描文档</string>
   <!-- region Get more free storage -->
   <!--
         Variable %1$s is a quantity (formatted) of max free storage

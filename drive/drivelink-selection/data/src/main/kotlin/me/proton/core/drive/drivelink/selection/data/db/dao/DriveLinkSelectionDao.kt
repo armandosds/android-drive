@@ -19,6 +19,7 @@ package me.proton.core.drive.drivelink.selection.data.db.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 import me.proton.core.drive.base.data.db.Column
 import me.proton.core.drive.drivelink.data.db.dao.DriveLinkDao
@@ -31,6 +32,7 @@ import me.proton.core.drive.linktrash.data.db.dao.LinkTrashDao
 @Dao
 interface DriveLinkSelectionDao : DriveLinkDao {
 
+    @Transaction
     @Query(
         """
         SELECT ${DriveLinkDao.DRIVE_LINK_SELECT},

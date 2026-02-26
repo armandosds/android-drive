@@ -48,6 +48,7 @@
   <string name="folder_option_create_document">Document aanmaken</string>
   <string name="folder_option_create_spreadsheet">Maak spreadsheet</string>
   <string name="folder_option_import_folder">Map uploaden</string>
+  <string name="folder_option_scan_document">Document scannen</string>
   <string name="settings_theme_system_default">Systeemstandaard</string>
   <string name="settings_theme_dark">Donker</string>
   <string name="settings_theme_light">Licht</string>
@@ -199,6 +200,7 @@
   <string name="operation_open_document">een document openen</string>
   <string name="operation_create_document">een document maken</string>
   <string name="operation_take_picture">een foto nemen</string>
+  <string name="operation_scan_document">document scannen</string>
   <!-- region Get more free storage -->
   <!--
         Variable %1$s is a quantity (formatted) of max free storage

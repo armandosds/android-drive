@@ -76,6 +76,7 @@
   <string name="common_save_all_action">Lagre alle</string>
   <string name="common_add_to_albums_action">Legg til i album</string>
   <string name="common_tag_photo_action">Skann bilde for tagger</string>
+  <string name="common_save_as_action">Save as</string>
   <!-- endregion -->
   <!-- region Common file types -->
   <string name="common_type_audio">Lyd</string>

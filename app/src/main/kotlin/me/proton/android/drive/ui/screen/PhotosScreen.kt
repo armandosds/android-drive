@@ -75,6 +75,7 @@ fun PhotosScreen(
     navigateToPhotosIssues: (FolderId) -> Unit,
     navigateToPhotosUpsell: () -> Unit,
     navigateToBackupSettings: () -> Unit,
+    navigateToEnableBackupDialog: () -> Unit,
     navigateToNotificationPermissionRationale: () -> Unit,
 ) {
     val viewModel = hiltViewModel<PhotosViewModel>()
@@ -91,6 +92,7 @@ fun PhotosScreen(
             navigateToPhotosIssues = navigateToPhotosIssues,
             navigateToPhotosUpsell = navigateToPhotosUpsell,
             navigateToBackupSettings = navigateToBackupSettings,
+            navigateToEnableBackupDialog = navigateToEnableBackupDialog,
             lifecycle = lifecycle,
         )
     }
@@ -102,6 +104,9 @@ fun PhotosScreen(
             when (effect) {
                 PhotosEffect.ShowUpsell -> launch(Dispatchers.Main) {
                     viewEvent.onShowUpsell()
+                }
+                PhotosEffect.ShowEnableBackupDialog -> launch(Dispatchers.Main) {
+                    viewEvent.onEnableBackupDialog()
                 }
             }
         }.launchIn(this)
@@ -121,8 +126,11 @@ fun PhotosScreen(
         },
         modifier = modifier,
     )
+    val backupPermissionsViewState by viewModel.backupPermissionsViewModel.viewState.collectAsStateWithLifecycle(
+        initialValue = viewModel.backupPermissionsViewModel.initialViewState
+    )
     BackupPermissions(
-        viewState = viewModel.backupPermissionsViewModel.initialViewState,
+        viewState = backupPermissionsViewState,
         viewEvent = viewModel.backupPermissionsViewModel.viewEvent(
             navigateToPhotosPermissionRationale
         ),

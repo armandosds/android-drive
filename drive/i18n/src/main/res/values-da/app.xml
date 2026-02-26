@@ -48,6 +48,7 @@
   <string name="folder_option_create_document">Opret dokument</string>
   <string name="folder_option_create_spreadsheet">Opret regneark</string>
   <string name="folder_option_import_folder">Upload en mappe</string>
+  <string name="folder_option_scan_document">Scan dokument</string>
   <string name="settings_theme_system_default">Systemstandard</string>
   <string name="settings_theme_dark">Mørk</string>
   <string name="settings_theme_light">Lys</string>
@@ -199,6 +200,7 @@
   <string name="operation_open_document">åbn et dokument</string>
   <string name="operation_create_document">opret et dokument</string>
   <string name="operation_take_picture">tag et billede</string>
+  <string name="operation_scan_document">scan et dokument</string>
   <!-- region Get more free storage -->
   <!--
         Variable %1$s is a quantity (formatted) of max free storage

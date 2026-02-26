@@ -28,6 +28,8 @@ import coil.fetch.Fetcher
 import coil.fetch.SourceResult
 import coil.key.Keyer
 import coil.request.Options
+import me.proton.core.drive.base.domain.log.LogTag.THUMBNAIL
+import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.crypto.domain.usecase.DecryptThumbnail
 import me.proton.core.drive.drivelink.domain.usecase.UseSdkForThumbnail
 import me.proton.core.drive.link.domain.entity.FileId
@@ -38,6 +40,7 @@ import me.proton.core.drive.thumbnail.domain.usecase.GetThumbnailFile
 import me.proton.core.drive.thumbnail.domain.usecase.GetThumbnailInputStream
 import me.proton.core.drive.thumbnail.domain.usecase.GetThumbnailSdk
 import me.proton.core.drive.thumbnail.presentation.entity.ThumbnailVO
+import me.proton.core.util.kotlin.CoreLogger
 import okio.BufferedSource
 import okio.buffer
 import okio.source
@@ -147,6 +150,12 @@ class ThumbnailFetcher(
                     inputStream = inputStream,
                 )
             }
+        }.onFailure { error ->
+            CoreLogger.w(
+                THUMBNAIL,
+                error,
+                "Error while fetching thumbnail with sdk ${data.thumbnailId.id.logId()}"
+            )
         }.getOrThrow()
     } else {
         getThumbnailInputStream(
@@ -160,6 +169,12 @@ class ThumbnailFetcher(
                     inputStream = ByteArrayInputStream(decryptThumbnail(data.fileId, inputStream).getOrThrow())
                 )
             }
+        }.onFailure { error ->
+            CoreLogger.w(
+                THUMBNAIL,
+                error,
+                "Error while fetching thumbnail with legacy ${data.thumbnailId.id.logId()}"
+            )
         }.getOrThrow()
     }
 

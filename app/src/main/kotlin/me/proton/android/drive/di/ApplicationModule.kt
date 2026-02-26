@@ -44,7 +44,8 @@ import me.proton.android.drive.observability.UploadEventHandler
 import me.proton.android.drive.photos.domain.handler.PhotosEventHandler
 import me.proton.android.drive.provider.AppBuildConfigFieldsProvider
 import me.proton.android.drive.provider.BuildConfigurationProvider
-import me.proton.android.drive.provider.AppDriveClientProvider
+import me.proton.android.drive.provider.AppProtonDriveClientProvider
+import me.proton.android.drive.provider.AppProtonPhotosClientProvider
 import me.proton.android.drive.repository.BridgeFindDuplicatesRepository
 import me.proton.android.drive.repository.ClientUidRepositoryImpl
 import me.proton.android.drive.settings.DebugSettings
@@ -64,7 +65,8 @@ import me.proton.core.drive.announce.event.domain.usecase.AsyncAnnounceEvent
 import me.proton.core.drive.backup.domain.repository.FindDuplicatesRepository
 import me.proton.core.drive.base.domain.provider.BuildConfigFieldsProvider
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
-import me.proton.core.drive.base.domain.provider.DriveClientProvider
+import me.proton.core.drive.base.domain.provider.ProtonDriveClientProvider
+import me.proton.core.drive.base.domain.provider.ProtonPhotosClientProvider
 import me.proton.core.drive.base.domain.repository.ClientUidRepository
 import me.proton.core.drive.base.domain.usecase.DeviceInfo
 import me.proton.core.drive.base.domain.usecase.DriveUrlBuilder
@@ -232,5 +234,9 @@ abstract class ApplicationBindsModule {
 
     @Binds
     @Singleton
-    abstract fun bindsAppDriveClientFactory(impl: AppDriveClientProvider): DriveClientProvider
+    abstract fun bindsAppProtonDriveClientProvider(impl: AppProtonDriveClientProvider): ProtonDriveClientProvider
+
+    @Binds
+    @Singleton
+    abstract fun bindsAppProtonPhotosClientProvider(impl: AppProtonPhotosClientProvider): ProtonPhotosClientProvider
 }

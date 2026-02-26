@@ -26,5 +26,5 @@ fun SdkVolumeType.toVolumeType(): VolumeType = when (this) {
     SdkVolumeType.OWN_VOLUME -> VolumeType.own_volume
     SdkVolumeType.SHARED -> VolumeType.shared
     SdkVolumeType.SHARED_PUBLIC -> VolumeType.shared_public
-    SdkVolumeType.PHOTO -> VolumeType.own_photo_volume
+    SdkVolumeType.OWN_PHOTO_VOLUME -> VolumeType.own_photo_volume
 }

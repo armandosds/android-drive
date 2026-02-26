@@ -30,4 +30,5 @@ driveModule(
     serialization = true,
 ) {
     api(project(":drive:drivelink-crypto:domain"))
+    api(project(":drive:observability:data"))
 }

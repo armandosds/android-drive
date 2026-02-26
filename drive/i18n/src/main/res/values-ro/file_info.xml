@@ -18,7 +18,7 @@
   -->
 <resources>
   <string name="file_info_uploaded_by_entry">Încărcat de</string>
-  <string name="file_info_location_entry">Loc</string>
+  <string name="file_info_location_entry">Amplasare</string>
   <string name="file_info_last_modified_entry">Modificat</string>
   <string name="file_info_number_of_accesses_entry">Nr. descărcări</string>
   <string name="file_info_share_url_expiration_time">Timp expirare legătură web</string>

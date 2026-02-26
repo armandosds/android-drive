@@ -36,6 +36,7 @@ import me.proton.core.drive.linkupload.domain.entity.UploadFileLink
 import me.proton.core.drive.upload.domain.usecase.CancelUploadFile
 import me.proton.core.util.kotlin.CoreLogger
 import java.io.File
+import java.io.FileNotFoundException
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -111,7 +112,7 @@ class OpenDocument @Inject constructor(
         }
 
         val state = mutexMap.getOrPut(documentId) { Mutex() }.withLock {
-            getFile(driveLink).first { state ->
+            getFile(driveLink, checkSignature = false).first { state ->
                 when (state) {
                     is GetFile.State.Ready -> true
                     is GetFile.State.Error -> true
@@ -119,7 +120,9 @@ class OpenDocument @Inject constructor(
                 }
             }
         }
-        require(state is GetFile.State.Ready)
+        if (state !is GetFile.State.Ready) {
+            throw FileNotFoundException("Document could not be opened")
+        }
 
         val file = File(state.uri.path!!)
 

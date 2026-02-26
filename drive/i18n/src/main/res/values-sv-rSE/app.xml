@@ -48,6 +48,7 @@
   <string name="folder_option_create_document">Skapa dokument</string>
   <string name="folder_option_create_spreadsheet">Skapa kalkylblad</string>
   <string name="folder_option_import_folder">Ladda upp en mapp</string>
+  <string name="folder_option_scan_document">Skanna dokument</string>
   <string name="settings_theme_system_default">Systemstandard</string>
   <string name="settings_theme_dark">Mörk</string>
   <string name="settings_theme_light">Ljus</string>
@@ -199,6 +200,7 @@
   <string name="operation_open_document">öppna ett dokument</string>
   <string name="operation_create_document">skapa ett dokument</string>
   <string name="operation_take_picture">ta en bild</string>
+  <string name="operation_scan_document">skanna ett dokument</string>
   <!-- region Get more free storage -->
   <!--
         Variable %1$s is a quantity (formatted) of max free storage

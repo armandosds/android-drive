@@ -39,6 +39,7 @@ import me.proton.core.drive.share.data.db.ShareMembershipDao
 @Dao
 interface DriveLinkDao : LinkDao {
 
+    @Transaction
     @Query("""
         SELECT $DRIVE_LINK_SELECT FROM $DRIVE_LINK_ENTITY 
         WHERE 
@@ -77,6 +78,7 @@ interface DriveLinkDao : LinkDao {
     """)
     fun getLinksCountFlow(userId: UserId, shareId: String, parentId: String?): Flow<Int>
 
+    @Transaction
     @Query("""
         SELECT $DRIVE_LINK_SELECT FROM $DRIVE_LINK_ENTITY
         WHERE

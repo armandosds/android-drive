@@ -48,6 +48,7 @@
   <string name="folder_option_create_document">დოკუმენტის შექმნა</string>
   <string name="folder_option_create_spreadsheet">ელექტრონული ცხრილის შექმნა</string>
   <string name="folder_option_import_folder">Upload a folder</string>
+  <string name="folder_option_scan_document">Scan document</string>
   <string name="settings_theme_system_default">სისტემის ნაგულისხმები</string>
   <string name="settings_theme_dark">ბნელი</string>
   <string name="settings_theme_light">ღია</string>
@@ -199,6 +200,7 @@
   <string name="operation_open_document">დოკუმენტის გახსნა</string>
   <string name="operation_create_document">დოკუმენტის შექმნა</string>
   <string name="operation_take_picture">სურათის გადაღება</string>
+  <string name="operation_scan_document">scan a document</string>
   <!-- region Get more free storage -->
   <!--
         Variable %1$s is a quantity (formatted) of max free storage

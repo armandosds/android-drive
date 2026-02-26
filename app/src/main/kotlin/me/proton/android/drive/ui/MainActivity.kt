@@ -68,6 +68,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.onEach
+import me.proton.android.drive.document.scanner.data.provider.GmsDocumentScannerProvider
 import me.proton.android.drive.extension.deepLinkBaseUrl
 import me.proton.android.drive.lock.data.provider.BiometricPromptProvider
 import me.proton.android.drive.lock.domain.manager.AppLockManager
@@ -119,6 +120,7 @@ class MainActivity : FragmentActivity() {
     @Inject lateinit var activityLauncher: ActivityLauncher
     @Inject lateinit var announceEvent: AnnounceEvent
     @Inject lateinit var showRatingBooster: ShowRatingBooster
+    @Inject lateinit var gmsDocumentScannerProvider: GmsDocumentScannerProvider
 
     lateinit var configurationProvider: ConfigurationProvider
     private val accountViewModel: AccountViewModel by viewModels()
@@ -144,6 +146,7 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         deeplinkManager.onActivityCreate(this, savedInstanceState)
         biometricPromptProvider.bindToActivity(this)
+        gmsDocumentScannerProvider.check(this, lifecycleScope)
         initializeViewModels()
         WindowCompat.setDecorFitsSystemWindows(window, false)
         window.attributes.layoutInDisplayCutoutMode =

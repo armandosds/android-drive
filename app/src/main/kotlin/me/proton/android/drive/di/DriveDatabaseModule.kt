@@ -26,6 +26,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import me.proton.android.drive.db.DriveDatabase
+import me.proton.android.drive.document.scanner.data.db.DocumentScannerDatabase
 import me.proton.android.drive.photos.data.db.PhotosDatabase
 import me.proton.core.account.data.db.AccountDatabase
 import me.proton.core.auth.data.db.AuthDatabase
@@ -269,4 +270,7 @@ abstract class DriveDatabaseBindsModule {
 
     @Binds
     abstract fun provideDriveObservabilityDatabase(appDatabase: DriveDatabase): DriveObservabilityDatabase
+
+    @Binds
+    abstract fun provideDocumentScannerDatabase(appDatabase: DriveDatabase): DocumentScannerDatabase
 }

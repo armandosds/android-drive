@@ -86,7 +86,7 @@ class GetFile @Inject constructor(
             .getOrNull(LogTag.GET_FILE, "Cannot check file: ${driveLink.id.id.logId()}")
         if (cacheFileValid == true) {
             CoreLogger.d(LogTag.GET_FILE, "Cache file for ${driveLink.id.id.logId()} already exists!")
-            emit(State.Ready(Uri.fromFile(cacheFile), driveLink.id))
+            checkFileSignature(driveLink, cacheFile, checkSignature)
             return@flow
         }
 
@@ -103,7 +103,7 @@ class GetFile @Inject constructor(
             .getOrNull(LogTag.GET_FILE, "Cannot check file: ${driveLink.id.id.logId()}")
         if (permanentFileValid == true) {
             CoreLogger.d(LogTag.GET_FILE, "Permanent file for ${driveLink.id.id.logId()} already exists!")
-            emit(State.Ready(Uri.fromFile(permanentFile), driveLink.id))
+            checkFileSignature(driveLink, permanentFile, checkSignature)
             return@flow
         }
         CoreLogger.d(LogTag.GET_FILE, "File for ${driveLink.id.id.logId()} doesn't exists")
@@ -147,7 +147,20 @@ class GetFile @Inject constructor(
         } else {
             emit(State.Ready(Uri.fromFile(targetFile), driveLink.id))
         }
+        checkFileSignature(driveLink, targetFile, checkSignature)
     }.flowOn(Dispatchers.IO)
+
+    private suspend fun FlowCollector<State>.checkFileSignature(
+        driveLink: DriveLink.File,
+        file: File,
+        checkSignature: Boolean,
+    ) {
+        if (checkSignature && hasSignatureVerificationFailed(driveLink.id).getOrDefault(false)) {
+            emit(State.Error.VerifyingSignature(RuntimeException("Throwable is not available")))
+        } else {
+            emit(State.Ready(Uri.fromFile(file), driveLink.id))
+        }
+    }
 
     private suspend fun FlowCollector<State>.waitForDownloadToFinish(
         driveLink: DriveLink.File

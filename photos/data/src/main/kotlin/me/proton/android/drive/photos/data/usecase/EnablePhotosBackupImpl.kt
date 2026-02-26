@@ -50,42 +50,50 @@ class EnablePhotosBackupImpl @Inject constructor(
 
     override suspend operator fun invoke(folderId: FolderId): Result<PhotoBackupState> = coRunCatching {
         when (val permissions = permissionsManager.getBackupPermissions(refresh = true)) {
-            is BackupPermissions.Granted -> enableBackup(
-                folderId = folderId,
-                allFolders = permissions.partial,
-            )
+            is BackupPermissions.Granted -> if(permissions.partial){
+                invoke(
+                    folderId = folderId,
+                    folderFilter = { true }
+                )
+            } else {
+                invoke(
+                    folderId = folderId,
+                    folderFilter = defaultFolder()
+                )
+            }.getOrThrow()
             else -> throw SecurityException(appContext.getString(I18N.string.photos_error_missing_permissions))
         }
     }
 
-    private suspend fun enableBackup(
+    override suspend operator fun invoke(
         folderId: FolderId,
-        allFolders: Boolean = false
-    ): PhotoBackupState = if (backupManager.isEnabled(folderId).first().not()) {
-        val folderName = configurationProvider.backupDefaultBucketName
-        val folderFilter: (BucketEntry) -> Boolean = if (allFolders) {
-            { _ -> true }
+        folderFilter: (BucketEntry) -> Boolean
+    ): Result<PhotoBackupState> = coRunCatching {
+        if (backupManager.isEnabled(folderId).first().not()) {
+            setupPhotosBackup(folderId, folderFilter).getOrThrow().let { results ->
+                if (results.isEmpty()) {
+                    PhotoBackupState.NoFolder(configurationProvider.backupDefaultBucketName)
+                } else {
+                    PhotoBackupState.Enabled(
+                        folderNames = results.map { result -> result.folderName },
+                        backupFolders = results.map { result -> result.backupFolder },
+                    )
+                }
+            }.also { state ->
+                if (state is PhotoBackupState.Enabled) {
+                    announceEvent(folderId.userId, Event.BackupEnabled(folderId))
+                }
+                startBackup(folderId)
+            }
         } else {
-            val folderNames = configurationProvider.backupAdditionalBucketNames
-            val names = listOf(folderName) + folderNames
-            { entry -> entry.bucketName in names }
+            PhotoBackupState.Disabled
         }
-        setupPhotosBackup(folderId, folderFilter).getOrThrow().let { results ->
-            if (results.isEmpty()) {
-                PhotoBackupState.NoFolder(folderName)
-            } else {
-                PhotoBackupState.Enabled(
-                    folderNames = results.map { result -> result.folderName },
-                    backupFolders = results.map { result -> result.backupFolder },
-                )
-            }
-        }.also { state ->
-            if (state is PhotoBackupState.Enabled) {
-                announceEvent(folderId.userId, Event.BackupEnabled(folderId))
-            }
-            startBackup(folderId)
-        }
-    } else {
-        PhotoBackupState.Disabled
+    }
+
+    private fun defaultFolder(): (BucketEntry) -> Boolean {
+        val folderName = configurationProvider.backupDefaultBucketName
+        val folderNames = configurationProvider.backupAdditionalBucketNames
+        val names = listOf(folderName) + folderNames
+        return { entry -> entry.bucketName in names }
     }
 }

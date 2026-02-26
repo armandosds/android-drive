@@ -18,4 +18,6 @@
   -->
 <resources>
   <string name="whats_new_title">Nouveautés</string>
+  <string name="whats_new_upload_folder_title">Sauvegardez des dossiers entiers d\'un simple appuie</string>
+  <string name="whats_new_upload_folder_description">Importez un dossier entier sur Proton Drive en appuyant sur + dans le coin supérieur droit et en sélectionnant « Importer un dossier ».</string>
 </resources>

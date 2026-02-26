@@ -123,9 +123,9 @@ interface ConfigurationProvider {
     val savePhotoToStreamLimit: Long get() = 100
     val photoListingsPageSize: Int get() = 25_000
     val sendPhotoTagsInCommit: Boolean get() = true
-    val preferSdkForUpload: Boolean get() = false
-    val preferSdkForDownload: Boolean get() = false
-    val preferSdkForThumbnail: Boolean get() = false
+    val preferSdkForUpload: Boolean get() = true
+    val preferSdkForDownload: Boolean get() = true
+    val preferSdkForThumbnail: Boolean get() = true
     val createFolderInParallel: Int get() = 16
 
     data class Thumbnail(

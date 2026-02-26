@@ -24,7 +24,6 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.core.stringSetPreferencesKey
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import me.proton.core.domain.entity.UserId
@@ -61,6 +60,7 @@ class GetUserDataStore @Inject constructor(
         private const val KEY_PHOTOS_MIGRATION_TAGS_LAST_FINISHED_UPDATE = "key_photos_migration_tags_last_finished_update"
         private const val KEY_DOWNLOAD_WORK_MANAGER_CANCELLED_ALL = "key_download_work_manager_cancelled_all"
         private const val KEY_UPLOAD_FOLDER_ACTION_INVOKED = "upload_folder_action_invoked"
+        private const val KEY_SCAN_DOCUMENT_ACTION_INVOKED = "scan_document_action_invoked"
     }
 
     data object Keys {
@@ -73,6 +73,6 @@ class GetUserDataStore @Inject constructor(
         fun subscriptionLastUpdate(name: String) = longPreferencesKey(KEY_SUBSCRIPTION_LAST_UPDATE + name)
         val photosMigrationTagsLastFinishedUpdate get() = longPreferencesKey(KEY_PHOTOS_MIGRATION_TAGS_LAST_FINISHED_UPDATE)
         val downloadWorkManagerCancelledAll get() = booleanPreferencesKey(KEY_DOWNLOAD_WORK_MANAGER_CANCELLED_ALL)
-        val uploadFolderActionInvoked get() = booleanPreferencesKey(KEY_UPLOAD_FOLDER_ACTION_INVOKED)
+        val scanDocumentActionInvoked get() = booleanPreferencesKey(KEY_SCAN_DOCUMENT_ACTION_INVOKED)
     }
 }

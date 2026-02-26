@@ -76,6 +76,7 @@
   <string name="common_save_all_action">Захаваць усе</string>
   <string name="common_add_to_albums_action">Дадаць у альбомы</string>
   <string name="common_tag_photo_action">Сканіраваць фатаграфію для тэгаў</string>
+  <string name="common_save_as_action">Save as</string>
   <!-- endregion -->
   <!-- region Common file types -->
   <string name="common_type_audio">Аўдыя</string>

@@ -47,7 +47,8 @@
   <string name="folder_option_take_a_photo">Zrób nowe zdjęcie</string>
   <string name="folder_option_create_document">Utwórz dokument</string>
   <string name="folder_option_create_spreadsheet">Utwórz arkusz kalkulacyjny</string>
-  <string name="folder_option_import_folder">Upload a folder</string>
+  <string name="folder_option_import_folder">Prześlij folder</string>
+  <string name="folder_option_scan_document">Scan document</string>
   <string name="settings_theme_system_default">Domyślny systemu</string>
   <string name="settings_theme_dark">Ciemny</string>
   <string name="settings_theme_light">Jasny</string>
@@ -209,6 +210,7 @@
   <string name="operation_open_document">otwarcia dokumentu</string>
   <string name="operation_create_document">utworzenia dokumentu</string>
   <string name="operation_take_picture">zrobienia zdjęcia</string>
+  <string name="operation_scan_document">scan a document</string>
   <!-- region Get more free storage -->
   <!--
         Variable %1$s is a quantity (formatted) of max free storage

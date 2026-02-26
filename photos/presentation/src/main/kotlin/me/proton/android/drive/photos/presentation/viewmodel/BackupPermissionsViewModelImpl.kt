@@ -26,13 +26,20 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
 import me.proton.android.drive.photos.data.extension.getDefaultMessage
 import me.proton.android.drive.photos.domain.entity.PhotoBackupState
+import me.proton.android.drive.photos.domain.usecase.IsPhotosEnabled
 import me.proton.android.drive.photos.domain.usecase.TogglePhotosBackup
 import me.proton.android.drive.photos.presentation.viewevent.BackupPermissionsViewEvent
 import me.proton.android.drive.photos.presentation.viewstate.BackupPermissionsEffect
 import me.proton.android.drive.photos.presentation.viewstate.BackupPermissionsViewState
+import me.proton.core.accountmanager.domain.AccountManager
+import me.proton.core.accountmanager.domain.getPrimaryAccount
 import me.proton.core.drive.backup.domain.entity.BackupPermissions
 import me.proton.core.drive.backup.domain.manager.BackupPermissionsManager
 import me.proton.core.drive.base.data.extension.log
@@ -53,6 +60,8 @@ class BackupPermissionsViewModelImpl @Inject constructor(
     private val togglePhotosBackup: TogglePhotosBackup,
     private val configurationProvider: ConfigurationProvider,
     private val broadcastMessages: BroadcastMessages,
+    private val isPhotosEnabled: IsPhotosEnabled,
+    accountManager: AccountManager,
     coroutineContext: CoroutineContext,
 ) : BackupPermissionsViewModel {
     private val coroutineScope = CoroutineScope(coroutineContext)
@@ -61,10 +70,20 @@ class BackupPermissionsViewModelImpl @Inject constructor(
     private var navigateToPhotosPermissionRationale: (() -> Unit)? = null
     private val _backupPermissionsEffect = MutableSharedFlow<BackupPermissionsEffect>()
     private val backupPermissionsEffect: Flow<BackupPermissionsEffect> = _backupPermissionsEffect.asSharedFlow()
+
     override val initialViewState = BackupPermissionsViewState(
         permissions = backupPermissionsManager.requiredBackupPermissions,
         effect = backupPermissionsEffect,
+        shouldRequestNotificationPermission = false,
     )
+
+    override val viewState: Flow<BackupPermissionsViewState> = accountManager.getPrimaryAccount()
+        .filterNotNull()
+        .transformLatest { account ->
+            emitAll(isPhotosEnabled(account.userId))
+        }.map { enabled ->
+            initialViewState.copy(shouldRequestNotificationPermission = enabled)
+        }
 
     override fun viewEvent(
         navigateToPhotosPermissionRationale: () -> Unit,

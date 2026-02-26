@@ -156,6 +156,7 @@ fun PickerPhotos(
                 navigateToPhotosIssues = {},
                 navigateToPhotosUpsell = {},
                 navigateToBackupSettings = {},
+                navigateToEnableBackupDialog = {},
                 navigateToNotificationPermissionRationale = {},
                 defaultTitle = {},
             )
@@ -215,7 +216,7 @@ fun BottomActions(
         ) {
             Icon(
                 painter = painterResource(id = CorePresentation.drawable.ic_proton_close),
-                contentDescription = null,
+                contentDescription = stringResource(I18N.string.common_close_action),
                 modifier = modifier.padding(4.dp),
             )
         }
@@ -223,7 +224,6 @@ fun BottomActions(
         AddToAlbumButton(
             addToAlbumTitle = addToAlbumTitle,
             modifier = Modifier
-                .testTag(PickerPhotosScreenTestTag.addToAlbumButton)
                 .widthIn(min = 200.dp),
             enabled = isAddToAlbumButtonEnabled,
             loading = isAddToAlbumInProgress,
@@ -235,5 +235,4 @@ fun BottomActions(
 object PickerPhotosScreenTestTag {
     const val screen = "picker photos and albums screen"
     const val resetButton = "reset button"
-    const val addToAlbumButton = "add to album button"
 }

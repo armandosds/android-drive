@@ -48,6 +48,7 @@
   <string name="folder_option_create_document">Dokument erstellen</string>
   <string name="folder_option_create_spreadsheet">Tabellenkalkulation erstellen</string>
   <string name="folder_option_import_folder">Ordner hochladen</string>
+  <string name="folder_option_scan_document">Dokument scannen</string>
   <string name="settings_theme_system_default">Systemstandard</string>
   <string name="settings_theme_dark">Dunkel</string>
   <string name="settings_theme_light">Hell</string>
@@ -199,6 +200,7 @@
   <string name="operation_open_document">Dokumente öffnen kann</string>
   <string name="operation_create_document">Dokumente erstellen kann</string>
   <string name="operation_take_picture">Fotos aufnehmen kann</string>
+  <string name="operation_scan_document">Ein Dokument scannen</string>
   <!-- region Get more free storage -->
   <!--
         Variable %1$s is a quantity (formatted) of max free storage

@@ -76,6 +76,7 @@
   <string name="common_save_all_action">ყველას შენახვა</string>
   <string name="common_add_to_albums_action">ალბომებში დამატება</string>
   <string name="common_tag_photo_action">ფოტოს დასკანირება თეგებისთვის</string>
+  <string name="common_save_as_action">Save as</string>
   <!-- endregion -->
   <!-- region Common file types -->
   <string name="common_type_audio">აუდიო</string>

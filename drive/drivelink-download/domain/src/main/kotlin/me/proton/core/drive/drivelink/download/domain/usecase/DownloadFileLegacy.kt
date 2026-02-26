@@ -28,8 +28,10 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import me.proton.android.drive.verifier.domain.exception.ContentDigestVerifierException
 import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.base.domain.entity.Percentage
+import me.proton.core.drive.base.domain.extension.bytes
 import me.proton.core.drive.base.domain.extension.getOrNull
 import me.proton.core.drive.base.domain.extension.mapWithPrevious
 import me.proton.core.drive.base.domain.extension.toResult
@@ -37,7 +39,8 @@ import me.proton.core.drive.base.domain.log.LogTag
 import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.util.coRunCatching
-import me.proton.core.drive.cryptobase.domain.exception.VerificationException
+import me.proton.core.drive.cryptobase.domain.exception.FileVerificationException
+import me.proton.core.drive.drivelink.crypto.domain.usecase.IntegrityMetricsNotifier
 import me.proton.core.drive.drivelink.domain.usecase.GetDriveLink
 import me.proton.core.drive.drivelink.download.domain.exception.InvalidBlocksException
 import me.proton.core.drive.file.base.domain.entity.Block
@@ -68,6 +71,8 @@ class DownloadFileLegacy @Inject constructor(
     private val deleteDownloadedBlocks: DeleteDownloadedBlocks,
     private val setSignatureVerificationFailed: SetSignatureVerificationFailed,
     private val removeSignatureVerificationFailed: RemoveSignatureVerificationFailed,
+    private val verifyDownloadedFile: VerifyDownloadedFile,
+    private val integrityMetricsNotifier: IntegrityMetricsNotifier,
 ) {
 
     suspend operator fun invoke(
@@ -135,13 +140,14 @@ class DownloadFileLegacy @Inject constructor(
             tag = LogTag.DOWNLOAD,
             message = "Failed to remove that signature verification failed"
         )
-        decryptDownloadedBlocks(driveLink, checkSignature = true)
+        val downloadedFile = decryptDownloadedBlocks(driveLink, checkSignature = true)
             .recoverCatching { error ->
-                if (error is VerificationException) {
+                if (error is FileVerificationException) {
                     setSignatureVerificationFailed(driveLink.id).getOrNull(
                         tag = LogTag.DOWNLOAD,
                         message = "Failed to set that signature verification failed"
                     )
+                    error.file
                 } else {
                     throw error
                 }
@@ -153,7 +159,41 @@ class DownloadFileLegacy @Inject constructor(
             .onFailure { error ->
                 CoreLogger.e(LogTag.DOWNLOAD, error,"There was an error decrypting file ${driveLink.id.id.logId()}")
             }.getOrThrow()
-    }.onFailure { setDownloadState(fileId, DownloadState.Error) }
+        if (verifyDownloadedFile.isAllowed(userId = driveLink.userId)) {
+            verifyDownloadedFile(
+                driveLink = driveLink,
+                revisionId = revisionId,
+                file = downloadedFile,
+            )
+                .onSuccess {
+                    integrityMetricsNotifier.downloadVerifier(
+                        fileSize = downloadedFile.length().bytes,
+                        isSuccess = true,
+                    )
+                }
+                .recoverCatching { error ->
+                    if (error is ContentDigestVerifierException.Mismatch) {
+                        val fileSize = downloadedFile.length().bytes
+                        downloadedFile.delete()
+                        integrityMetricsNotifier.downloadVerifier(
+                            fileSize = fileSize,
+                            isSuccess = false,
+                            throwable = error,
+                        )
+                        throw error
+                    } else {
+                        integrityMetricsNotifier.downloadVerifier(
+                            fileSize = downloadedFile.length().bytes,
+                            isSuccess = true,
+                            throwable = error,
+                        )
+                    }
+                }
+                .getOrThrow()
+        }
+    }
+        .onFailure { setDownloadState(fileId, DownloadState.Error) }
+        .onSuccess { setDownloadState(fileId, DownloadState.Ready) }
 
     private suspend fun List<Block>.blocksForDownload(
         userId: UserId,

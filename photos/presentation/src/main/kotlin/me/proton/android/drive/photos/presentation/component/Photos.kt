@@ -103,7 +103,7 @@ fun Photos(
                                 onRetry = viewEvent.onRetry,
                                 onResolve = viewEvent.onResolve,
                                 onGetStorage = viewEvent.onGetStorage,
-                                onResolveMissingFolder = viewEvent.onResolveMissingFolder,
+                                onResolveMissingFolder = viewEvent.onEnableBackupDialog,
                                 onChangeNetwork = viewEvent.onChangeNetwork,
                                 onIgnoreBackgroundRestrictions = {
                                     viewEvent.onIgnoreBackgroundRestrictions(localContext)
@@ -159,7 +159,7 @@ fun Photos(
                         onResolve = viewEvent.onResolve,
                         onScroll = viewEvent.onScroll,
                         onGetStorage = viewEvent.onGetStorage,
-                        onResolveMissingFolder = viewEvent.onResolveMissingFolder,
+                        onResolveMissingFolder = viewEvent.onEnableBackupDialog,
                         onChangeNetwork = viewEvent.onChangeNetwork,
                         onIgnoreBackgroundRestrictions = {
                             viewEvent.onIgnoreBackgroundRestrictions(localContext)

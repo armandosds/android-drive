@@ -33,6 +33,7 @@ import me.proton.core.network.domain.ApiException
 import me.proton.core.network.domain.ApiResult
 import me.proton.core.network.domain.isRetryable
 import me.proton.drive.sdk.ProtonDriveSdkException
+import me.proton.drive.sdk.ProtonSdkError.ErrorDomain
 import retrofit2.HttpException
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -117,7 +118,10 @@ val Throwable.isRetryable: Boolean
             }
         }
 
-        is ProtonDriveSdkException -> toApiException()?.isDriveRetryable()?: false
+        is ProtonDriveSdkException -> when (error?.domain) {
+            ErrorDomain.SuccessfulCancellation -> true
+            else -> toApiException()?.isDriveRetryable() ?: false
+        }
 
         is ApiException -> isDriveRetryable()
         else -> false

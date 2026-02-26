@@ -19,6 +19,7 @@ package me.proton.core.drive.drivelink.download.data.db.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.drivelink.data.db.dao.DriveLinkDao
@@ -28,6 +29,7 @@ import me.proton.core.drive.linkdownload.data.db.entity.LinkDownloadState
 @Dao
 interface DriveLinkDownloadDao : DriveLinkDao {
 
+    @Transaction
     @Query("""
         SELECT ${DriveLinkDao.DRIVE_LINK_SELECT} FROM ${DriveLinkDao.DRIVE_LINK_ENTITY}
         WHERE

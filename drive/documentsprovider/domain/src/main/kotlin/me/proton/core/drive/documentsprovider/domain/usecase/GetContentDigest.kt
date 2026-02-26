@@ -18,27 +18,23 @@
 
 package me.proton.core.drive.documentsprovider.domain.usecase
 
-import me.proton.core.drive.base.domain.extension.getHexMessageDigest
 import me.proton.core.drive.base.domain.extension.toResult
-import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.util.coRunCatching
-import me.proton.core.drive.crypto.domain.usecase.DecryptLinkXAttr
 import me.proton.core.drive.documentsprovider.domain.entity.DocumentId
 import me.proton.core.drive.drivelink.domain.entity.DriveLink
 import me.proton.core.drive.drivelink.domain.usecase.GetDriveLink
-import me.proton.core.drive.file.base.domain.entity.XAttr
-import me.proton.core.drive.file.base.domain.extension.toXAttr
 import me.proton.core.drive.link.domain.entity.FileId
 import me.proton.core.drive.link.domain.extension.userId
 import java.io.FileInputStream
-import java.io.InputStream
 import javax.inject.Inject
+import me.proton.core.drive.base.domain.usecase.GetContentDigest as GetBaseContentDigest
+import me.proton.core.drive.drivelink.crypto.domain.usecase.GetContentDigest as GetDriveLinkContentDigest
 
 class GetContentDigest @Inject constructor(
-    private val configurationProvider: ConfigurationProvider,
     private val openDocument: OpenDocument,
     private val getDriveLink: GetDriveLink,
-    private val decryptLinkXAttr: DecryptLinkXAttr
+    private val getBaseContentDigest: GetBaseContentDigest,
+    private val getDriveLinkContentDigest: GetDriveLinkContentDigest,
 ) {
 
     suspend operator fun invoke(
@@ -55,7 +51,7 @@ class GetContentDigest @Inject constructor(
         driveLink: DriveLink.File,
         fallbackToRecalculateFromFile: Boolean = false,
     ): Result<String> = coRunCatching {
-        getContentDigestFromXAttr(driveLink)
+        getDriveLinkContentDigest(driveLink)
             .recoverCatching {
                 if (fallbackToRecalculateFromFile) {
                     getContentDigestFromFile(driveLink).getOrThrow()
@@ -64,24 +60,6 @@ class GetContentDigest @Inject constructor(
                 }
             }
             .getOrThrow()
-    }
-
-    private suspend fun getContentDigestFromXAttr(
-        driveLink: DriveLink.File
-    ): Result<String> = coRunCatching {
-        requireNotNull(driveLink.xAttr) { "No XAttr found" }
-        getContentDigestFromXAttr(
-            xAttr = decryptLinkXAttr(driveLink).getOrThrow().text.toXAttr().getOrThrow()
-        ).getOrThrow()
-    }
-
-    private fun getContentDigestFromXAttr(
-        xAttr: XAttr,
-    ): Result<String> = coRunCatching {
-        val digests = requireNotNull(xAttr.common.digests) { "XAttr does not contain digests" }
-        requireNotNull(digests[configurationProvider.contentDigestAlgorithm]) {
-            "Digests does not contain content digest algorithm ${configurationProvider.contentDigestAlgorithm}"
-        }
     }
 
     private suspend fun getContentDigestFromFile(
@@ -93,15 +71,7 @@ class GetContentDigest @Inject constructor(
             signal = null,
         )
         FileInputStream(pfd.fileDescriptor).use { inputStream ->
-            getContentDigestFromInputStream(inputStream).getOrThrow()
+            getBaseContentDigest(inputStream).getOrThrow()
         }
-    }
-
-    private suspend fun getContentDigestFromInputStream(
-        inputStream: InputStream
-    ): Result<String> = coRunCatching {
-        requireNotNull(
-            inputStream.getHexMessageDigest(configurationProvider.contentDigestAlgorithm)
-        ) { "No digest found" }
     }
 }

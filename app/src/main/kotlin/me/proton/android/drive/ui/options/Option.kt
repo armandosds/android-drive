@@ -296,6 +296,22 @@ sealed class Option(
         } as FileOptionEntry<DriveLink>
     }
 
+    data object ScanDocument : Option(
+        ApplicableQuantity.Single,
+        setOf(ApplicableTo.FOLDER),
+        setOf(State.NOT_TRASHED) + State.ANY_SHARED,
+    ) {
+        fun build(
+            notificationDotVisible: Boolean = false,
+            scanDocument: () -> Unit,
+        ) = FolderEntry(
+            icon = BasePresentation.drawable.ic_scan,
+            labelResId = I18N.string.folder_option_scan_document,
+            notificationDotVisible = notificationDotVisible,
+            onClick = { scanDocument() }
+        )
+    }
+
     data object SendFile : Option(
         ApplicableQuantity.Single,
         ApplicableTo.ANY_DOWNLOADABLE_FILE,
@@ -627,6 +643,7 @@ fun Iterable<Option>.filterPermissions(
         Option.RemoveFromAlbum -> permissions.canWrite
         Option.RemoveMe -> permissions.canRead
         Option.SaveSharePhoto -> permissions.isViewerOrEditorOnly
+        Option.ScanDocument -> permissions.canWrite
         Option.SendFile -> permissions.canRead
         Option.SetAsAlbumCover -> permissions.isAdmin
         Option.ShareViaInvitations -> permissions.isAdmin

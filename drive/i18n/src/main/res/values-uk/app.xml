@@ -48,6 +48,7 @@
   <string name="folder_option_create_document">Створити документ</string>
   <string name="folder_option_create_spreadsheet">Створити електронну таблицю</string>
   <string name="folder_option_import_folder">Вивантажити теку</string>
+  <string name="folder_option_scan_document">Scan document</string>
   <string name="settings_theme_system_default">Системна</string>
   <string name="settings_theme_dark">Темна</string>
   <string name="settings_theme_light">Світла</string>
@@ -209,6 +210,7 @@
   <string name="operation_open_document">відкрити документ</string>
   <string name="operation_create_document">створити документ</string>
   <string name="operation_take_picture">сфотографувати</string>
+  <string name="operation_scan_document">scan a document</string>
   <!-- region Get more free storage -->
   <!--
         Variable %1$s is a quantity (formatted) of max free storage

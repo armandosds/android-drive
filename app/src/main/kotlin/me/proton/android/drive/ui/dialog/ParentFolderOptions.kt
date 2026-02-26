@@ -31,6 +31,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
+import me.proton.android.drive.document.scanner.domain.entity.ScannerOptions
+import me.proton.android.drive.document.scanner.presentation.component.rememberDocumentScannerLauncher
 import me.proton.android.drive.ui.viewmodel.ParentFolderOptionsViewModel
 import me.proton.core.compose.activity.rememberCameraLauncher
 import me.proton.core.compose.component.bottomsheet.RunAction
@@ -59,6 +61,7 @@ fun ParentFolderOptions(
     navigateToStorageFull: () -> Unit,
     navigateToPreview: (FileId) -> Unit,
     navigateToNotificationPermissionRationale: () -> Unit,
+    navigateToScanDocumentName: (FolderId, Long, String) -> Unit,
     modifier: Modifier = Modifier,
     dismiss: () -> Unit,
 ) = ParentFolderOptions(
@@ -68,6 +71,7 @@ fun ParentFolderOptions(
     navigateToStorageFull = navigateToStorageFull,
     navigateToPreview = navigateToPreview,
     navigateToNotificationPermissionRationale = navigateToNotificationPermissionRationale,
+    navigateToScanDocumentName = navigateToScanDocumentName,
     modifier = modifier
         .testTag(ParentFolderOptionsDialogTestTag.contextMenu),
     dismiss = dismiss,
@@ -81,11 +85,26 @@ fun ParentFolderOptions(
     navigateToStorageFull: () -> Unit,
     navigateToPreview: (FileId) -> Unit,
     navigateToNotificationPermissionRationale: () -> Unit,
+    navigateToScanDocumentName: (FolderId, Long, String) -> Unit,
     modifier: Modifier = Modifier,
     dismiss: () -> Unit,
 ) {
     val driveLink by viewModel.driveLink.collectAsStateWithLifecycle(initialValue = null)
     val folder = driveLink ?: return
+
+    val scanDocumentLauncher = rememberDocumentScannerLauncher(
+        scannerOptions = ScannerOptions.default,
+        onResult = { result ->
+            viewModel.onScanDocumentResult(
+                result = result,
+                navigateToScanDocumentName = navigateToScanDocumentName,
+                dismiss = dismiss,
+            )
+        },
+        onError = { error ->
+            viewModel.onScanDocumentError(error)
+        },
+    )
 
     val filePickerLauncher = rememberFilePickerLauncher(
         onFilesPicked = { filesUri ->
@@ -130,6 +149,7 @@ fun ParentFolderOptions(
             showFilePicker = { onNotFound -> filePickerLauncher.launchWithNotFound(onNotFound) },
             takeAPhoto = { uri, onNotFound -> permissionCameraLauncher.capture(uri, onNotFound) },
             showFolderPicker = { onNotFound -> folderPickerLauncher.launchWithNotFound(onNotFound) },
+            scanDocument = { onNotFound -> scanDocumentLauncher.launchWithNotFound(onNotFound) },
             dismiss = dismiss,
         ).flowWithLifecycle(
             lifecycle = lifecycle,

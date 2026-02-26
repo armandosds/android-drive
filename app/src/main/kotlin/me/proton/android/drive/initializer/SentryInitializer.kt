@@ -28,6 +28,7 @@ import io.sentry.SentryLevel
 import io.sentry.SentryOptions
 import io.sentry.android.core.SentryAndroid
 import me.proton.android.drive.BuildConfig
+import me.proton.android.drive.log.ProtonDriveSdkExceptionProcessor
 import me.proton.core.usersettings.domain.UsersSettingsHandler
 import me.proton.core.util.android.sentry.TimberLoggerIntegration
 import me.proton.core.util.android.sentry.project.AccountSentryHubBuilder
@@ -62,6 +63,7 @@ class SentryInitializer : Initializer<Unit> {
                     minBreadcrumbLevel = SentryLevel.DEBUG
                 )
             )
+            options.addEventProcessor(ProtonDriveSdkExceptionProcessor())
         }
 
         entryPoint.accountSentryHubBuilder().invoke(

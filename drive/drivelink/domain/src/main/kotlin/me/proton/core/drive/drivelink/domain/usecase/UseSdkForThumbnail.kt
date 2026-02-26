@@ -27,7 +27,6 @@ import me.proton.core.drive.feature.flag.domain.entity.FeatureFlagId.Companion.d
 import me.proton.core.drive.feature.flag.domain.entity.FeatureFlagId.Companion.driveAndroidSDKThumbnailPhoto
 import me.proton.core.drive.feature.flag.domain.extension.on
 import me.proton.core.drive.feature.flag.domain.usecase.GetFeatureFlag
-import me.proton.core.drive.link.domain.entity.AlbumId
 import me.proton.core.drive.link.domain.entity.LinkId
 import me.proton.core.drive.link.domain.extension.shareId
 import me.proton.core.drive.link.domain.extension.userId
@@ -49,7 +48,6 @@ class UseSdkForThumbnail @Inject constructor(
 
     suspend operator fun invoke(driveLink: DriveLink) = coRunCatching {
         configurationProvider.preferSdkForThumbnail
-                && driveLink.parentId !is AlbumId
                 && driveLink.featureFlag()
     }
 

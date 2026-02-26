@@ -31,3 +31,4 @@ internal fun Event.Throwable.toLog(userId: UserId): Log =
         creationTime = occurredAt,
         origin = Log.Origin.EVENT_THROWABLE,
     )
+

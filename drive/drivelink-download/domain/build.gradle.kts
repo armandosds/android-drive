@@ -33,6 +33,7 @@ driveModule(
     api(project(":drive:observability:domain"))
     api(project(":drive:photo:domain"))
     api(project(":drive:thumbnail:domain"))
+    api(project(":verifier:domain"))
 
     implementation(project(":drive:drivelink-crypto:domain"))
     implementation(project(":drive:crypto-base:domain")) // For VerificationException maybe we should this class somewhere else

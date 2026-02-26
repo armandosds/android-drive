@@ -55,6 +55,9 @@ sealed class FeatureFlagId(open val userId: UserId, open val id: String) {
         const val DRIVE_ANDROID_SDK_THUMBNAIL_PHOTO = "DriveAndroidSDKThumbnailPhoto"
         const val DRIVE_ANDROID_UPLOAD_FOLDER = "DriveAndroidUploadFolder"
         const val DRIVE_ANDROID_PHOTO_LISTING_WITH_FILE_PROPERTIES = "DriveAndroidPhotoListingWithFileProperties"
+        const val DRIVE_ANDROID_DOCUMENT_SCANNER = "DriveAndroidDocumentScanner"
+        const val DRIVE_DOWNLOAD_VERIFICATION_DISABLED = "DriveDownloadVerificationDisabled"
+        const val DRIVE_UPLOAD_VERIFICATION_DISABLED = "DriveUploadVerificationDisabled"
 
         internal var developments : List<String> = listOf(
         )
@@ -88,5 +91,8 @@ sealed class FeatureFlagId(open val userId: UserId, open val id: String) {
         fun driveAndroidSDKThumbnailPhoto(userId: UserId) = Unleash(userId, DRIVE_ANDROID_SDK_THUMBNAIL_PHOTO)
         fun driveAndroidUploadFolder(userId: UserId) = Unleash(userId, DRIVE_ANDROID_UPLOAD_FOLDER)
         fun driveAndroidPhotoListingWithFileProperties(userId: UserId) = Unleash(userId, DRIVE_ANDROID_PHOTO_LISTING_WITH_FILE_PROPERTIES)
+        fun driveAndroidDocumentScanner(userId: UserId) = Unleash(userId, DRIVE_ANDROID_DOCUMENT_SCANNER)
+        fun driveDownloadVerificationDisabled(userId: UserId) = Unleash(userId, DRIVE_DOWNLOAD_VERIFICATION_DISABLED)
+        fun driveUploadVerificationDisabled(userId: UserId) = Unleash(userId, DRIVE_UPLOAD_VERIFICATION_DISABLED)
     }
 }

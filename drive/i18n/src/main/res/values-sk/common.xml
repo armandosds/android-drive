@@ -76,6 +76,7 @@
   <string name="common_save_all_action">Uložiť všetko</string>
   <string name="common_add_to_albums_action">Pridať do albumov</string>
   <string name="common_tag_photo_action">Naskenujte fotografiu pre štítky</string>
+  <string name="common_save_as_action">Uložiť ako</string>
   <!-- endregion -->
   <!-- region Common file types -->
   <string name="common_type_audio">Audio</string>

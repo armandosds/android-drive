@@ -25,6 +25,7 @@ import me.proton.core.drive.link.domain.entity.FolderId
 import me.proton.core.drive.linkupload.domain.entity.CacheOption
 import me.proton.core.drive.linkupload.domain.entity.NetworkTypeProviderType
 import me.proton.core.drive.linkupload.domain.entity.UploadBulk
+import me.proton.core.drive.linkupload.domain.entity.UploadFileDescription
 import me.proton.core.drive.linkupload.domain.entity.UploadFileLink
 import me.proton.core.drive.share.domain.entity.ShareId
 import me.proton.core.drive.volume.domain.entity.VolumeId
@@ -34,7 +35,7 @@ interface UploadWorkManager {
         userId: UserId,
         volumeId: VolumeId,
         folderId: FolderId,
-        uriStrings: List<String>,
+        uploadFileDescriptions: List<UploadFileDescription>,
         cacheOption: CacheOption,
         shouldDeleteSource: Boolean,
         networkTypeProviderType: NetworkTypeProviderType,

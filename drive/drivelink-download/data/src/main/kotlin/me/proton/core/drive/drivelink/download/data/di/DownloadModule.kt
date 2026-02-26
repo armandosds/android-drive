@@ -32,6 +32,7 @@ import me.proton.core.drive.drivelink.download.data.manager.DownloadManagerImpl
 import me.proton.core.drive.drivelink.download.data.manager.PipelineManagerImpl
 import me.proton.core.drive.drivelink.download.domain.manager.DownloadErrorManager
 import me.proton.core.drive.drivelink.download.domain.manager.DownloadManager
+import me.proton.core.drive.drivelink.download.domain.manager.DownloadSdkManager
 import me.proton.core.drive.drivelink.download.domain.repository.DownloadFileRepository
 import me.proton.core.drive.drivelink.download.domain.repository.DownloadParentLinkRepository
 import me.proton.core.drive.drivelink.download.domain.usecase.DownloadCleanup
@@ -69,6 +70,7 @@ object DownloadModule {
         downloadErrorManager: DownloadErrorManager,
         downloadMetricsNotifier: DownloadMetricsNotifier,
         isLinkOrAnyAncestorTrashed: IsLinkOrAnyAncestorTrashed,
+        downloadSdkManager: DownloadSdkManager,
     ): DownloadManager = DownloadManagerImpl(
         appContext = appContext,
         PipelineManagerImpl(configurationProvider.downloadsInParallel, LogTag.DOWNLOAD),
@@ -88,6 +90,7 @@ object DownloadModule {
         downloadErrorManager,
         downloadMetricsNotifier,
         isLinkOrAnyAncestorTrashed,
+        downloadSdkManager,
     )
 
     @Provides

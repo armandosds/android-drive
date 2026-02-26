@@ -76,6 +76,7 @@
   <string name="common_save_all_action">全部保存</string>
   <string name="common_add_to_albums_action">添加到相册</string>
   <string name="common_tag_photo_action">扫描照片以查找标签</string>
+  <string name="common_save_as_action">另存为</string>
   <!-- endregion -->
   <!-- region Common file types -->
   <string name="common_type_audio">音频</string>

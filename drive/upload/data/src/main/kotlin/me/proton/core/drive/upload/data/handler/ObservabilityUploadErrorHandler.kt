@@ -18,7 +18,10 @@
 
 package me.proton.core.drive.upload.data.handler
 
+import android.os.Build.VERSION
+import android.os.Build.VERSION_CODES
 import kotlinx.coroutines.flow.firstOrNull
+import me.proton.core.drive.base.data.entity.WorkInfoStopReason
 import me.proton.core.drive.base.domain.extension.toResult
 import me.proton.core.drive.base.domain.log.LogTag
 import me.proton.core.drive.base.domain.util.coRunCatching
@@ -31,13 +34,18 @@ import me.proton.core.drive.observability.domain.metrics.UploadErroringUsersTota
 import me.proton.core.drive.observability.domain.metrics.UploadErrorsFileSizeHistogram
 import me.proton.core.drive.observability.domain.metrics.UploadErrorsTotal
 import me.proton.core.drive.observability.domain.metrics.UploadErrorsTransferSizeHistogram
+import me.proton.core.drive.observability.domain.metrics.UploadWorkerCancellationTotal
+import me.proton.core.drive.observability.domain.metrics.common.Pipeline
 import me.proton.core.drive.observability.domain.metrics.common.ShareType
 import me.proton.core.drive.observability.domain.metrics.common.UploadErrorsBuckets
 import me.proton.core.drive.observability.domain.usecase.EnqueueObservabilityEvent
 import me.proton.core.drive.share.domain.entity.ShareId
 import me.proton.core.drive.share.domain.usecase.GetShare
+import me.proton.core.drive.upload.data.exception.UploadWorkerException
+import me.proton.core.drive.upload.data.extension.getFileSize
 import me.proton.core.drive.upload.data.extension.log
 import me.proton.core.drive.upload.data.extension.logTag
+import me.proton.core.drive.upload.data.extension.toReason
 import me.proton.core.drive.upload.data.extension.toUploadErrorType
 import me.proton.core.drive.upload.domain.handler.UploadErrorHandler
 import me.proton.core.drive.upload.domain.manager.UploadErrorManager
@@ -63,6 +71,7 @@ class ObservabilityUploadErrorHandler @Inject constructor(
             notifyUploadErrorsFileSizeHistogramMetric(uploadError)
             notifyUploadErrorsTransferSizeHistogramMetric(uploadError)
             notifyUploadErroringUsersTotalMetric(uploadError, shareType)
+            notifyUploadWorkerStopped(uploadError)
         }.onFailure { error ->
             error.log(
                 tag = uploadError.uploadFileLink.logTag(),
@@ -140,6 +149,47 @@ class ObservabilityUploadErrorHandler @Inject constructor(
             constraint = minimumIntervalConstraint(
                 userId = uploadError.uploadFileLink.userId,
                 schemaId = UploadErroringUsersTotal.SCHEMA_ID,
+                interval = 5.minutes,
+            )
+        )
+    }
+
+    private suspend fun notifyUploadWorkerStopped(
+        uploadError: UploadErrorManager.Error,
+        includeWorkerNames: Map<String, Pipeline> = mapOf(
+            "BlockUploadWorker" to Pipeline.legacy,
+            "UploadFileSdkWorker" to Pipeline.default
+        )
+    ) {
+        val error = uploadError.throwable
+        if (error is UploadWorkerException && error.name in includeWorkerNames.keys) {
+            if(VERSION.SDK_INT >= VERSION_CODES.S && error.stopReason != null) {
+                notifyUploadWorkerStopped(
+                    uploadFileLink = uploadError.uploadFileLink,
+                    pipeline = includeWorkerNames.getValue(error.name),
+                    stopReason = error.stopReason,
+                )
+            }
+        }
+    }
+
+    private suspend fun notifyUploadWorkerStopped(
+        uploadFileLink: UploadFileLink,
+        pipeline: Pipeline,
+        stopReason: WorkInfoStopReason,
+    ) {
+        enqueueObservabilityEvent(
+            observabilityData = UploadWorkerCancellationTotal(
+                Labels = UploadWorkerCancellationTotal.LabelsData(
+                    pipeline = pipeline,
+                    initiator = uploadFileLink.toInitiator(),
+                    reason = stopReason.toReason(),
+                    fileSize = uploadFileLink.getFileSize()
+                )
+            ),
+            constraint = minimumIntervalConstraint(
+                userId = uploadFileLink.userId,
+                schemaId = UploadWorkerCancellationTotal.SCHEMA_ID,
                 interval = 5.minutes,
             )
         )

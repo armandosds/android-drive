@@ -55,6 +55,7 @@
     <string name="folder_option_create_document">Create document</string>
     <string name="folder_option_create_spreadsheet">Create spreadsheet</string>
     <string name="folder_option_import_folder">Upload a folder</string>
+    <string name="folder_option_scan_document">Scan document</string>
     <string name="settings_theme_system_default">System default</string>
     <string name="settings_theme_dark">Dark</string>
     <string name="settings_theme_light">Light</string>
@@ -211,6 +212,7 @@
     <string name="operation_open_document">open a document</string>
     <string name="operation_create_document">create a document</string>
     <string name="operation_take_picture">take a picture</string>
+    <string name="operation_scan_document">scan a document</string>
     <!-- region Get more free storage -->
     <!--
         Variable %1$s is a quantity (formatted) of max free storage

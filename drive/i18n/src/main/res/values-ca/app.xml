@@ -48,6 +48,7 @@
   <string name="folder_option_create_document">Crea un document</string>
   <string name="folder_option_create_spreadsheet">Crea un full de càlcul</string>
   <string name="folder_option_import_folder">Carrega una carpeta</string>
+  <string name="folder_option_scan_document">Escanegeu el document</string>
   <string name="settings_theme_system_default">Valors per defecte del sistema</string>
   <string name="settings_theme_dark">Fosc</string>
   <string name="settings_theme_light">Clar</string>
@@ -199,6 +200,7 @@
   <string name="operation_open_document">obrir un document</string>
   <string name="operation_create_document">crear un document</string>
   <string name="operation_take_picture">fer una foto</string>
+  <string name="operation_scan_document">escanegeu un document</string>
   <!-- region Get more free storage -->
   <!--
         Variable %1$s is a quantity (formatted) of max free storage

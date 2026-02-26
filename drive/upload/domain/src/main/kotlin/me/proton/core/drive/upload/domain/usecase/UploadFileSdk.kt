@@ -20,7 +20,10 @@ package me.proton.core.drive.upload.domain.usecase
 
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import me.proton.core.drive.base.domain.entity.Bytes
@@ -28,9 +31,13 @@ import me.proton.core.drive.base.domain.entity.FileTypeCategory
 import me.proton.core.drive.base.domain.entity.toFileTypeCategory
 import me.proton.core.drive.base.domain.extension.bytes
 import me.proton.core.drive.base.domain.extension.toResult
+import me.proton.core.drive.base.domain.log.LogTag.DRIVE_SDK
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.eventmanager.base.domain.usecase.UpdateEventAction
+import me.proton.core.drive.feature.flag.domain.entity.FeatureFlagId.Companion.driveUploadVerificationDisabled
+import me.proton.core.drive.feature.flag.domain.extension.on
+import me.proton.core.drive.feature.flag.domain.usecase.GetFeatureFlag
 import me.proton.core.drive.file.base.domain.entity.ThumbnailType
 import me.proton.core.drive.linkupload.domain.entity.UploadFileLink
 import me.proton.core.drive.linkupload.domain.entity.UploadState
@@ -38,10 +45,15 @@ import me.proton.core.drive.linkupload.domain.usecase.UpdateUploadState
 import me.proton.core.drive.share.domain.entity.Share
 import me.proton.core.drive.share.domain.usecase.GetShare
 import me.proton.core.drive.thumbnail.domain.usecase.CreateThumbnail
+import me.proton.core.drive.upload.domain.extension.injectMessageDigests
 import me.proton.core.drive.upload.domain.manager.UploadSdkManager
 import me.proton.core.drive.upload.domain.resolver.UriResolver
+import me.proton.core.util.kotlin.CoreLogger
 import me.proton.drive.sdk.UploadController
 import okio.FileNotFoundException
+import java.io.InputStream
+import java.nio.channels.Channels
+import java.security.MessageDigest
 import javax.inject.Inject
 import me.proton.drive.sdk.entity.ThumbnailType as SdkThumbnailType
 
@@ -53,7 +65,9 @@ class UploadFileSdk @Inject constructor(
     private val updateUploadState: UpdateUploadState,
     private val configurationProvider: ConfigurationProvider,
     private val getShare: GetShare,
+    private val getFeatureFlag: GetFeatureFlag,
 ) {
+    @OptIn(ExperimentalStdlibApi::class)
     suspend operator fun invoke(
         uploadFileLink: UploadFileLink,
         uriString: String,
@@ -62,35 +76,59 @@ class UploadFileSdk @Inject constructor(
         coroutineScope {
             var controller: UploadController? = null
             try {
-                updateUploadState(uploadFileLink.id, UploadState.UPLOADING_BLOCKS).getOrThrow()
 
                 controller = uploadSdkManager.controller(uploadFileLink) { uploader ->
+                    val (inputStream, messageDigests) = uploadFileLink.getInputStream(uriString)
                     uploader.uploadFromStream(
                         coroutineScope = this,
-                        inputStream = uriResolver.inputStream(uriString)
-                            ?: throw FileNotFoundException("Cannot open stream for upload${uploadFileLink.id}"),
+                        channel = Channels.newChannel(inputStream),
                         thumbnails = uploadFileLink.createThumbnails(uriString),
-                        progress = { bytesCompleted, bytesInTotal ->
-                            block(bytesCompleted.bytes)
-                        }
+                        sha1Provider = messageDigests.firstOrNull {
+                            it.algorithm == configurationProvider.contentDigestAlgorithm
+                        }?.let { digest -> { digest.digest() } }
                     )
                 }
-                //controller.resume()
-                val result = controller.awaitCompletion()
+                val job = controller.progressFlow
+                    .filterNotNull()
+                    .onEach { progressUpdate -> block(progressUpdate.bytesCompleted.bytes) }
+                    .launchIn(this)
+                if (controller.isPaused()) {
+                    controller.resume(this)
+                }
+                updateUploadState(uploadFileLink.id, UploadState.UPLOADING_BLOCKS).getOrThrow()
+                val result = try {
+                    controller.awaitCompletion()
+                } finally {
+                    job.cancel()
+                }
                 updateEventAction(uploadFileLink.userId, uploadFileLink.volumeId) {
                     uploadSdkManager.close(uploadFileLink)
                     result
                 }
             } finally {
-                if (!isActive) {
-                    withContext(NonCancellable) {
-                        //controller?.pause()
-                        // replace cancel by pause when implemented
-                        uploadSdkManager.cancel(uploadFileLink)
-                        updateUploadState(uploadFileLink.id, UploadState.IDLE)
+                val scopeCancelled = !isActive
+                withContext(NonCancellable) {
+                    controller?.let{
+                        if (scopeCancelled && !controller.isPaused()) {
+                            controller.pause()
+                        }
                     }
+                    updateUploadState(uploadFileLink.id, UploadState.IDLE)
                 }
-            }
+        }
+        }
+    }
+
+    private suspend fun UploadFileLink.getInputStream(
+        uriString: String,
+    ): Pair<InputStream, List<MessageDigest>> {
+        val killSwitch = getFeatureFlag(driveUploadVerificationDisabled(userId)).on
+        val uriInputStream = uriResolver.inputStream(uriString)
+            ?: throw FileNotFoundException("Cannot open stream for upload${id}")
+        return if (killSwitch) {
+            uriInputStream to emptyList()
+        } else {
+            uriInputStream.injectMessageDigests(configurationProvider.digestAlgorithms)
         }
     }
 

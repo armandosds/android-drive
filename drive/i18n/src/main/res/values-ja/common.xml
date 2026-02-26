@@ -76,6 +76,7 @@
   <string name="common_save_all_action">すべて保存</string>
   <string name="common_add_to_albums_action">アルバムに追加</string>
   <string name="common_tag_photo_action">写真のタグをスキャン</string>
+  <string name="common_save_as_action">Save as</string>
   <!-- endregion -->
   <!-- region Common file types -->
   <string name="common_type_audio">音声</string>

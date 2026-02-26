@@ -18,9 +18,9 @@
 
 package me.proton.core.drive.drivelink.download.data.extension
 
+import me.proton.android.drive.verifier.domain.exception.ContentDigestVerifierException
 import me.proton.core.crypto.common.pgp.exception.CryptoException
 import me.proton.core.drive.base.data.extension.isHttpError
-import me.proton.core.drive.cryptobase.domain.exception.VerificationException
 import me.proton.core.drive.observability.domain.metrics.DownloadErrorsTotal
 import me.proton.core.network.domain.ApiException
 import me.proton.core.network.domain.isHttpError
@@ -29,6 +29,8 @@ import java.net.ConnectException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import javax.net.ssl.SSLHandshakeException
+import me.proton.android.drive.verifier.data.extension.log
+import me.proton.core.drive.base.data.extension.log as baseLog
 
 fun Throwable.toDownloadErrorType(): DownloadErrorsTotal.Type = when(this) {
     is ProtonDriveSdkException -> error("Wrong usage, this exception should be used only for SDK DownloadErrorsTotal.Type")
@@ -50,4 +52,11 @@ fun Throwable.toDownloadErrorType(): DownloadErrorsTotal.Type = when(this) {
     is SSLHandshakeException -> DownloadErrorsTotal.Type.network_error
     is CryptoException -> DownloadErrorsTotal.Type.decryption_error
     else -> DownloadErrorsTotal.Type.unknown
+}
+
+internal fun Throwable.log(tag: String, message: String? = null): Throwable = this.also {
+    when (this) {
+        is ContentDigestVerifierException -> this.log(tag, message.orEmpty())
+        else -> this.baseLog(tag, message)
+    }
 }

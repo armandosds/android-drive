@@ -109,6 +109,7 @@ fun PhotosAndAlbumsScreen(
     navigateToPhotosIssues: (FolderId) -> Unit,
     navigateToPhotosUpsell: () -> Unit,
     navigateToBackupSettings: () -> Unit,
+    navigateToEnableBackupDialog: () -> Unit,
     navigateToNotificationPermissionRationale: () -> Unit,
     navigateToCreateNewAlbum: () -> Unit,
     navigateToAlbum: (AlbumId) -> Unit,
@@ -143,6 +144,7 @@ fun PhotosAndAlbumsScreen(
                 navigateToPhotosIssues = navigateToPhotosIssues,
                 navigateToPhotosUpsell = navigateToPhotosUpsell,
                 navigateToBackupSettings = navigateToBackupSettings,
+                navigateToEnableBackupDialog = navigateToEnableBackupDialog,
                 navigateToNotificationPermissionRationale = navigateToNotificationPermissionRationale,
                 defaultTitle = defaultTitle,
             )
@@ -238,6 +240,7 @@ fun PhotosTab(
     navigateToPhotosIssues: (FolderId) -> Unit,
     navigateToPhotosUpsell: () -> Unit,
     navigateToBackupSettings: () -> Unit,
+    navigateToEnableBackupDialog: () -> Unit,
     navigateToNotificationPermissionRationale: () -> Unit,
     defaultTitle: @Composable (Modifier) -> Unit,
 ) {
@@ -255,6 +258,7 @@ fun PhotosTab(
             navigateToPhotosIssues = navigateToPhotosIssues,
             navigateToPhotosUpsell = navigateToPhotosUpsell,
             navigateToBackupSettings = navigateToBackupSettings,
+            navigateToEnableBackupDialog = navigateToEnableBackupDialog,
             lifecycle = lifecycle,
         )
     }
@@ -269,6 +273,9 @@ fun PhotosTab(
             when (effect) {
                 PhotosEffect.ShowUpsell -> launch(Dispatchers.Main) {
                     viewEvent.onShowUpsell()
+                }
+                PhotosEffect.ShowEnableBackupDialog -> launch(Dispatchers.Main) {
+                    viewEvent.onEnableBackupDialog()
                 }
             }
         }.launchIn(this)
@@ -290,8 +297,12 @@ fun PhotosTab(
         modifier = modifier,
         defaultTitle = defaultTitle,
     )
+
+    val backupPermissionsViewState by viewModel.backupPermissionsViewModel.viewState.collectAsStateWithLifecycle(
+        initialValue = viewModel.backupPermissionsViewModel.initialViewState
+    )
     BackupPermissions(
-        viewState = viewModel.backupPermissionsViewModel.initialViewState,
+        viewState = backupPermissionsViewState,
         viewEvent = viewModel.backupPermissionsViewModel.viewEvent(
             navigateToPhotosPermissionRationale
         ),

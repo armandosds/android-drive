@@ -117,7 +117,7 @@ class UploadWorkManagerImpl @Inject constructor(
         userId: UserId,
         volumeId: VolumeId,
         folderId: FolderId,
-        uriStrings: List<String>,
+        uploadFileDescriptions: List<UploadFileDescription>,
         cacheOption: CacheOption,
         shouldDeleteSource: Boolean,
         networkTypeProviderType: NetworkTypeProviderType,
@@ -129,9 +129,7 @@ class UploadWorkManagerImpl @Inject constructor(
             userId = userId,
             volumeId = volumeId,
             parentId = folderId,
-            uploadFileDescriptions = uriStrings.map { uriString ->
-                UploadFileDescription(uri = uriString, properties = null)
-            },
+            uploadFileDescriptions = uploadFileDescriptions,
             shouldDeleteSourceUri = shouldDeleteSource,
             networkTypeProviderType = networkTypeProviderType,
             shouldAnnounceEvent = shouldAnnounceEvent,

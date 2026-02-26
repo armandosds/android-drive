@@ -28,6 +28,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import me.proton.core.crypto.common.pgp.exception.CryptoException
 import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.base.data.extension.logDefaultMessage
+import me.proton.core.drive.base.data.extension.stopReasonAsEnum
 import me.proton.core.drive.base.domain.extension.toResult
 import me.proton.core.drive.base.domain.log.LogTag
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
@@ -91,9 +92,16 @@ abstract class UploadCoroutineWorker(
                 "Retrying due to cancellation exception in ${javaClass.simpleName}"
             )
             val error = if (SDK_INT >= VERSION_CODES.S && stopReason != STOP_REASON_NOT_STOPPED) {
-                    UploadWorkerException(stopReason = stopReason, cause = e)
+                    UploadWorkerException(
+                        name = javaClass.simpleName,
+                        stopReason = stopReasonAsEnum,
+                        cause = e
+                    )
                 } else {
-                    UploadWorkerException(cause = e)
+                    UploadWorkerException(
+                        name = javaClass.simpleName,
+                        cause = e,
+                    )
                 }
             uploadFileLink?.post(error)
 
@@ -142,29 +150,10 @@ abstract class UploadCoroutineWorker(
             if (SDK_INT >= VERSION_CODES.S && stopReason != STOP_REASON_NOT_STOPPED) {
                 CoreLogger.d(
                     tag = logTag(),
-                    message = "${stopReason.toPrintableString()} (id=$id, runAttemptCount=$runAttemptCount)",
+                    message = "$stopReasonAsEnum (id=$id, runAttemptCount=$runAttemptCount)",
                 )
             }
         }
-    }
-
-    private fun Int.toPrintableString(): String = when (this) {
-        1 -> "STOP_REASON_CANCELLED_BY_APP"
-        2 -> "STOP_REASON_PREEMPT"
-        3 -> "STOP_REASON_TIMEOUT"
-        4 -> "STOP_REASON_DEVICE_STATE"
-        5 -> "STOP_REASON_CONSTRAINT_BATTERY_NOT_LOW"
-        6 -> "STOP_REASON_CONSTRAINT_CHARGING"
-        7 -> "STOP_REASON_CONSTRAINT_CONNECTIVITY"
-        8 -> "STOP_REASON_CONSTRAINT_DEVICE_IDLE"
-        9 -> "STOP_REASON_CONSTRAINT_STORAGE_NOT_LOW"
-        10 -> "STOP_REASON_QUOTA"
-        11 -> "STOP_REASON_BACKGROUND_RESTRICTION"
-        12 -> "STOP_REASON_APP_STANDBY"
-        13 -> "STOP_REASON_USER"
-        14 -> "STOP_REASON_SYSTEM_PROCESSING"
-        15 -> "STOP_REASON_ESTIMATED_APP_LAUNCH_TIME_CHANGED"
-        else -> this.toString()
     }
 
     private fun UploadFileLink?.broadcastMessages(e: Exception) {
@@ -190,7 +179,11 @@ abstract class UploadCoroutineWorker(
 
     private fun UploadFileLink.post(error: Throwable) {
         val cause = error.getCause()
-        uploadErrorManager.post(this, tags, cause)
+        uploadErrorManager.post(
+            uploadFileLink = this,
+            tags = tags,
+            throwable = cause,
+        )
     }
 
     private fun Throwable.getCause() = if (this is UploadCleanupException) {

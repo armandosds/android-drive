@@ -20,14 +20,15 @@ package me.proton.core.drive.upload.data.exception
 
 import android.os.Build.VERSION_CODES
 import androidx.annotation.RequiresApi
-import androidx.work.WorkInfo.Companion.STOP_REASON_CONSTRAINT_CONNECTIVITY
+import me.proton.core.drive.base.data.entity.WorkInfoStopReason
 
 class UploadWorkerException(
+    val name: String,
     message: String? = null,
     cause: Throwable? = null,
     @RequiresApi(VERSION_CODES.S)
-    private val stopReason: Int? = null,
+    val stopReason: WorkInfoStopReason? = null,
 ) : Throwable(message, cause) {
     @RequiresApi(VERSION_CODES.S)
-    fun hasNoConnectivity() = stopReason == STOP_REASON_CONSTRAINT_CONNECTIVITY
+    fun hasNoConnectivity() = stopReason == WorkInfoStopReason.CONSTRAINT_CONNECTIVITY
 }

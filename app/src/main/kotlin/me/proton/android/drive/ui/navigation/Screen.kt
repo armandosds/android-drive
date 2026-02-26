@@ -41,6 +41,7 @@ import me.proton.android.drive.ui.viewmodel.MultipleFileOrFolderOptionsViewModel
 import me.proton.android.drive.ui.viewmodel.ParentFolderOptionsViewModel
 import me.proton.android.drive.ui.viewmodel.PhotosPickerAndSelectionViewModel
 import me.proton.android.drive.ui.viewmodel.PickerPhotosViewModel
+import me.proton.android.drive.ui.viewmodel.ScanDocumentNameViewModel
 import me.proton.android.drive.ui.viewmodel.ShareInvitationOptionsViewModel
 import me.proton.android.drive.ui.viewmodel.ShareMemberOptionsViewModel
 import me.proton.android.drive.ui.viewmodel.SubscriptionPromoViewModel
@@ -392,6 +393,15 @@ sealed class Screen(val route: String) {
 
         data object Upsell : Screen("home/{userId}/photos/upsell") {
             operator fun invoke(userId: UserId) = "home/${userId.id}/photos/upsell"
+        }
+
+        object Dialogs {
+            data object EnableBackupForBuckets : Screen("photos/{userId}/enableBackupForBuckets") {
+                operator fun invoke(userId: UserId) =
+                    "photos/${userId.id}/enableBackupForBuckets"
+
+                const val USER_ID = Screen.USER_ID
+            }
         }
 
         const val USER_ID = Screen.USER_ID
@@ -824,6 +834,22 @@ sealed class Screen(val route: String) {
 
         const val USER_ID = Screen.USER_ID
         const val RATIONALE_CONTEXT = NotificationPermissionRationaleViewModel.RATIONALE_CONTEXT
+    }
+
+    data object ScanDocumentName : Screen(
+        "scanDocumentName/{userId}/{shareId}/{folderId}/scanResultId={scanResultId}?basename={basename}"
+    ) {
+        operator fun invoke(
+            folderId: FolderId,
+            scanResultId: Long,
+            basename: String,
+        ) = "scanDocumentName/${folderId.userId.id}/${folderId.shareId.id}/${folderId.id}/scanResultId=${scanResultId}?basename=${basename}"
+
+        const val USER_ID = Screen.USER_ID
+        const val SHARE_ID = ScanDocumentNameViewModel.KEY_SHARE_ID
+        const val FOLDER_ID = ScanDocumentNameViewModel.KEY_FOLDER_ID
+        const val SCAN_RESULT_ID = ScanDocumentNameViewModel.KEY_SCAN_RESULT_ID
+        const val BASENAME = ScanDocumentNameViewModel.KEY_BASENAME
     }
 
     companion object {

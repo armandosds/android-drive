@@ -107,6 +107,7 @@ driveModule(
     api(project(":drive:volume:data"))
     api(project(":drive:worker:data"))
     api(project(":photos:data"))
+    api(project(":document-scanner:data"))
 
     testImplementation(libs.androidx.room.test)
 }

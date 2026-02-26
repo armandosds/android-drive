@@ -48,6 +48,7 @@
   <string name="folder_option_create_document">Creare document</string>
   <string name="folder_option_create_spreadsheet">Creare foaie de calcul</string>
   <string name="folder_option_import_folder">Încărcare folder</string>
+  <string name="folder_option_scan_document">Scanare document</string>
   <string name="settings_theme_system_default">Implicit din sistem</string>
   <string name="settings_theme_dark">Neagră</string>
   <string name="settings_theme_light">Albă</string>
@@ -204,6 +205,7 @@
   <string name="operation_open_document">deschidă un document</string>
   <string name="operation_create_document">creeze un document</string>
   <string name="operation_take_picture">fotografieze</string>
+  <string name="operation_scan_document">scanare un document</string>
   <!-- region Get more free storage -->
   <!--
         Variable %1$s is a quantity (formatted) of max free storage

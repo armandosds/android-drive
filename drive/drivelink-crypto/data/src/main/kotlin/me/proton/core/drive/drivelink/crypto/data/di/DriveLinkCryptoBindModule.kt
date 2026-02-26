@@ -22,7 +22,9 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import me.proton.core.drive.drivelink.crypto.data.usecase.GetSessionForkProtonDocumentUriStringImpl
+import me.proton.core.drive.drivelink.crypto.data.usecase.IntegrityMetricsNotifierImpl
 import me.proton.core.drive.drivelink.crypto.domain.usecase.GetSessionForkProtonDocumentUriString
+import me.proton.core.drive.drivelink.crypto.domain.usecase.IntegrityMetricsNotifier
 import javax.inject.Singleton
 
 @Module
@@ -34,4 +36,10 @@ interface DriveLinkCryptoBindModule {
     fun bindsGetSessionForkProtonDocumentUriString(
         impl: GetSessionForkProtonDocumentUriStringImpl
     ): GetSessionForkProtonDocumentUriString
+
+    @Binds
+    @Singleton
+    fun bindsIntegrityMetricsNotifier(
+        impl: IntegrityMetricsNotifierImpl
+    ): IntegrityMetricsNotifier
 }

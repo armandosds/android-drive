@@ -26,7 +26,7 @@ import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.crypto.domain.usecase.file.DecryptFiles
 import me.proton.core.drive.crypto.domain.usecase.file.VerifyManifestSignature
-import me.proton.core.drive.cryptobase.domain.exception.VerificationException
+import me.proton.core.drive.cryptobase.domain.exception.FileVerificationException
 import me.proton.core.drive.drivelink.domain.entity.DriveLink
 import me.proton.core.drive.file.base.domain.extension.getThumbnailIds
 import me.proton.core.drive.file.base.domain.extension.requireSortedAscending
@@ -96,14 +96,13 @@ class DecryptLinkContent @Inject constructor(
                     } else {
                         "with email"
                     }
-                    throw VerificationException(
-                        "Verification of manifest signature for blocks failed ($signatureAddressMessage)"
+                    throw FileVerificationException(
+                        file = targetFile,
+                        message = "Verification of manifest signature for blocks failed ($signatureAddressMessage)"
                     )
                 }
             }
             decryptedBlocks.mergeBlocks(targetFile)
-        }.onSuccess {
-            setDownloadState(driveLink.id, DownloadState.Ready)
         }.getOrThrow()
     }
 

@@ -18,4 +18,6 @@
   -->
 <resources>
   <string name="whats_new_title">Vad som är nytt</string>
+  <string name="whats_new_upload_folder_title">Säkerhetskopiera hela mappar med ett tryck</string>
+  <string name="whats_new_upload_folder_description">Ladda upp en hel mapp till Proton Drive genom att trycka på + längst upp till höger och välja ‘Ladda upp en mapp’.</string>
 </resources>

@@ -76,6 +76,7 @@
   <string name="common_save_all_action">Tümünü kaydet</string>
   <string name="common_add_to_albums_action">Albümlere ekle</string>
   <string name="common_tag_photo_action">Fotoğrafı etiketler için tara</string>
+  <string name="common_save_as_action">Farklı kaydet</string>
   <!-- endregion -->
   <!-- region Common file types -->
   <string name="common_type_audio">Ses</string>

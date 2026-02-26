@@ -25,6 +25,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -36,6 +37,9 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import me.proton.android.drive.document.scanner.domain.usecase.CollectDocumentScannerResult
+import me.proton.android.drive.document.scanner.domain.usecase.IsScannerAvailable
+import me.proton.android.drive.extension.getDefaultMessage
 import me.proton.android.drive.extension.log
 import me.proton.android.drive.ui.options.Option
 import me.proton.android.drive.ui.options.filter
@@ -47,7 +51,6 @@ import me.proton.android.drive.usecase.NotifyActivityNotFound
 import me.proton.core.compose.component.bottomsheet.RunAction
 import me.proton.core.domain.arch.mapSuccessValueOrNull
 import me.proton.core.drive.base.data.datastore.GetUserDataStore
-import me.proton.core.drive.base.data.extension.getDefaultMessage
 import me.proton.core.drive.base.domain.extension.combine
 import me.proton.core.drive.base.domain.extension.mapWithPrevious
 import me.proton.core.drive.base.domain.log.LogTag.VIEW_MODEL
@@ -83,6 +86,7 @@ import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 import me.proton.core.drive.i18n.R as I18N
+import androidx.core.net.toUri
 
 @HiltViewModel
 class ParentFolderOptionsViewModel @Inject constructor(
@@ -99,10 +103,12 @@ class ParentFolderOptionsViewModel @Inject constructor(
     private val broadcastMessages: BroadcastMessages,
     private val configurationProvider: ConfigurationProvider,
     private val getUserDataStore: GetUserDataStore,
+    private val collectDocumentScannerResult: CollectDocumentScannerResult,
+    private val isScannerAvailable: IsScannerAvailable,
 ) : ViewModel(), UserViewModel by UserViewModel(savedStateHandle) {
     private val simpleDateFormat: SimpleDateFormat by lazy { SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US) }
     private val now: String get() = simpleDateFormat.format(Date())
-    private var photoUri: Uri? = savedStateHandle.get<String>(KEY_URI)?.let { uriString -> Uri.parse(uriString) }
+    private var photoUri: Uri? = savedStateHandle.get<String>(KEY_URI)?.toUri()
     private val folderId = FolderId(
         shareId = ShareId(userId, savedStateHandle.require(KEY_SHARE_ID)),
         id = savedStateHandle.require(KEY_FOLDER_ID)
@@ -127,9 +133,10 @@ class ParentFolderOptionsViewModel @Inject constructor(
         .stateIn(viewModelScope, Eagerly, FeatureFlag(FeatureFlagId.docsCreateNewSheetOnMobileEnabled(userId), NOT_FOUND))
     private val uploadFolderFeatureFlag = getFeatureFlagFlow(FeatureFlagId.driveAndroidUploadFolder(userId))
         .stateIn(viewModelScope, Eagerly, FeatureFlag(FeatureFlagId.driveAndroidUploadFolder(userId), NOT_FOUND))
-    private val uploadFolderNotificationDotViewModel = UploadFolderNotificationDotViewModel(
+    private val scanDocumentNotificationDotViewModel = ScanDocumentNotificationDotViewModel(
         userId = userId,
         getUserDataStore = getUserDataStore,
+        isScannerAvailable = isScannerAvailable,
     )
 
     fun entries(
@@ -139,6 +146,7 @@ class ParentFolderOptionsViewModel @Inject constructor(
         showFilePicker: (() -> Unit) -> Unit,
         takeAPhoto: (Uri, () -> Unit) -> Unit,
         showFolderPicker: (() -> Unit) -> Unit,
+        scanDocument: (() -> Unit) -> Unit,
         dismiss: () -> Unit,
     ): Flow<List<FileOptionEntry<DriveLink.Folder>>> = combine(
         driveLink.filterNotNull(),
@@ -147,13 +155,15 @@ class ParentFolderOptionsViewModel @Inject constructor(
         sheetsFeatureFlag,
         createSheetOnMobileFeatureFlag,
         uploadFolderFeatureFlag,
-        uploadFolderNotificationDotViewModel.notificationDotRequested,
-    ) { folder, protonDocsKillSwitch, _, _, _, uploadFolder, uploadFolderNotificationDotRequested ->
+        scanDocumentNotificationDotViewModel.notificationDotRequested,
+        isScannerAvailable(userId)
+    ) { folder, protonDocsKillSwitch, _, _, _, uploadFolder, scanDocumentNotificationDotRequested, isScannerAvailable ->
         options
             .filter(folder)
             .filterProtonDocs(protonDocsKillSwitch)
             .filterProtonSheets(isProtonSheetsEnabled)
             .filterUploadFolder(uploadFolder.on)
+            .filterScanDocument(isScannerAvailable)
             .map { option ->
                 when (option) {
                     is Option.CreateDocument -> option.build(
@@ -171,14 +181,17 @@ class ParentFolderOptionsViewModel @Inject constructor(
                     is Option.UploadFile -> option.build {
                         showFilePicker { handleActivityNotFound(I18N.string.operation_open_document) }
                     }
-                    is Option.UploadFolder -> option.build(
-                        notificationDotVisible = uploadFolderNotificationDotRequested,
+                    is Option.UploadFolder -> option.build {
+                        showFolderPicker { handleActivityNotFound(I18N.string.operation_open_document) }
+                    }
+                    is Option.ScanDocument -> option.build(
+                        notificationDotVisible = scanDocumentNotificationDotRequested
                     ) {
-                        showFolderPicker { handleActivityNotFound(I18N.string.operation_open_document) }.also {
+                        scanDocument { handleActivityNotFound(I18N.string.operation_scan_document) }.also {
                             viewModelScope.launch {
                                 getUserDataStore(folderId.userId)
                                     .edit { preferences ->
-                                        preferences[GetUserDataStore.Keys.uploadFolderActionInvoked] =
+                                        preferences[GetUserDataStore.Keys.scanDocumentActionInvoked] =
                                             true
                                     }
                             }
@@ -259,6 +272,46 @@ class ParentFolderOptionsViewModel @Inject constructor(
         }
     }
 
+    fun onScanDocumentResult(
+        result: GmsDocumentScanningResult?,
+        navigateToScanDocumentName: (FolderId, Long, String) -> Unit,
+        dismiss: () -> Unit,
+    ) = viewModelScope.launch {
+        if (result == null) return@launch
+        collectDocumentScannerResult(
+            userId = userId,
+            pdfUri = result.pdf?.uri,
+            pageUris = result.pages?.map { page -> page.imageUri } ?: emptyList(),
+        )
+            .onFailure { error ->
+                error.log(VIEW_MODEL, "Collection of document scanner result failed")
+                broadcastMessages(
+                    userId = userId,
+                    message = error.getDefaultMessage(
+                        context = appContext,
+                        useExceptionMessage = configurationProvider.useExceptionMessage,
+                    ),
+                    type = BroadcastMessage.Type.ERROR,
+                )
+            }
+            .onSuccess { scanResult ->
+                navigateToScanDocumentName(folderId, scanResult.id, scanResult.basename)
+            }
+        dismiss()
+    }
+
+    fun onScanDocumentError(error: Throwable) {
+        error.log(VIEW_MODEL, "Scan document error occurred")
+        broadcastMessages(
+            userId = userId,
+            message = error.getDefaultMessage(
+                context = appContext,
+                useExceptionMessage = configurationProvider.useExceptionMessage,
+            ),
+            type = BroadcastMessage.Type.ERROR,
+        )
+    }
+
     fun onCameraPermissionDenied() {
         broadcastMessages(
             userId = userId,
@@ -322,6 +375,14 @@ class ParentFolderOptionsViewModel @Inject constructor(
             }
         }
 
+    private fun Iterable<Option>.filterScanDocument(isScanDocumentEnabled: Boolean): List<Option> =
+        filter { option ->
+            when (option) {
+                is Option.ScanDocument -> isScanDocumentEnabled
+                else -> true
+            }
+        }
+
     companion object {
         const val KEY_SHARE_ID = "shareId"
         const val KEY_FOLDER_ID = "folderId"
@@ -334,6 +395,7 @@ class ParentFolderOptionsViewModel @Inject constructor(
             Option.CreateFolder,
             Option.CreateDocument,
             Option.CreateSpreadsheet,
+            Option.ScanDocument,
         )
     }
 }

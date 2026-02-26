@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import me.proton.android.drive.photos.domain.entity.PhotoBackupState
 import me.proton.android.drive.photos.domain.usecase.EnablePhotosBackup
 import me.proton.android.drive.photos.domain.usecase.GetPhotosDriveLink
 import me.proton.android.drive.photos.presentation.viewevent.BackupPermissionsViewEvent
@@ -150,11 +151,17 @@ class OnboardingViewModel @Inject constructor(
                 ?.id
                 ?.let { photoRootId ->
                     enablePhotosBackup(photoRootId)
+                        .onSuccess { result ->
+                            when(result) {
+                                is PhotoBackupState.NoFolder -> showPhotoBackup()
+                                else -> dismiss?.invoke()
+                            }
+                        }
                         .onFailure { error ->
                             error.log(LogTag.BACKUP, "Enabling backup during onboarding failed")
+                            dismiss?.invoke()
                         }
                 }
-            dismiss?.invoke()
         }
     }
 

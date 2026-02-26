@@ -73,6 +73,7 @@ fun HomeNavGraph(
     navigateToPhotosIssues: (FolderId) -> Unit,
     navigateToPhotosUpsell: () -> Unit,
     navigateToBackupSettings: () -> Unit,
+    navigateToEnableBackupDialog: () -> Unit,
     navigateToComputerOptions: (deviceId: DeviceId) -> Unit,
     navigateToNotificationPermissionRationale: () -> Unit,
     navigateToUserInvitation: (Boolean) -> Unit,
@@ -115,6 +116,7 @@ fun HomeNavGraph(
         navigateToPhotosIssues = navigateToPhotosIssues,
         navigateToPhotosUpsell = navigateToPhotosUpsell,
         navigateToBackupSettings = navigateToBackupSettings,
+        navigateToEnableBackupDialog = navigateToEnableBackupDialog,
         navigateToNotificationPermissionRationale = navigateToNotificationPermissionRationale,
     )
     addPhotosAndAlbums(
@@ -138,6 +140,7 @@ fun HomeNavGraph(
         navigateToPhotosIssues = navigateToPhotosIssues,
         navigateToPhotosUpsell = navigateToPhotosUpsell,
         navigateToBackupSettings = navigateToBackupSettings,
+        navigateToEnableBackupDialog = navigateToEnableBackupDialog,
         navigateToNotificationPermissionRationale = navigateToNotificationPermissionRationale,
         navigateToCreateNewAlbum = navigateToCreateNewAlbum,
         navigateToAlbum = navigateToAlbum,
@@ -265,6 +268,7 @@ fun NavGraphBuilder.addPhotos(
     navigateToPhotosIssues: (FolderId) -> Unit,
     navigateToPhotosUpsell: () -> Unit,
     navigateToBackupSettings: () -> Unit,
+    navigateToEnableBackupDialog: () -> Unit,
     navigateToNotificationPermissionRationale: () -> Unit,
 ) = composable(
     route = Screen.Photos.route,
@@ -291,6 +295,7 @@ fun NavGraphBuilder.addPhotos(
             navigateToPhotosIssues = navigateToPhotosIssues,
             navigateToPhotosUpsell = navigateToPhotosUpsell,
             navigateToBackupSettings = navigateToBackupSettings,
+            navigateToEnableBackupDialog = navigateToEnableBackupDialog,
             navigateToNotificationPermissionRationale = navigateToNotificationPermissionRationale,
         )
     } ?: let {
@@ -320,6 +325,7 @@ fun NavGraphBuilder.addPhotosAndAlbums(
     navigateToPhotosIssues: (FolderId) -> Unit,
     navigateToPhotosUpsell: () -> Unit,
     navigateToBackupSettings: () -> Unit,
+    navigateToEnableBackupDialog: () -> Unit,
     navigateToNotificationPermissionRationale: () -> Unit,
     navigateToCreateNewAlbum: () -> Unit,
     navigateToAlbum: (AlbumId) -> Unit,
@@ -344,6 +350,7 @@ fun NavGraphBuilder.addPhotosAndAlbums(
             navigateToPhotosIssues = navigateToPhotosIssues,
             navigateToPhotosUpsell = navigateToPhotosUpsell,
             navigateToBackupSettings = navigateToBackupSettings,
+            navigateToEnableBackupDialog = navigateToEnableBackupDialog,
             navigateToNotificationPermissionRationale = navigateToNotificationPermissionRationale,
             navigateToCreateNewAlbum = navigateToCreateNewAlbum,
             navigateToAlbum = navigateToAlbum,

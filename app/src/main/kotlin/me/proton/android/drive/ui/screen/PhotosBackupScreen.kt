@@ -19,7 +19,6 @@
 package me.proton.android.drive.ui.screen
 
 import android.content.Context
-import android.widget.Space
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
@@ -58,7 +57,6 @@ import me.proton.android.drive.ui.viewstate.PhotosBackupOption
 import me.proton.android.drive.ui.viewstate.PhotosBackupViewState
 import me.proton.android.drive.ui.viewstate.TagsMigrationProgressState
 import me.proton.core.compose.component.ProtonRawListItem
-import me.proton.core.compose.theme.ProtonDimens
 import me.proton.core.compose.theme.ProtonDimens.DefaultSpacing
 import me.proton.core.compose.theme.ProtonDimens.ListItemHeight
 import me.proton.core.compose.theme.ProtonDimens.SmallSpacing
@@ -100,8 +98,12 @@ fun PhotosBackupScreen(
             navigateToConfirmStopSyncFolder = navigateToConfirmStopSyncFolder,
         )
     }
+
+    val backupPermissionsViewState by viewModel.backupPermissionsViewModel.viewState.collectAsStateWithLifecycle(
+        initialValue = viewModel.backupPermissionsViewModel.initialViewState
+    )
     BackupPermissions(
-        viewState = viewModel.backupPermissionsViewModel.initialViewState,
+        viewState = backupPermissionsViewState,
         viewEvent = viewModel.backupPermissionsViewModel.viewEvent(
             navigateToPhotosPermissionRationale
         ),

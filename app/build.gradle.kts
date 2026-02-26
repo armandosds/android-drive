@@ -60,6 +60,7 @@ driveModule(
     implementation(project(":drive"))
     implementation(project(":verifier"))
     implementation(project(":photos"))
+    implementation(project(":document-scanner"))
 
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.compose.foundationLayout)

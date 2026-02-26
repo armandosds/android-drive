@@ -18,6 +18,7 @@
 
 package me.proton.android.drive.photos.presentation.viewmodel
 
+import kotlinx.coroutines.flow.Flow
 import me.proton.android.drive.photos.domain.entity.PhotoBackupState
 import me.proton.android.drive.photos.presentation.viewevent.BackupPermissionsViewEvent
 import me.proton.android.drive.photos.presentation.viewstate.BackupPermissionsViewState
@@ -25,6 +26,8 @@ import me.proton.core.drive.link.domain.entity.FolderId
 
 interface BackupPermissionsViewModel {
     val initialViewState: BackupPermissionsViewState
+
+    val viewState: Flow<BackupPermissionsViewState>
 
     fun viewEvent(navigateToPhotosPermissionRationale: () -> Unit): BackupPermissionsViewEvent
 

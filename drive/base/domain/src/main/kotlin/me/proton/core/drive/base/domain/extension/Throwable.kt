@@ -49,3 +49,14 @@ fun Throwable.hasThrowableOrCauseProtonErrorCode(code: Int): Boolean = when (thi
     is ProtonDriveSdkException -> hasProtonErrorCode(code) || cause?.hasProtonErrorCode(code) == true
     else -> hasProtonErrorCode(code) || cause?.hasProtonErrorCode(code) == true
 }
+
+inline fun <reified T : Throwable> Throwable?.findThrowable(): T? {
+    var current = this
+    while (true) {
+        when (current) {
+            null -> return null
+            is T -> return current
+            else -> current = current.cause
+        }
+    }
+}

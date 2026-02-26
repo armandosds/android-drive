@@ -64,6 +64,7 @@ import me.proton.android.drive.extension.requireArguments
 import me.proton.android.drive.extension.runFromRoute
 import me.proton.android.drive.lock.presentation.component.AppLock
 import me.proton.android.drive.log.DriveLogTag
+import me.proton.android.drive.photos.presentation.component.EnableBackupForBucketsDialog
 import me.proton.android.drive.photos.presentation.component.PhotosPermissionRationale
 import me.proton.android.drive.ui.dialog.AddToAlbumsOptions
 import me.proton.android.drive.ui.dialog.AlbumOptions
@@ -118,6 +119,7 @@ import me.proton.android.drive.ui.screen.PhotosUpsellScreen
 import me.proton.android.drive.ui.screen.PickerAlbumScreen
 import me.proton.android.drive.ui.screen.PickerPhotosScreen
 import me.proton.android.drive.ui.screen.PreviewScreen
+import me.proton.android.drive.ui.screen.ScanDocumentNameScreen
 import me.proton.android.drive.ui.screen.SettingsScreen
 import me.proton.android.drive.ui.screen.SigningOutScreen
 import me.proton.android.drive.ui.screen.TrashScreen
@@ -338,6 +340,7 @@ fun AppNavGraph(
         addPhotosUpsell(navigateToSubscription)
         addConfirmSkipIssues(navController)
         addConfirmStopSyncFolderDialog(navController)
+        addEnableBackupForBucketsDialog(navController)
         addPhotosPermissionRationale(navController)
         addSortingList()
         addFileOrFolderOptions(navController)
@@ -400,6 +403,7 @@ fun AppNavGraph(
         addConfirmLeaveAlbumDialog(navController)
         addShareMultiplePhotosOptions(navController)
         addAddToAlbumsOptions(navController)
+        addScanDocumentName(navController)
     }
 }
 
@@ -655,6 +659,13 @@ fun NavGraphBuilder.addParentFolderOptions(
                     userId = userId,
                     rationaleContext = NotificationPermissionRationaleViewModel.RationaleContext.DEFAULT,
                 )
+            ) {
+                popUpTo(route = Screen.ParentFolderOptions.route) { inclusive = true }
+            }
+        },
+        navigateToScanDocumentName = { folderId: FolderId, scanResultId: Long, basename: String ->
+            navController.navigate(
+                Screen.ScanDocumentName(folderId, scanResultId, basename)
             ) {
                 popUpTo(route = Screen.ParentFolderOptions.route) { inclusive = true }
             }
@@ -956,6 +967,11 @@ internal fun NavGraphBuilder.addHome(
         navigateToBackupSettings = {
             navController.navigate(
                 Screen.Settings.PhotosBackup(userId)
+            )
+        },
+        navigateToEnableBackupDialog = {
+            navController.navigate(
+                Screen.Photos.Dialogs.EnableBackupForBuckets(userId)
             )
         },
         navigateToPhotosPermissionRationale = {
@@ -1297,6 +1313,24 @@ fun NavGraphBuilder.addConfirmStopSyncFolderDialog(
         modifier = Modifier.navigationBarsPadding(),
         onDismiss = onAction,
         onConfirm = onAction,
+    )
+}
+
+@ExperimentalCoroutinesApi
+fun NavGraphBuilder.addEnableBackupForBucketsDialog(
+    navController: NavHostController,
+) = modalBottomSheet(
+    route = Screen.Photos.Dialogs.EnableBackupForBuckets.route,
+    viewState = ModalBottomSheetViewState(dismissOnAction = false),
+    arguments = listOf(
+        navArgument(Screen.Photos.Dialogs.EnableBackupForBuckets.USER_ID) {
+            type = NavType.StringType
+        },
+    ),
+) { _, runAction ->
+    EnableBackupForBucketsDialog(
+        modifier = Modifier.navigationBarsPadding(),
+        runAction = runAction,
     )
 }
 
@@ -2515,6 +2549,30 @@ fun NavGraphBuilder.addAddToAlbumsOptions(
         },
         navigateToAlbum = { albumId ->
             navController.navigate(Screen.Album(albumId))
+        }
+    )
+}
+
+@ExperimentalAnimationApi
+fun NavGraphBuilder.addScanDocumentName(navController: NavHostController) = composable(
+    route = Screen.ScanDocumentName.route,
+    enterTransition = defaultEnterSlideTransition { true },
+    exitTransition = { ExitTransition.None },
+    popEnterTransition = { EnterTransition.None },
+    popExitTransition = defaultPopExitSlideTransition { true },
+    arguments = listOf(
+        navArgument(Screen.ScanDocumentName.USER_ID) { type = NavType.StringType },
+        navArgument(Screen.ScanDocumentName.SHARE_ID) { type = NavType.StringType },
+        navArgument(Screen.ScanDocumentName.FOLDER_ID) { type = NavType.StringType },
+        navArgument(Screen.ScanDocumentName.SCAN_RESULT_ID) { type = NavType.LongType },
+    ),
+) {
+    ScanDocumentNameScreen(
+        navigateBack = {
+            navController.popBackStack(
+                route = Screen.ScanDocumentName.route,
+                inclusive = true,
+            )
         }
     )
 }

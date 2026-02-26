@@ -18,21 +18,29 @@
 
 package me.proton.core.drive.thumbnail.domain.usecase
 
+import me.proton.core.drive.base.domain.extension.toResult
 import me.proton.core.drive.base.domain.log.logId
-import me.proton.core.drive.base.domain.provider.DriveClientProvider
+import me.proton.core.drive.base.domain.provider.ProtonDriveClientProvider
+import me.proton.core.drive.base.domain.provider.ProtonPhotosClientProvider
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.file.base.domain.entity.ThumbnailType
 import me.proton.core.drive.link.domain.entity.FileId
+import me.proton.core.drive.link.domain.entity.Link
+import me.proton.core.drive.link.domain.extension.isPhoto
 import me.proton.core.drive.link.domain.extension.userId
+import me.proton.core.drive.link.domain.usecase.GetLink
 import me.proton.core.drive.volume.domain.entity.VolumeId
 import me.proton.drive.sdk.Uid
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
+import java.nio.channels.Channels
 import javax.inject.Inject
 import me.proton.drive.sdk.entity.ThumbnailType as SdkThumbnailType
 
 class GetThumbnailSdk @Inject constructor(
-    private val driveClientProvider: DriveClientProvider,
+    private val protonDriveClientProvider: ProtonDriveClientProvider,
+    private val protonPhotosClientProvider: ProtonPhotosClientProvider,
+    private val getLink: GetLink,
 ) {
 
     suspend operator fun invoke(
@@ -40,17 +48,56 @@ class GetThumbnailSdk @Inject constructor(
         fileId: FileId,
         thumbnailType: ThumbnailType,
     ): Result<InputStream> = coRunCatching {
-        val client = driveClientProvider.getOrCreate(fileId.userId).getOrThrow()
-        var outputStream: ByteArrayOutputStream? = null
-        val fileUid = Uid.makeNodeUid(
-            volumeId = volumeId.id,
-            nodeId = fileId.id
-        )
-        client.getThumbnails(listOf(fileUid), thumbnailType.toSdkType()) {
-            ByteArrayOutputStream().also { outputStream = it }
+        val link = getLink(fileId).toResult().getOrThrow()
+        val outputStream = if (link.isPhoto) {
+            link.getPhotoThumbnail(volumeId, thumbnailType)
+        } else {
+            link.getFileThumbnail(volumeId, thumbnailType)
         }
         checkNotNull(outputStream) { "Thumbnail not found for ${fileId.id.logId()}" }
             .toByteArray().inputStream()
+    }
+
+    private suspend fun Link.File.getFileThumbnail(
+        volumeId: VolumeId,
+        thumbnailType: ThumbnailType,
+    ): ByteArrayOutputStream? {
+        var outputStream: ByteArrayOutputStream? = null
+        val fileUid = Uid.makeNodeUid(
+            volumeId = volumeId.id,
+            nodeId = id.id,
+        )
+        protonDriveClientProvider
+            .getOrCreate(userId)
+            .getOrThrow()
+            .getThumbnails(
+                fileUids = listOf(fileUid),
+                type = thumbnailType.toSdkType(),
+            ) {
+                Channels.newChannel(ByteArrayOutputStream().also { outputStream = it })
+            }
+        return outputStream
+    }
+
+    private suspend fun Link.File.getPhotoThumbnail(
+        volumeId: VolumeId,
+        thumbnailType: ThumbnailType,
+    ): ByteArrayOutputStream? {
+        var outputStream: ByteArrayOutputStream? = null
+        val photoUid = Uid.makeNodeUid(
+            volumeId = volumeId.id,
+            nodeId = id.id,
+        )
+        protonPhotosClientProvider
+            .getOrCreate(userId)
+            .getOrThrow()
+            .getThumbnails(
+                photoUids = listOf(photoUid),
+                type = thumbnailType.toSdkType(),
+            ) {
+                Channels.newChannel(ByteArrayOutputStream().also { outputStream = it })
+            }
+        return outputStream
     }
 }
 

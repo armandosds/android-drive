@@ -26,9 +26,11 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import me.proton.android.drive.photos.domain.usecase.IsPhotosEnabled
 import me.proton.android.drive.photos.domain.usecase.TogglePhotosBackup
 import me.proton.android.drive.photos.presentation.viewmodel.BackupPermissionsViewModel
 import me.proton.android.drive.photos.presentation.viewmodel.BackupPermissionsViewModelImpl
+import me.proton.core.accountmanager.domain.AccountManager
 import me.proton.core.drive.backup.domain.manager.BackupPermissionsManager
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.usecase.BroadcastMessages
@@ -46,6 +48,8 @@ object PhotosModule {
         togglePhotosBackup: TogglePhotosBackup,
         configurationProvider: ConfigurationProvider,
         broadcastMessages: BroadcastMessages,
+        isPhotosEnabled: IsPhotosEnabled,
+        accountManager: AccountManager,
     ): BackupPermissionsViewModel =
         BackupPermissionsViewModelImpl(
             appContext = appContext,
@@ -53,6 +57,8 @@ object PhotosModule {
             togglePhotosBackup = togglePhotosBackup,
             configurationProvider = configurationProvider,
             broadcastMessages = broadcastMessages,
+            isPhotosEnabled= isPhotosEnabled,
+            accountManager= accountManager,
             coroutineContext = Job() + Dispatchers.Main,
         )
 }

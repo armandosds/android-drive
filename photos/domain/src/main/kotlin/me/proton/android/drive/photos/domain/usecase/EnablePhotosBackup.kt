@@ -19,8 +19,16 @@
 package me.proton.android.drive.photos.domain.usecase
 
 import me.proton.android.drive.photos.domain.entity.PhotoBackupState
+import me.proton.core.drive.backup.domain.entity.BucketEntry
 import me.proton.core.drive.link.domain.entity.FolderId
 
 interface EnablePhotosBackup {
-    suspend operator fun invoke(folderId: FolderId): Result<PhotoBackupState>
+    suspend operator fun invoke(
+        folderId: FolderId,
+    ): Result<PhotoBackupState>
+
+    suspend operator fun invoke(
+        folderId: FolderId,
+        folderFilter: (BucketEntry) -> Boolean,
+    ): Result<PhotoBackupState>
 }

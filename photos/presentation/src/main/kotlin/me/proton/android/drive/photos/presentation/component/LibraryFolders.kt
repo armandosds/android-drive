@@ -162,7 +162,7 @@ private fun LibraryFoldersList(
 }
 
 @Composable
-private fun LibraryFolderItem(
+internal fun LibraryFolderItem(
     name: String,
     description: @Composable (ColumnScope.() -> Unit),
     checked: Boolean,
@@ -170,13 +170,17 @@ private fun LibraryFolderItem(
     enabled: Boolean = true,
     uri: Uri? = null,
     onToggle: ((Boolean) -> Unit)? = null,
+    role: Role = Role.Switch,
+    toggleControl: @Composable (checked: Boolean, enabled: Boolean) -> Unit = { isChecked, isEnabled ->
+        Switch(checked = isChecked, enabled = isEnabled, onCheckedChange = null)
+    },
 ) {
     ProtonRawListItem(
         modifier = Modifier
             .toggleable(
                 value = checked,
-                enabled = onToggle != null,
-                role = Role.Switch,
+                enabled = onToggle != null && enabled,
+                role = role,
                 onValueChange = { enable ->
                     onToggle?.invoke(enable)
                 },
@@ -210,7 +214,7 @@ private fun LibraryFolderItem(
             )
             description()
         }
-        Switch(checked = checked, enabled = enabled, onCheckedChange = null)
+        toggleControl(checked, enabled)
     }
 }
 

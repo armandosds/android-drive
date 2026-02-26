@@ -42,3 +42,15 @@ fun UploadFileLink.retryOrAbort(
         throw UploadCleanupException(error, name)
     }
 }
+
+fun UploadFileLink.getFileSize(): String {
+    val fileSize = size?.value ?: 0
+    return when {
+        fileSize < (1L shl 10) -> "2**10"
+        fileSize < (1L shl 20) -> "2**20"
+        fileSize < (1L shl 22) -> "2**22"
+        fileSize < (1L shl 25) -> "2**25"
+        fileSize < (1L shl 30) -> "2**30"
+        else -> "xxxxl"
+    }
+}
