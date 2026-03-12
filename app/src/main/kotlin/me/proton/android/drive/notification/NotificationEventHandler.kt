@@ -26,6 +26,8 @@ import me.proton.android.drive.usecase.notification.ShouldCancelNotification
 import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.announce.event.domain.entity.Event
 import me.proton.core.drive.announce.event.domain.handler.EventHandler
+import me.proton.core.drive.base.data.entity.LoggerLevel
+import me.proton.core.drive.base.data.extension.log
 import me.proton.core.drive.base.domain.log.LogTag
 import me.proton.core.drive.notification.data.extension.createNotificationId
 import me.proton.core.drive.notification.domain.entity.NotificationId
@@ -75,10 +77,10 @@ class NotificationEventHandler @Inject constructor(
             mutex.withLock {
                 saveAndPublishNotification(notificationId, acceptedEvents)
                     .onFailure { error ->
-                        CoreLogger.d(
+                        error.log(
                             LogTag.NOTIFICATION,
-                            error,
-                            "Save and publish notification failed"
+                            "Save and publish notification failed",
+                            LoggerLevel.DEBUG
                         )
                     }
                 if (shouldCancelNotification(notificationId, acceptedEvents)) {

@@ -47,7 +47,7 @@ class SharedRemoteMediator<T : Any> @Inject constructor(
         state: PagingState<Int, T>,
     ): MediatorResult {
         return try {
-            CoreLogger.i(
+            CoreLogger.v(
                 tag = LogTag.PAGING,
                 message = "Shared ${pagedListKey.log} remote mediator starts loading (type = ${loadType.name})",
             )
@@ -63,12 +63,12 @@ class SharedRemoteMediator<T : Any> @Inject constructor(
                 }
             }
             val (sharedListing, saveAction) = fetchSharedListing(pageKey)
-                .onFailure { throwable ->
-                    CoreLogger.d(LogTag.PAGING, throwable, "Fetching shared ${pagedListKey.log} failed")
-                    return MediatorResult.Error(throwable)
+                .onFailure { error ->
+                    CoreLogger.w(LogTag.PAGING, error, "Fetching shared ${pagedListKey.log} failed")
+                    return MediatorResult.Error(error)
                 }
                 .getOrThrow()
-            CoreLogger.i(
+            CoreLogger.v(
                 tag = LogTag.PAGING,
                 message = "Shared ${pagedListKey.log} remote mediator loaded ${sharedListing.linkIds.size} items",
             )
@@ -93,14 +93,14 @@ class SharedRemoteMediator<T : Any> @Inject constructor(
             }
             MediatorResult.Success(endOfPaginationReached = endOfPaginationReached)
         } catch (error: Exception) {
-            CoreLogger.d(LogTag.PAGING, error, "Shared ${pagedListKey.log} remote mediator loading failed")
+            CoreLogger.w(LogTag.PAGING, error, "Shared ${pagedListKey.log} remote mediator loading failed")
             MediatorResult.Error(error)
         }
     }
 
     private suspend fun getLastRemoteKey(): SharedRemoteKeyEntity? =
         remoteKeyDao.getLastRemoteKey(pagedListKey.id).also { lastRemoteKey ->
-            CoreLogger.d(
+            CoreLogger.v(
                 LogTag.PAGING,
                 "last db remote key anchorId=${lastRemoteKey?.anchorId} hasMore=${lastRemoteKey?.hasMore}"
             )

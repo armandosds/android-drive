@@ -31,7 +31,7 @@ class ResumeTagsMigration @Inject constructor(
     private val workManager: PhotoTagWorkManager,
 ) {
     suspend operator fun invoke(userId: UserId, volumeId: VolumeId) = coRunCatching {
-        CoreLogger.i(PHOTO, "Resuming migration for volume: ${volumeId.id.logId()}")
+        CoreLogger.i(PHOTO, "Resuming tags migration for volume: ${volumeId.id.logId()}")
         workManager.enqueue(userId, volumeId)
     }
 }

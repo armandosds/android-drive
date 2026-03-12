@@ -111,7 +111,7 @@ fun ProtonDocumentPreview(
                                     val intent = Intent(Intent.ACTION_VIEW, request.url)
                                     context.startActivity(intent)
                                 } catch (e: Exception) {
-                                    CoreLogger.d(LogTag.WEBVIEW, e, "Failed starting activity")
+                                    CoreLogger.w(LogTag.WEBVIEW, e, "Failed starting activity")
                                 }
                                 true
                             }

@@ -31,7 +31,6 @@ import me.proton.core.drive.base.domain.entity.FileTypeCategory
 import me.proton.core.drive.base.domain.entity.toFileTypeCategory
 import me.proton.core.drive.base.domain.extension.bytes
 import me.proton.core.drive.base.domain.extension.toResult
-import me.proton.core.drive.base.domain.log.LogTag.DRIVE_SDK
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.eventmanager.base.domain.usecase.UpdateEventAction
@@ -48,7 +47,6 @@ import me.proton.core.drive.thumbnail.domain.usecase.CreateThumbnail
 import me.proton.core.drive.upload.domain.extension.injectMessageDigests
 import me.proton.core.drive.upload.domain.manager.UploadSdkManager
 import me.proton.core.drive.upload.domain.resolver.UriResolver
-import me.proton.core.util.kotlin.CoreLogger
 import me.proton.drive.sdk.UploadController
 import okio.FileNotFoundException
 import java.io.InputStream
@@ -106,16 +104,17 @@ class UploadFileSdk @Inject constructor(
                     result
                 }
             } finally {
-                val scopeCancelled = !isActive
-                withContext(NonCancellable) {
-                    controller?.let{
-                        if (scopeCancelled && !controller.isPaused()) {
-                            controller.pause()
+                if (!isActive) {
+                    withContext(NonCancellable) {
+                        controller?.let {
+                            if (!controller.isPaused()) {
+                                controller.pause()
+                            }
                         }
+                        updateUploadState(uploadFileLink.id, UploadState.IDLE)
                     }
-                    updateUploadState(uploadFileLink.id, UploadState.IDLE)
                 }
-        }
+            }
         }
     }
 

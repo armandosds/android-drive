@@ -64,7 +64,7 @@
   <string name="photos_error_no_folders">Nie znaleziono folderu %1$s dla kopii zapasowej</string>
   <string name="photos_error_backup_disabled">Kopia zapasowa jest wyłączona.</string>
   <string name="photos_error_backup_disabled_action">Włącz</string>
-  <string name="photos_error_backup_missing_folder">Folder kopii zapasowej nie został znaleziony</string>
+  <string name="photos_error_backup_missing_folder">Default camera folder not found</string>
   <string name="photos_error_backup_failed">Tworzenie kopii zapasowej nie powiodło się.</string>
   <string name="photos_error_backup_temporarily_disabled">Tworzenie kopii zapasowej jest tymczasowo wyłączone.</string>
   <string name="photos_error_missing_permissions">Brak uprawnień.</string>
@@ -183,4 +183,6 @@
     <item quantity="many">Trwa migracja %1$s plików (%2$s oczekujące).</item>
     <item quantity="other">Trwa migracja %1$s plików (%2$s oczekujące).</item>
   </plurals>
+  <string name="photos_folder_selection_title">Backup photos from</string>
+  <string name="photos_folder_selection_description">Select folders to back up and their photos will appear in the Photos tab.</string>
 </resources>

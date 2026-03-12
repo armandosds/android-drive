@@ -225,7 +225,7 @@ fun ShareDriveLinkAction(
     ProtonListItem(
         icon = icon,
         title = title,
-        iconTitlePadding = LinkSpacing,
+        leadingContentTitlePadding = LinkSpacing,
         modifier = modifier
             .clickable { onClick() }
             .padding(horizontal = DefaultSpacing),

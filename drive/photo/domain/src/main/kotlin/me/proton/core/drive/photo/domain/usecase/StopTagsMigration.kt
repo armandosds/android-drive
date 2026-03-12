@@ -32,7 +32,7 @@ class StopTagsMigration @Inject constructor(
     private val workManager: PhotoTagWorkManager,
 ) {
     suspend operator fun invoke(userId: UserId, volumeId: VolumeId) = coRunCatching {
-        CoreLogger.i(PHOTO, "Stopping migration for volume: ${volumeId.id.logId()}")
+        CoreLogger.i(PHOTO, "Stopping tags migration for volume: ${volumeId.id.logId()}")
         removeAllTagsMigrationFile(userId, volumeId).getOrThrow()
         workManager.cancel(userId, volumeId)
     }

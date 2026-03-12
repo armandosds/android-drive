@@ -101,7 +101,7 @@ class UploadFileSdkWorker @AssistedInject constructor(
                 )
             },
             onSuccess = {
-                CoreLogger.i(uploadFileLink.logTag(), "success! $it")
+                CoreLogger.i(uploadFileLink.logTag(), "Upload via sdk succeed")
                 Result.success(getSizeData(uploadFileLink.size?.value ?: 0))
             }
         )

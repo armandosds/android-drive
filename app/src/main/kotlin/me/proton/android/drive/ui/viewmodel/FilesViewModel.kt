@@ -67,6 +67,7 @@ import me.proton.core.drive.base.domain.extension.flowOf
 import me.proton.core.drive.base.domain.extension.mapWithPrevious
 import me.proton.core.drive.base.domain.extension.onFailure
 import me.proton.core.drive.base.domain.log.LogTag.VIEW_MODEL
+import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.presentation.common.Action
 import me.proton.core.drive.base.presentation.common.getThemeDrawableId
@@ -83,6 +84,7 @@ import me.proton.core.drive.drivelink.download.domain.usecase.GetDownloadProgres
 import me.proton.core.drive.drivelink.list.domain.usecase.GetPagedDriveLinksList
 import me.proton.core.drive.drivelink.selection.domain.usecase.GetSelectedDriveLinks
 import me.proton.core.drive.drivelink.selection.domain.usecase.SelectAll
+import me.proton.core.drive.feature.flag.domain.usecase.IsSpringSalePromoEnabled
 import me.proton.core.drive.files.domain.usecase.ToFirstItemMetricsNotifier
 import me.proton.core.drive.files.presentation.event.FilesViewEvent
 import me.proton.core.drive.files.presentation.state.FilesViewState
@@ -143,6 +145,7 @@ class FilesViewModel @Inject constructor(
     private val configurationProvider: ConfigurationProvider,
     private val toFirstItemMetricsNotifier: ToFirstItemMetricsNotifier,
     private val isScannerAvailable: IsScannerAvailable,
+    private val isSpringSalePromoEnabled: IsSpringSalePromoEnabled,
 ) : SelectionViewModel(savedStateHandle, selectLinks, deselectLinks, selectAll, getSelectedDriveLinks),
     HomeTabViewModel,
     NotificationDotViewModel by NotificationDotViewModel(shouldUpgradeStorage) {
@@ -159,13 +162,13 @@ class FilesViewModel @Inject constructor(
                 .mapWithPrevious { previous, result ->
                     result
                         .onSuccess { driveLink ->
-                            CoreLogger.d(VIEW_MODEL, "drive link onSuccess")
+                            CoreLogger.d(VIEW_MODEL, "Link (${driveLink.id.id.logId()}) loaded")
                             parentId.value = driveLink.id
                             return@mapWithPrevious driveLink
                         }
                         .onFailure { error ->
                             onFilesDriveLinkError(userId, previous, error, listContentState)
-                            error.log(VIEW_MODEL)
+                            error.log(VIEW_MODEL, "Cannot get drive link for ${folderId?.id?.logId()}")
                             toFirstItemMetricsNotifier.reset()
                         }
                     return@mapWithPrevious null
@@ -181,6 +184,10 @@ class FilesViewModel @Inject constructor(
             )
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, Unit)
+
+    private val isSpringSalePromoEnabledFlow: Flow<Boolean> = flowOf {
+        isSpringSalePromoEnabled(userId)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     val driveLinks: Flow<PagingData<DriveLink>> =
         driveLink.filterNotNull()
@@ -254,11 +261,12 @@ class FilesViewModel @Inject constructor(
         }
         if (selected.isEmpty()) {
             val permissions = driveLink?.sharePermissions ?: Permissions.owner
+            val isSpringSalePromoEnabled = isSpringSalePromoEnabled(userId)
             topBarActions.value = if (permissions.canWrite) {
                 setOfNotNull(
-                    takeIf { user != null && user.isFree && isRootFolder }
+                    takeIf { ((user != null && user.isFree) || isSpringSalePromoEnabled) && isRootFolder }
                         ?.let {
-                            getSubscriptionAction() {
+                            getSubscriptionAction(isSpringSalePromoEnabled) {
                                 viewEvent?.onSubscription?.invoke()
                             }
                         },
@@ -339,6 +347,20 @@ class FilesViewModel @Inject constructor(
         }
         .stateIn(viewModelScope, SharingStarted.Eagerly, defaultEmptyState)
     private var viewEvent: FilesViewEvent? = null
+
+    private fun navigateToSubscriptionOrSpringSale(
+        navigateToSubscription: () -> Unit,
+        navigateToSpringSalePromo: () -> Unit,
+    ) {
+        viewModelScope.launch {
+            if (isSpringSalePromoEnabled(userId)) {
+                navigateToSpringSalePromo()
+            } else {
+                navigateToSubscription()
+            }
+        }
+    }
+
     fun viewEvent(
         navigateToFiles: (folderId: FolderId, folderName: String?) -> Unit,
         navigateToPreview: (fileId: FileId) -> Unit,
@@ -347,6 +369,7 @@ class FilesViewModel @Inject constructor(
         navigateToMultipleFileOrFolderOptions: (selectionId: SelectionId) -> Unit,
         navigateToParentFolderOptions: (folderId: FolderId) -> Unit,
         navigateToSubscription: () -> Unit,
+        navigateToSpringSalePromo: () -> Unit,
         navigateBack: () -> Unit,
         lifecycle: Lifecycle,
     ): FilesViewEvent = object : FilesViewEvent {
@@ -408,7 +431,7 @@ class FilesViewModel @Inject constructor(
         override val onSelectDriveLink = { driveLink: DriveLink -> onSelectDriveLink(driveLink) }
         override val onDeselectDriveLink = { driveLink: DriveLink -> onDeselectDriveLink(driveLink) }
         override val onBack = { onBack() }
-        override val onSubscription = { navigateToSubscription() }
+        override val onSubscription = { navigateToSubscriptionOrSpringSale(navigateToSubscription, navigateToSpringSalePromo) }
         override val onRenderThumbnail = { driveLink: DriveLink ->
             val stopTime = TimestampMs(SystemClock.elapsedRealtime())
             viewModelScope.launch {

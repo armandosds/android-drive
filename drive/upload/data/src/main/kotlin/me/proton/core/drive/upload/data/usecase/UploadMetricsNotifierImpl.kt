@@ -23,6 +23,7 @@ import me.proton.core.drive.base.domain.extension.getOrNull
 import me.proton.core.drive.base.domain.extension.toResult
 import me.proton.core.drive.base.domain.log.LogTag.UploadTag.logTag
 import me.proton.core.drive.base.domain.util.coRunCatching
+import me.proton.core.drive.drivelink.domain.usecase.UseSdkForUpload
 import me.proton.core.drive.linkupload.domain.entity.UploadFileLink
 import me.proton.core.drive.linkupload.domain.extension.toInitiator
 import me.proton.core.drive.observability.data.extension.toShareType
@@ -33,6 +34,7 @@ import me.proton.core.drive.observability.domain.metrics.common.ResultStatus
 import me.proton.core.drive.observability.domain.metrics.common.ShareType
 import me.proton.core.drive.observability.domain.usecase.EnqueueObservabilityEvent
 import me.proton.core.drive.share.domain.usecase.GetShare
+import me.proton.core.drive.upload.data.extension.logTag
 import me.proton.core.drive.upload.data.extension.toUploadErrorType
 import me.proton.core.drive.upload.domain.usecase.UploadMetricsNotifier
 import me.proton.core.util.kotlin.CoreLogger
@@ -42,6 +44,7 @@ class UploadMetricsNotifierImpl @Inject constructor(
     private val getShare: GetShare,
     private val getBackupFile: GetBackupFile,
     private val enqueueObservabilityEvent: EnqueueObservabilityEvent,
+    private val useSdkForUpload: UseSdkForUpload,
 ) : UploadMetricsNotifier {
 
     override suspend operator fun invoke(
@@ -50,6 +53,15 @@ class UploadMetricsNotifierImpl @Inject constructor(
         throwable: Throwable?,
         excludedErrorTypes: Set<UploadErrorsTotal.Type>,
     ) {
+        val uploadedBySdk = useSdkForUpload(uploadFileLink.parentLinkId)
+            .getOrDefault(false)
+        if (uploadedBySdk) {
+            CoreLogger.d(
+                tag = uploadFileLink.logTag(),
+                message = "Skipping upload metric notifier for file uploaded by SDK",
+            )
+            return
+        }
         require((isSuccess && throwable == null) || !isSuccess) {
             "When isSuccess is true, throwable must be null"
         }

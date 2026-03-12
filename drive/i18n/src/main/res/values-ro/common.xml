@@ -41,6 +41,7 @@
   <string name="common_all">Toate</string>
   <string name="common_unknown">Necunoscută</string>
   <string name="common_month">lună</string>
+  <string name="common_year">an</string>
   <!-- endregion -->
   <!-- region Common actions -->
   <string name="common_ok_action">OK</string>
@@ -205,6 +206,5 @@
             "System could not found any application that could take a picture"
     -->
   <string name="common_in_app_notification_activity_not_found">Sistemul nu a găsit o aplicație care să poată %1$s.</string>
-  <!-- endregion -->
   <!-- endregion -->
 </resources>

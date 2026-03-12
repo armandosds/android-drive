@@ -25,8 +25,11 @@ import me.proton.core.drive.base.presentation.R as BasePresentation
 import me.proton.core.drive.i18n.R as I18N
 
 class GetSubscriptionAction @Inject constructor() {
-    operator fun invoke(onAction: () -> Unit) = Action.Image(
-        imageResId = subscriptionActionImageResId,
+    operator fun invoke(
+        isSpringSalePromoEnabled: Boolean = false,
+        onAction: () -> Unit,
+    ) = Action.Image(
+        imageResId = if (isSpringSalePromoEnabled) BasePresentation.drawable.drive_subscription_badge_spring_sale_2026 else subscriptionActionImageResId,
         contentDescriptionResId = I18N.string.content_description_subscription_action,
         onAction = onAction,
     )

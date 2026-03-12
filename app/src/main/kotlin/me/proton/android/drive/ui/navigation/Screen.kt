@@ -883,6 +883,10 @@ sealed class Screen(val route: String) {
             operator fun invoke(userId: UserId, key: String) = "home/${userId.id}/promo/subscription?key=$key"
             const val PROMO_KEY = SubscriptionPromoViewModel.PROMO_KEY
         }
+        data object SpringSale2026 : Screen("promo/{userId}/springSale2026") {
+            operator fun invoke(userId: UserId) = "promo/${userId.id}/springSale2026"
+            const val USER_ID = Screen.USER_ID
+        }
     }
 }
 

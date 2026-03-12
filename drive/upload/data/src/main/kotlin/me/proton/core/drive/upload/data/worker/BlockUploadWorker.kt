@@ -196,15 +196,13 @@ class BlockUploadWorker @AssistedInject constructor(
 
                 INVALID_VALUE -> (uploadBlock.hashSha256 == uploadBlock.file.sha256()).also {
                     with (uploadBlock) {
-                        CoreLogger.d(
+                        CoreLogger.w(
                             tag = blockLogTag(),
-                            message = "Upload block info: index=$index, url=$url, size=$size, sha256=$hashSha256"
-                        )
-                        CoreLogger.d(
-                            tag = blockLogTag(),
-                            message = """
-                                Upload block file info: name=${file.name}, size=${file.size}, sha256=${file.sha256()}
-                            """.trimIndent()
+                            message = buildString {
+                                append("Block digest mismatch:\n")
+                                append("Upload block info: index=$index, url=$url, size=$size, sha256=$hashSha256\n")
+                                append("Upload block file info: name=${file.name}, size=${file.size}, sha256=${file.sha256()}")
+                            }
                         )
                     }
                 }

@@ -126,7 +126,6 @@ class SyncedFoldersViewModel @Inject constructor(
             .map { result ->
                 result
                     .onSuccess { driveLink ->
-                        CoreLogger.d(VIEW_MODEL, "drive link onSuccess")
                         return@map driveLink
                     }
                     .onFailure { error ->

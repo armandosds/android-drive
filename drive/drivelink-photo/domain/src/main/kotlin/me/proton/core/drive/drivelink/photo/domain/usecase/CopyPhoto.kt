@@ -23,8 +23,10 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
 import me.proton.core.domain.entity.UserId
-import me.proton.core.drive.base.domain.extension.onProtonHttpException
+import me.proton.core.drive.base.domain.extension.getOrNull
 import me.proton.core.drive.base.domain.extension.toResult
+import me.proton.core.drive.base.domain.log.LogTag
+import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.crypto.domain.usecase.file.CreateCopyInfo
@@ -74,7 +76,7 @@ class CopyPhoto @Inject constructor(
                 newVolumeId = parentShare.volumeId,
                 newParentId = newParentId,
                 contentDigestMap = (listOf(fileId) + relatedPhotoIds).associateWith { linkId ->
-                    getContentDigest(linkId).getOrNull()
+                    getContentDigest(linkId).getOrNull(LogTag.ALBUM, "Cannot get content digest for ${fileId.id.logId()}")
                 },
             ).getOrThrow()
         }

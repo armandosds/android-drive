@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2026 Proton AG.
+  ~ This file is part of Proton Drive.
+  ~
+  ~ Proton Drive is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Proton Drive is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with Proton Drive.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+<resources>
+  <!-- tag(q1campaign) -->
+  <string name="promo_storage_title">1 TB de almacenamiento: 200 veces tu plan actual</string>
+  <!-- tag(q1campaign) -->
+  <string name="promo_document_title">Editor de documentos online</string>
+  <!-- tag(q1campaign) -->
+  <string name="promo_secure_title">Almacenamiento y uso compartido seguros de archivos</string>
+  <!-- tag(q1campaign) -->
+  <string name="promo_private_title">Copia de seguridad de fotos privadas</string>
+  <!-- tag(q1campaign) -->
+  <string name="promo_claim_offer_button">Solicitar oferta</string>
+  <!-- tag(q1campaign) -->
+  <string name="promo_spring_sale_drawer_title">Oferta de primavera</string>
+  <!-- tag(q1campaign)
+        Variable %1$s is price per month
+        Example:
+            "only $6.99"
+    -->
+  <string name="promo_offer_per_month_details">solo %1$s</string>
+</resources>

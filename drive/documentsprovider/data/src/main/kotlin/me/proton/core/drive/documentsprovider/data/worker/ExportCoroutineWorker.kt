@@ -26,20 +26,23 @@ import kotlinx.coroutines.flow.transform
 import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.announce.event.domain.entity.Event
 import me.proton.core.drive.announce.event.domain.usecase.AnnounceEvent
+import me.proton.core.drive.base.data.entity.LoggerLevel
 import me.proton.core.drive.base.data.extension.getDefaultMessage
 import me.proton.core.drive.base.data.extension.log
 import me.proton.core.drive.base.domain.log.LogTag
+import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.usecase.BroadcastMessages
 import me.proton.core.drive.documentsprovider.data.worker.WorkerKeys.KEY_USER_ID
 import me.proton.core.drive.documentsprovider.domain.usecase.GetFileUri
 import me.proton.core.drive.drivelink.domain.entity.DriveLink
+import me.proton.core.drive.drivelink.download.domain.extension.throwable
 import me.proton.core.drive.drivelink.download.domain.usecase.GetFile
 import me.proton.core.drive.messagequeue.domain.entity.BroadcastMessage
 import me.proton.core.util.kotlin.CoreLogger
 import me.proton.core.drive.i18n.R as I18N
 
-abstract class ExportCoroutineWorker constructor(
+abstract class ExportCoroutineWorker(
     appContext: Context,
     workerParams: WorkerParameters,
     private val getFile: GetFile,
@@ -49,7 +52,7 @@ abstract class ExportCoroutineWorker constructor(
     private val announceEvent: AnnounceEvent,
 ) : CoroutineWorker(appContext, workerParams) {
     protected val userId = UserId(requireNotNull(inputData.getString(KEY_USER_ID)) { "User id is required" })
-    abstract protected val downloadId: String
+    protected abstract val downloadId: String
 
     override suspend fun doWork(): Result {
         showInfo(applicationContext.getString(I18N.string.common_in_app_notification_download_started))
@@ -60,13 +63,24 @@ abstract class ExportCoroutineWorker constructor(
                 .transform { state ->
                     when (state) {
                         is GetFile.State.Ready -> emit(kotlin.Result.success(Unit))
-                        is GetFile.State.Error -> emit(kotlin.Result.failure(RuntimeException()))
+                        is GetFile.State.Error -> emit(
+                            kotlin.Result.failure(
+                                RuntimeException(
+                                    "Cannot get file ${driveLink.id.id.logId()} (${state.javaClass.simpleName})",
+                                    state.throwable,
+                                )
+                            )
+                        )
+
                         else -> Unit
                     }
                 }
                 .first()
-                .onFailure {
-                    CoreLogger.d(LogTag.DOCUMENTS_PROVIDER, "getFile failed")
+                .onFailure { error ->
+                    error.log(
+                        tag = LogTag.DOCUMENTS_PROVIDER,
+                        message = "Cannot get file ${driveLink.id.id.logId()}",
+                    )
                     showError(driveLink)
                     return@forEach
                 }

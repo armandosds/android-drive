@@ -41,6 +41,7 @@
   <string name="common_all">Alle</string>
   <string name="common_unknown">Unbekannt</string>
   <string name="common_month">Monat</string>
+  <string name="common_year">Jahr</string>
   <!-- endregion -->
   <!-- region Common actions -->
   <string name="common_ok_action">OK</string>
@@ -203,6 +204,5 @@
             "System could not found any application that could take a picture"
     -->
   <string name="common_in_app_notification_activity_not_found">Das System konnte keine Anwendung finden, die %1$s</string>
-  <!-- endregion -->
   <!-- endregion -->
 </resources>

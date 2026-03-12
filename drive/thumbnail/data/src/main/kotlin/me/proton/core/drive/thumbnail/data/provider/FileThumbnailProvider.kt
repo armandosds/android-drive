@@ -76,7 +76,7 @@ abstract class FileThumbnailProvider(
                 ?.takeIf { bytes ->
                     bytes.isNotEmpty().also { isNotEmpty ->
                         if (!isNotEmpty) {
-                            CoreLogger.i(UPLOAD, "Thumbnail is empty for: $uriString")
+                            CoreLogger.w(UPLOAD, "Thumbnail is empty for: $uriString")
                         }
                     }
                 }

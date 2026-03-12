@@ -136,7 +136,7 @@ class ToFirstItemMetricsNotifier @Inject constructor(
                 Value = duration.inWholeMilliseconds,
             )
         ).also {
-            CoreLogger.d(
+            CoreLogger.v(
                 tag = LogTag.METRIC,
                 message = buildString {
                     append("toFirstItemHistogram ")

@@ -54,6 +54,7 @@ class SentryInitializer : Initializer<Unit> {
         SentryAndroid.init(context) { options ->
             options.dsn = BuildConfig.SENTRY_DSN.takeIf { !BuildConfig.DEBUG }.orEmpty()
             options.release = BuildConfig.VERSION_NAME
+            options.setTag("sdk_version", BuildConfig.SDK_VERSION_NAME)
             options.isEnableAutoSessionTracking = true
             options.environment = BuildConfig.FLAVOR
             options.beforeSend = beforeSendCallback

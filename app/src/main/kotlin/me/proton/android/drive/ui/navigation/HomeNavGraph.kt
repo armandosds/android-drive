@@ -79,6 +79,7 @@ fun HomeNavGraph(
     navigateToUserInvitation: (Boolean) -> Unit,
     navigateToCreateNewAlbum: () -> Unit,
     navigateToAlbum: (AlbumId) -> Unit,
+    navigateToSpringSalePromo: () -> Unit,
 ) = DriveNavHost(
     navController = homeNavController,
     startDestination = startDestination
@@ -94,6 +95,7 @@ fun HomeNavGraph(
         { selectionId -> navigateToMultipleFileOrFolderOptions(selectionId) },
         navigateToParentFolderOptions,
         navigateToSubscription,
+        navigateToSpringSalePromo,
     )
     addPhotos(
         homeNavController,
@@ -118,6 +120,7 @@ fun HomeNavGraph(
         navigateToBackupSettings = navigateToBackupSettings,
         navigateToEnableBackupDialog = navigateToEnableBackupDialog,
         navigateToNotificationPermissionRationale = navigateToNotificationPermissionRationale,
+        navigateToSpringSalePromo = navigateToSpringSalePromo,
     )
     addPhotosAndAlbums(
         homeNavController,
@@ -145,6 +148,7 @@ fun HomeNavGraph(
         navigateToCreateNewAlbum = navigateToCreateNewAlbum,
         navigateToAlbum = navigateToAlbum,
         navigateToUserInvitation = navigateToUserInvitation,
+        navigateToSpringSalePromo = navigateToSpringSalePromo,
     )
     addComputers(
         homeNavController,
@@ -158,6 +162,7 @@ fun HomeNavGraph(
         navigateToParentFolderOptions,
         navigateToComputerOptions,
         navigateToSubscription,
+        navigateToSpringSalePromo,
     )
     addSharedTabs(
         navController = homeNavController,
@@ -175,6 +180,7 @@ fun HomeNavGraph(
         navigateToParentFolderOptions = navigateToParentFolderOptions,
         navigateToUserInvitation = navigateToUserInvitation,
         navigateToSubscription,
+        navigateToSpringSalePromo,
     )
 }
 
@@ -191,6 +197,7 @@ fun NavGraphBuilder.addFiles(
     navigateToMultipleFileOrFolderOptions: (SelectionId) -> Unit,
     navigateToParentFolderOptions: (folderId: FolderId) -> Unit,
     navigateToSubscription: () -> Unit,
+    navigateToSpringSalePromo: () -> Unit,
 ) = composable(
     route = Screen.Files.route,
     enterTransition = defaultEnterSlideTransition {
@@ -237,6 +244,7 @@ fun NavGraphBuilder.addFiles(
             navigateToMultipleFileOrFolderOptions = navigateToMultipleFileOrFolderOptions,
             navigateToParentFolderOptions = navigateToParentFolderOptions,
             navigateToSubscription = navigateToSubscription,
+            navigateToSpringSalePromo = navigateToSpringSalePromo,
         )
     } ?: let {
         val userId = UserId(requireNotNull(arguments.getString(Screen.Files.USER_ID)))
@@ -270,6 +278,7 @@ fun NavGraphBuilder.addPhotos(
     navigateToBackupSettings: () -> Unit,
     navigateToEnableBackupDialog: () -> Unit,
     navigateToNotificationPermissionRationale: () -> Unit,
+    navigateToSpringSalePromo: () -> Unit,
 ) = composable(
     route = Screen.Photos.route,
     arguments = listOf(
@@ -297,6 +306,7 @@ fun NavGraphBuilder.addPhotos(
             navigateToBackupSettings = navigateToBackupSettings,
             navigateToEnableBackupDialog = navigateToEnableBackupDialog,
             navigateToNotificationPermissionRationale = navigateToNotificationPermissionRationale,
+            navigateToSpringSalePromo = navigateToSpringSalePromo,
         )
     } ?: let {
         val userId = UserId(requireNotNull(arguments.getString(Screen.Photos.USER_ID)))
@@ -330,6 +340,7 @@ fun NavGraphBuilder.addPhotosAndAlbums(
     navigateToCreateNewAlbum: () -> Unit,
     navigateToAlbum: (AlbumId) -> Unit,
     navigateToUserInvitation: (Boolean) -> Unit,
+    navigateToSpringSalePromo: () -> Unit,
 ) = composable(
     route = Screen.PhotosAndAlbums.route,
     arguments = listOf(
@@ -355,6 +366,7 @@ fun NavGraphBuilder.addPhotosAndAlbums(
             navigateToCreateNewAlbum = navigateToCreateNewAlbum,
             navigateToAlbum = navigateToAlbum,
             navigateToUserInvitation = navigateToUserInvitation,
+            navigateToSpringSalePromo = navigateToSpringSalePromo,
         )
     } ?: let {
         val userId = UserId(requireNotNull(arguments.getString(Screen.PhotosAndAlbums.USER_ID)))
@@ -380,6 +392,7 @@ fun NavGraphBuilder.addComputers(
     navigateToParentFolderOptions: (folderId: FolderId) -> Unit,
     navigateToComputerOptions: (deviceId: DeviceId) -> Unit,
     navigateToSubscription: () -> Unit,
+    navigateToSpringSalePromo: () -> Unit,
 ) = composable(
     route = Screen.Computers.route,
     enterTransition = defaultEnterSlideTransition {
@@ -469,6 +482,7 @@ fun NavGraphBuilder.addComputers(
                     navigateToMultipleFileOrFolderOptions = navigateToMultipleFileOrFolderOptions,
                     navigateToParentFolderOptions = navigateToParentFolderOptions,
                     navigateToSubscription = navigateToSubscription,
+                    navigateToSpringSalePromo = navigateToSpringSalePromo,
                     navigateBack = { navController.popBackStack() },
                 )
             }
@@ -520,6 +534,7 @@ fun NavGraphBuilder.addSharedTabs(
     navigateToParentFolderOptions: (folderId: FolderId) -> Unit,
     navigateToUserInvitation: (Boolean) -> Unit,
     navigateToSubscription: () -> Unit,
+    navigateToSpringSalePromo: () -> Unit,
 ) = composable(
     route = Screen.SharedTabs.route,
     enterTransition = defaultEnterSlideTransition {
@@ -579,6 +594,7 @@ fun NavGraphBuilder.addSharedTabs(
                 navigateToMultipleFileOrFolderOptions = navigateToMultipleFileOrFolderOptions,
                 navigateToParentFolderOptions = navigateToParentFolderOptions,
                 navigateToSubscription = navigateToSubscription,
+                navigateToSpringSalePromo = navigateToSpringSalePromo,
                 navigateBack = { navController.popBackStack() },
             )
         } else {

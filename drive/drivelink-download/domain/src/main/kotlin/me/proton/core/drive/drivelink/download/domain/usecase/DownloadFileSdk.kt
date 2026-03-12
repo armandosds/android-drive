@@ -35,6 +35,7 @@ import me.proton.core.drive.base.domain.extension.toPercentage
 import me.proton.core.drive.base.domain.extension.toResult
 import me.proton.core.drive.base.domain.log.LogTag.DOWNLOAD
 import me.proton.core.drive.base.domain.log.logId
+import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.usecase.GetDownloadStagingTempFolder
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.drivelink.crypto.domain.usecase.IntegrityMetricsNotifier
@@ -73,6 +74,7 @@ class DownloadFileSdk @Inject constructor(
     private val removeSignatureVerificationFailed: RemoveSignatureVerificationFailed,
     private val verifyDownloadedFile: VerifyDownloadedFile,
     private val integrityMetricsNotifier: IntegrityMetricsNotifier,
+    private val configurationProvider: ConfigurationProvider,
 ) {
 
     suspend operator fun invoke(
@@ -111,10 +113,11 @@ class DownloadFileSdk @Inject constructor(
                             revisionId = revisionId,
                         ) { client ->
                             client.downloader(
-                                Uid.makeNodeUid(
+                                photoUid = Uid.makeNodeUid(
                                     volumeId = driveLink.volumeId.id,
                                     nodeId = fileId.id,
-                                )
+                                ),
+                                timeout = configurationProvider.sdkQueueTimeout,
                             )
                         }
                     } else {
@@ -124,11 +127,12 @@ class DownloadFileSdk @Inject constructor(
                             revisionId = revisionId,
                         ) { client ->
                             client.downloader(
-                                Uid.makeNodeRevisionUid(
+                                revisionUid = Uid.makeNodeRevisionUid(
                                     volumeId = volumeId.id,
                                     nodeId = fileId.id,
                                     revisionId = revisionId,
-                                )
+                                ),
+                                timeout = configurationProvider.sdkQueueTimeout,
                             )
                         }
                     }
@@ -227,7 +231,7 @@ class DownloadFileSdk @Inject constructor(
             }
             setDownloadState(fileId, DownloadState.Ready)
         }.onFailure { error ->
-            CoreLogger.e(DOWNLOAD, error, "Cannot download ${fileId.id.logId()}")
+            CoreLogger.e(DOWNLOAD, error, "Cannot download ${fileId.id.logId()} (sdk)")
             setDownloadState(fileId, DownloadState.Error)
         }
     }

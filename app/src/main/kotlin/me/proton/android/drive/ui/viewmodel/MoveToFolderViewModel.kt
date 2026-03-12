@@ -190,16 +190,14 @@ class MoveToFolderViewModel @Inject constructor(
 
     private fun confirmMove(navigateBack: () -> Unit) = viewModelScope.launch {
         val folder = parentLink.value as? DriveLink.Folder
-        if (folder != null) {
-            if (folder.id != parentId) {
-                moveFile(userId, driveLinksToMove.value.map { driveLink -> driveLink.id }, folder.id)
-                selectionId?.let{ deselectLinks(selectionId) }
-                navigateBack()
-            } else {
-                CoreLogger.i(LogTag.MOVE, "folder same as parent, move aborted")
-            }
+        if (folder == null) {
+            CoreLogger.w(LogTag.MOVE, "no parent link, move aborted")
+        } else if (folder.id == parentId) {
+            CoreLogger.w(LogTag.MOVE, "folder same as parent, move aborted")
         } else {
-            CoreLogger.i(LogTag.MOVE, "no parent link, move aborted")
+            moveFile(userId, driveLinksToMove.value.map { driveLink -> driveLink.id }, folder.id)
+            selectionId?.let { deselectLinks(selectionId) }
+            navigateBack()
         }
     }
 

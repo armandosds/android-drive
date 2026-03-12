@@ -51,8 +51,8 @@ class EncryptDataImpl @Inject constructor() : EncryptData {
         val cipherText = cipher.doFinal(input)
         val combined = cipher.iv + cipherText
         Base64.encode(combined)
-    }.recoverCatching { throwable ->
-        throw CryptoException(throwable)
+    }.recoverCatching { error ->
+        throw CryptoException(error)
     }
 
     private fun getIv(size: Int): ByteArray = ByteArray(size).apply {

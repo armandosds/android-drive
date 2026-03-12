@@ -64,7 +64,7 @@
   <string name="photos_error_no_folders">Nenašiel sa žiadny priečinok %1$s na zálohovanie</string>
   <string name="photos_error_backup_disabled">Zálohovanie je vypnuté.</string>
   <string name="photos_error_backup_disabled_action">Zapnúť</string>
-  <string name="photos_error_backup_missing_folder">Zálohovací priečinok nebol nájdený</string>
+  <string name="photos_error_backup_missing_folder">Predvolený priečinok fotoaparátu sa nenašiel</string>
   <string name="photos_error_backup_failed">Zálohovanie zlyhalo.</string>
   <string name="photos_error_backup_temporarily_disabled">Zálohovanie je dočasne zakázané.</string>
   <string name="photos_error_missing_permissions">Chýbajúce povolenia.</string>
@@ -183,4 +183,6 @@
     <item quantity="many">Prebieha, migrácia %1$s súborov, %2$s čaká na stiahnutie.</item>
     <item quantity="other">Prebieha, migrácia %1$s súborov, %2$s čaká na stiahnutie.</item>
   </plurals>
+  <string name="photos_folder_selection_title">Zálohovať fotky z</string>
+  <string name="photos_folder_selection_description">Vyberte priečinky na zálohovanie a ich fotografie sa zobrazia na karte Fotografie.</string>
 </resources>

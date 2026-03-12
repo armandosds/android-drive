@@ -50,6 +50,7 @@ import me.proton.core.drive.base.domain.usecase.BroadcastMessages
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.base.presentation.component.NavigationTab
 import me.proton.core.drive.base.presentation.viewmodel.UserViewModel
+import me.proton.core.drive.feature.flag.domain.usecase.IsSpringSalePromoEnabled
 import me.proton.core.drive.messagequeue.domain.entity.BroadcastMessage
 import me.proton.core.drive.navigationdrawer.presentation.NavigationDrawerViewEvent
 import me.proton.core.drive.navigationdrawer.presentation.NavigationDrawerViewState
@@ -77,6 +78,7 @@ class HomeViewModel @Inject constructor(
     private val broadcastMessages: BroadcastMessages,
     private val shouldShowOverlay: ShouldShowOverlay,
     private val paymentManager: PaymentManager,
+    private val isSpringSalePromoEnabled: IsSpringSalePromoEnabled,
 ) : ViewModel(), NotificationDotViewModel, UserViewModel by UserViewModel(savedStateHandle) {
     private var navigateToTab: ((route: String) -> Unit)? = null
 
@@ -141,6 +143,7 @@ class HomeViewModel @Inject constructor(
         navigateToWhatsNew: (WhatsNewKey) -> Unit,
         navigateToRatingBooster: () -> Unit,
         navigateToSubscriptionPromo: (String) -> Unit,
+        navigateToSpringSalePromo: () -> Unit,
     ): HomeViewEvent = object : HomeViewEvent {
         override val onTab = { tab: NavigationTab -> navigateToTab(tab.screen(userId)) }
         override val onFirstLaunch: (NavigationTab?) -> Unit = { navigationTab ->
@@ -150,6 +153,7 @@ class HomeViewModel @Inject constructor(
                     is UserOverlay.WhatsNew -> navigateToWhatsNew(overlay.key)
                     UserOverlay.RatingBooster -> navigateToRatingBooster()
                     is UserOverlay.Subcription -> navigateToSubscriptionPromo(overlay.key)
+                    UserOverlay.SpringSalePromo -> navigateToSpringSalePromo()
                     null -> {}
                 }
             }
@@ -164,6 +168,7 @@ class HomeViewModel @Inject constructor(
                 override val onBugReport = navigateToBugReport
                 override val onSubscription = navigateToSubscription
                 override val onGetFreeStorage = navigateToGetMoreFreeStorage
+                override val onSpringSalePromo = navigateToSpringSalePromo
             }
     }.also {
         this.navigateToTab = navigateToTab
@@ -216,6 +221,7 @@ class HomeViewModel @Inject constructor(
                         paymentManager.isSubscriptionAvailable(userId)
                     }.getOrNull(VIEW_MODEL, "Failed to read subscriptions")
                 } ?: false,
+                isSpringSalePromoEnabled = isSpringSalePromoEnabled(userId),
             )
         )
 

@@ -36,6 +36,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.supervisorScope
 import me.proton.core.domain.entity.UserId
+import me.proton.core.drive.base.data.extension.log
 import me.proton.core.drive.base.data.workmanager.addTags
 import me.proton.core.drive.base.domain.api.ProtonApiCode
 import me.proton.core.drive.base.domain.extension.onProtonHttpException
@@ -99,7 +100,7 @@ class MoveFileWorker @AssistedInject constructor(
                     }
                     .onFailure { error ->
                         if (!error.handledFileAlreadyExists()) {
-                            CoreLogger.w(LogTag.MOVE, error, "An error occurred while moving the file")
+                            error.log(LogTag.MOVE, "An error occurred while moving the file")
                             broadcastMessages(
                                 userId = userId,
                                 message = applicationContext.getString(I18N.string.file_operation_error_occurred_moving_file),

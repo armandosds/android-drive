@@ -111,10 +111,8 @@ class OfflineViewModel @Inject constructor(
         .map { result ->
             result
                 .onSuccess { driveLink ->
-                    CoreLogger.d(VIEW_MODEL, "drive node onSuccess")
                     return@map driveLink
                 }
-                .onProcessing { CoreLogger.d(VIEW_MODEL, "drive node onProcessing") }
                 .onFailure { error -> error.log(VIEW_MODEL) }
             return@map null
         }.stateIn(viewModelScope, SharingStarted.Eagerly, null)

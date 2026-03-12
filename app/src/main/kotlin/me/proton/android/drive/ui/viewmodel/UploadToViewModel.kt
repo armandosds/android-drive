@@ -168,7 +168,7 @@ class UploadToViewModel @Inject constructor(
                     exitApp()
                 }
             }.onFailure { error ->
-                error.log(LogTag.UPLOAD)
+                error.log(LogTag.UPLOAD, "Failed to upload ${copiedUris.size} files")
                 cleanupOnFailure(copiedUris)
                 when (error) {
                     is NotEnoughSpaceException -> navigateToStorageFull()

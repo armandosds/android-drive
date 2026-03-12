@@ -60,7 +60,7 @@ internal class XmpTagsMetadata(val document: Document) {
         xPath.namespaceContext = XMPNamespaceContext()
         val result = xPath.evaluate(xPathExpression, document, XPathConstants.STRING) as String
         return result.trim().ifEmpty { null }?.also {
-            CoreLogger.d(UPLOAD, "Found expression: $xPathExpression in xmp (value: $it)")
+            CoreLogger.v(UPLOAD, "Found expression: $xPathExpression in xmp (value: $it)")
         }
     }
 }

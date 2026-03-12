@@ -87,6 +87,7 @@ import java.util.Locale
 import javax.inject.Inject
 import me.proton.core.drive.i18n.R as I18N
 import androidx.core.net.toUri
+import me.proton.core.drive.base.data.entity.LoggerLevel
 
 @HiltViewModel
 class ParentFolderOptionsViewModel @Inject constructor(
@@ -325,8 +326,8 @@ class ParentFolderOptionsViewModel @Inject constructor(
             val photoFile = File.createTempFile("IMG_${now}_", ".jpg", getCacheTempFolder(userId))
             updatePhotoUri(photoFile)
             getUriForFile(photoFile)
-                .onFailure { throwable ->
-                    CoreLogger.w(VIEW_MODEL, throwable, "Failed to get Uri for a file")
+                .onFailure { error ->
+                    error.log(VIEW_MODEL, "Failed to get Uri for a file", LoggerLevel.WARNING)
                 }
                 .onSuccess { uri ->
                     viewModelScope.launch {

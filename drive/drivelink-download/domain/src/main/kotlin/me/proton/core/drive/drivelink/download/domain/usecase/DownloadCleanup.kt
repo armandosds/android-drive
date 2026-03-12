@@ -37,8 +37,6 @@ import me.proton.core.drive.linkdownload.domain.usecase.RemoveDownloadState
 import me.proton.core.drive.linkoffline.domain.usecase.IsLinkOrAnyAncestorMarkedAsOffline
 import me.proton.core.drive.photo.domain.usecase.GetAllAlbumDirectChildren
 import me.proton.core.drive.volume.domain.entity.VolumeId
-import me.proton.drive.sdk.Uid
-import me.proton.drive.sdk.downloader
 import java.io.File
 import javax.inject.Inject
 

@@ -58,6 +58,7 @@ sealed class FeatureFlagId(open val userId: UserId, open val id: String) {
         const val DRIVE_ANDROID_DOCUMENT_SCANNER = "DriveAndroidDocumentScanner"
         const val DRIVE_DOWNLOAD_VERIFICATION_DISABLED = "DriveDownloadVerificationDisabled"
         const val DRIVE_UPLOAD_VERIFICATION_DISABLED = "DriveUploadVerificationDisabled"
+        const val DRIVE_ANDROID_SPRING_SALE_2026 = "DriveAndroidSpringSale2026"
 
         internal var developments : List<String> = listOf(
         )
@@ -94,5 +95,6 @@ sealed class FeatureFlagId(open val userId: UserId, open val id: String) {
         fun driveAndroidDocumentScanner(userId: UserId) = Unleash(userId, DRIVE_ANDROID_DOCUMENT_SCANNER)
         fun driveDownloadVerificationDisabled(userId: UserId) = Unleash(userId, DRIVE_DOWNLOAD_VERIFICATION_DISABLED)
         fun driveUploadVerificationDisabled(userId: UserId) = Unleash(userId, DRIVE_UPLOAD_VERIFICATION_DISABLED)
+        fun driveAndroidSpringSale2026(userId: UserId) = Unleash(userId, DRIVE_ANDROID_SPRING_SALE_2026)
     }
 }

@@ -28,10 +28,10 @@ import me.proton.core.util.kotlin.CoreLogger
 fun <T> Result<T>.toDataResult(): DataResult<T> =
     fold(
         onSuccess = { value -> DataResult.Success(ResponseSource.Local, value) },
-        onFailure = { throwable ->
-            when (throwable) {
-                is ApiException -> DataResult.Error.Remote(throwable.message, throwable)
-                else -> DataResult.Error.Local(throwable.message, throwable)
+        onFailure = { error ->
+            when (error) {
+                is ApiException -> DataResult.Error.Remote(error.message, error)
+                else -> DataResult.Error.Local(error.message, error)
             }
         }
     )
@@ -42,7 +42,7 @@ inline fun <T, R> Flow<Result<T>>.transformSuccess(
     transform { result ->
         result.fold(
             onSuccess = { value -> onSuccess(value) },
-            onFailure = { throwable -> emit(Result.failure(throwable)) }
+            onFailure = { error -> emit(Result.failure(error)) }
         )
     }
 

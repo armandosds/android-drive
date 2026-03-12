@@ -41,7 +41,7 @@ internal fun InputStream.injectMessageDigests(algorithms: List<String>): Pair<In
         try {
             MessageDigest.getInstance(algorithm)
         } catch (e: NoSuchAlgorithmException) {
-            CoreLogger.i(LogTag.UPLOAD, e, "Algorithm not supported")
+            CoreLogger.w(LogTag.UPLOAD, e, "Algorithm not supported")
             null
         }
     }

@@ -114,6 +114,7 @@ fun PhotosAndAlbumsScreen(
     navigateToCreateNewAlbum: () -> Unit,
     navigateToAlbum: (AlbumId) -> Unit,
     navigateToUserInvitation: (Boolean) -> Unit,
+    navigateToSpringSalePromo: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val viewModel = hiltViewModel<PhotosAndAlbumsViewModel>()
@@ -143,6 +144,7 @@ fun PhotosAndAlbumsScreen(
                 navigateToSubscription = navigateToSubscription,
                 navigateToPhotosIssues = navigateToPhotosIssues,
                 navigateToPhotosUpsell = navigateToPhotosUpsell,
+                navigateToSpringSalePromo = navigateToSpringSalePromo,
                 navigateToBackupSettings = navigateToBackupSettings,
                 navigateToEnableBackupDialog = navigateToEnableBackupDialog,
                 navigateToNotificationPermissionRationale = navigateToNotificationPermissionRationale,
@@ -239,6 +241,7 @@ fun PhotosTab(
     navigateToSubscription: () -> Unit,
     navigateToPhotosIssues: (FolderId) -> Unit,
     navigateToPhotosUpsell: () -> Unit,
+    navigateToSpringSalePromo: () -> Unit,
     navigateToBackupSettings: () -> Unit,
     navigateToEnableBackupDialog: () -> Unit,
     navigateToNotificationPermissionRationale: () -> Unit,
@@ -257,6 +260,7 @@ fun PhotosTab(
             navigateToSubscription = navigateToSubscription,
             navigateToPhotosIssues = navigateToPhotosIssues,
             navigateToPhotosUpsell = navigateToPhotosUpsell,
+            navigateToSpringSalePromo = navigateToSpringSalePromo,
             navigateToBackupSettings = navigateToBackupSettings,
             navigateToEnableBackupDialog = navigateToEnableBackupDialog,
             lifecycle = lifecycle,

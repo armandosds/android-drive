@@ -52,7 +52,7 @@ class NotificationActionWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         if (action == null || notificationIdString == null) {
-            CoreLogger.d(
+            CoreLogger.w(
                 tag = LogTag.NOTIFICATION,
                 message = "NotificationActionWorker invalid input data, action=$action, notificationId=$notificationIdString",
             )

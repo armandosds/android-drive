@@ -36,6 +36,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.flow.transformLatest
+import me.proton.core.drive.base.data.entity.LoggerLevel
+import me.proton.core.drive.base.data.extension.log
 import me.proton.core.drive.base.domain.extension.mapWithPrevious
 import me.proton.core.drive.base.domain.log.LogTag
 import me.proton.core.util.kotlin.CoreLogger
@@ -78,10 +80,13 @@ fun <T : Any> Flow<Result<List<T>>>.asPagingSource(
             val pageKey = params.getPageKey(list.getOrNull()?.size ?: 0)
             return try {
                 val pageList = list
-                    .onFailure { throwable ->
-                        val error = throwable.cause ?: throwable
-                        CoreLogger.d(LogTag.PAGING, throwable, "load (key=$pageKey) from flow failed with $error")
-                        return LoadResult.Error(error)
+                    .onFailure { error ->
+                        error.log(
+                            LogTag.PAGING,
+                            "load (key=$pageKey) from flow failed",
+                            LoggerLevel.DEBUG
+                        )
+                        return LoadResult.Error(error.cause ?: error)
                     }
                     .getOrThrow()
 
@@ -89,7 +94,7 @@ fun <T : Any> Flow<Result<List<T>>>.asPagingSource(
                 val page = pages.getOrNull(pageKey) ?: emptyList()
                 val prevKey = (pageKey - 1).takeIf { key -> key >= 0 }
                 val nextKey = (pageKey + 1).takeIf { key -> key <= pages.size - 1 }
-                CoreLogger.d(
+                CoreLogger.i(
                     tag = LogTag.PAGING,
                     message = """
                         load (key=$pageKey, items=${page.size}) from flow (items=${pageList.size})
@@ -131,7 +136,7 @@ fun <T : Any> ((fromIndex: Int, count: Int) -> Flow<Result<List<T>>>).asPagingSo
             .distinctUntilChanged()
             .mapWithPrevious { previous, current ->
                 if (previous != null) {
-                    CoreLogger.d(
+                    CoreLogger.v(
                         LogTag.PAGING,
                         "Invalidating due to items count change (previous = $previous, current = $current)",
                     )
@@ -154,7 +159,7 @@ fun <T : Any> ((fromIndex: Int, count: Int) -> Flow<Result<List<T>>>).asPagingSo
                         .distinctUntilChanged()
                         .mapWithPrevious { previous, current ->
                             if (previous != null && !(previous.isFailure && stopOnFailure)) {
-                                CoreLogger.d(
+                                CoreLogger.v(
                                     LogTag.PAGING,
                                     "Invalidating due to observable list change",
                                 )
@@ -170,12 +175,12 @@ fun <T : Any> ((fromIndex: Int, count: Int) -> Flow<Result<List<T>>>).asPagingSo
             state.anchorPosition?.let { anchorPosition ->
                 (state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
                     ?: state.closestPageToPosition(anchorPosition)?.nextKey?.minus(1))?.also {
-                        CoreLogger.d(LogTag.PAGING, "getRefreshKey page $it anchorPosition $anchorPosition")
+                        CoreLogger.v(LogTag.PAGING, "getRefreshKey page $it anchorPosition $anchorPosition")
                 }
             }
 
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, T> {
-            CoreLogger.d(LogTag.PAGING, "load params key = ${params.key} type = ${params.type}")
+            CoreLogger.v(LogTag.PAGING, "load params key = ${params.key} type = ${params.type}")
             require(observablePageSize >= params.loadSize * 4) {
                 """
                     Observable page size ($observablePageSize) must be at least 4 times as big
@@ -189,10 +194,9 @@ fun <T : Any> ((fromIndex: Int, count: Int) -> Flow<Result<List<T>>>).asPagingSo
             fromIndex.value = currentIndex
             return try {
                 val pageList = this@asPagingSource(currentIndex, observablePageSize).first()
-                    .onFailure { throwable ->
-                        val error = throwable.cause ?: throwable
-                        CoreLogger.d(LogTag.PAGING, throwable, "load (key=$pageKey) from flow failed with $error")
-                        return LoadResult.Error(error)
+                    .onFailure { error ->
+                        error.log(LogTag.PAGING, "load (key=$pageKey) from flow failed")
+                        return LoadResult.Error(error.cause ?: error)
                     }
                     .getOrThrow()
                     .drop((pageRange.first - currentIndex).coerceAtLeast(minimumValue = 0))
@@ -200,7 +204,7 @@ fun <T : Any> ((fromIndex: Int, count: Int) -> Flow<Result<List<T>>>).asPagingSo
                 val prevKey = (pageKey - 1).takeIf { key -> key >= 0 }
                 val nextKey = (pageKey + 1).takeIf { key -> key < ceil(items / params.loadSize.toDouble()).toInt() }
                 val itemsBefore = params.loadSize * pageKey
-                CoreLogger.d(
+                CoreLogger.v(
                     tag = LogTag.PAGING,
                     message = """
                         load (key=$pageKey, items=${pageList.size})
@@ -246,7 +250,7 @@ private fun PagingSource.LoadParams<Int>.getPageKey(items: Int): Int = when (val
             key
         } else {
             (items / loadSize).also { pageKey ->
-                CoreLogger.d(
+                CoreLogger.v(
                     tag = LogTag.PAGING,
                     message = "Requested page key $key was changed to $pageKey because of items $items",
                 )

@@ -40,7 +40,7 @@ class StopBackup @Inject constructor(
 ) {
 
     suspend operator fun invoke(folderId: FolderId, error: BackupError) = coRunCatching {
-        CoreLogger.d(BACKUP, "Stopping after: $error")
+        CoreLogger.i(BACKUP, "Stopping after: $error")
         announceEvent(folderId.userId, Event.BackupStopped(folderId, error.type.toEventBackupState()))
         logBackupStats(folderId)
         addBackupError(folderId, error).getOrThrow()

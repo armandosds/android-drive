@@ -62,7 +62,7 @@
   <string name="photos_error_no_folders">Nenhuma pasta %1$s foi encontrada para a cópia de segurança.</string>
   <string name="photos_error_backup_disabled">Cópia de segurança desativada.</string>
   <string name="photos_error_backup_disabled_action">Ativar</string>
-  <string name="photos_error_backup_missing_folder">A pasta de cópia de segurança não foi encontrada.</string>
+  <string name="photos_error_backup_missing_folder">Default camera folder not found</string>
   <string name="photos_error_backup_failed">A cópia de segurança falhou.</string>
   <string name="photos_error_backup_temporarily_disabled">O backup de fotos está temporariamente desativado.</string>
   <string name="photos_error_missing_permissions">Permissões em falta.</string>
@@ -173,4 +173,6 @@
     <item quantity="one">A migrar %1$s ficheiro e %2$s pendente de transferência</item>
     <item quantity="other">A migrar %1$s ficheiros e %2$s pendente de transferência</item>
   </plurals>
+  <string name="photos_folder_selection_title">Backup photos from</string>
+  <string name="photos_folder_selection_description">Select folders to back up and their photos will appear in the Photos tab.</string>
 </resources>

@@ -34,21 +34,28 @@ abstract class LogDao : BaseDao<LogEntity>() {
             user_id = :userId AND
             level NOT IN (SELECT level FROM LogLevelEntity WHERE user_id = :userId) AND
             origin NOT IN (SELECT origin FROM LogOriginEntity WHERE user_id = :userId)
-        ORDER BY creation_time DESC
+        ORDER BY creation_time DESC, id DESC
     """)
     abstract fun getLogsPagingSource(
         userId: UserId,
     ): PagingSource<Int, LogEntity>
 
     @Query("""
-        SELECT * FROM LogEntity WHERE user_id = :userId ORDER BY creation_time DESC LIMIT :limit OFFSET :offset
+        SELECT * FROM LogEntity WHERE
+            user_id = :userId
+        ORDER BY creation_time DESC, id DESC
+        LIMIT :limit OFFSET :offset
     """)
     abstract suspend fun getLogs(userId: UserId, limit: Int, offset: Int): List<LogEntity>
 
     @Query("""
         DELETE FROM LogEntity WHERE
             user_id = :userId AND
-            id NOT IN (SELECT id FROM LogEntity WHERE user_id = :userId ORDER BY creation_time DESC LIMIT :limit)
+            id NOT IN (
+                SELECT id FROM LogEntity WHERE user_id = :userId
+                ORDER BY creation_time DESC, id DESC
+                LIMIT :limit
+            )
     """)
     abstract suspend fun dropOldRowsToFitLimit(userId: UserId, limit: Int)
 
@@ -57,7 +64,12 @@ abstract class LogDao : BaseDao<LogEntity>() {
 
     @Query("""
         DELETE FROM LogEntity WHERE
-            id IN (SELECT id FROM LogEntity WHERE user_id = :userId ORDER BY creation_time ASC LIMIT 1)
+            id IN (
+                SELECT id FROM LogEntity WHERE
+                    user_id = :userId
+                ORDER BY creation_time ASC, id ASC
+                LIMIT 1
+            )
     """)
     abstract suspend fun deleteOldest(userId: UserId)
 

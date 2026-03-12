@@ -62,7 +62,7 @@
   <string name="photos_error_no_folders">No se encontró ninguna carpeta %1$s para respaldar</string>
   <string name="photos_error_backup_disabled">Copia de seguridad desactivada</string>
   <string name="photos_error_backup_disabled_action">Activar</string>
-  <string name="photos_error_backup_missing_folder">No se encontró la carpeta de la copia de seguridad.</string>
+  <string name="photos_error_backup_missing_folder">No se encontró la carpeta de cámara predeterminada</string>
   <string name="photos_error_backup_failed">Error de copia de seguridad</string>
   <string name="photos_error_backup_temporarily_disabled">La copia de seguridad está temporalmente desactivada.</string>
   <string name="photos_error_missing_permissions">Faltan permisos.</string>
@@ -173,4 +173,6 @@
     <item quantity="one">Migrando %1$s archivo y %2$s en espera de descarga</item>
     <item quantity="other">Migrando %1$s archivos y %2$s en espera de descarga</item>
   </plurals>
+  <string name="photos_folder_selection_title">Realizar copia de seguridad de fotos desde</string>
+  <string name="photos_folder_selection_description">Seleccione las carpetas para realizar la copia de seguridad y sus fotos aparecerán en la pestaña Fotos.</string>
 </resources>

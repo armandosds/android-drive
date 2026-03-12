@@ -63,7 +63,7 @@ class LeaveShare @Inject constructor(
                 }.getOrThrow()
             true
         } else {
-            CoreLogger.i(
+            CoreLogger.w(
                 tag = LogTag.SHARING,
                 message = """
                     Skipping leave share (DriveLink.shareId=${driveLink.shareId.id.logId()},

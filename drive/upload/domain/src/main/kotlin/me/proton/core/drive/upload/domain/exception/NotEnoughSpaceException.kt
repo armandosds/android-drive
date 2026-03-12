@@ -17,6 +17,5 @@
  */
 package me.proton.core.drive.upload.domain.exception
 
-import java.lang.RuntimeException
-
-class NotEnoughSpaceException() : RuntimeException()
+class NotEnoughSpaceException(message: String? = null, cause: Throwable? = null) :
+    RuntimeException(message, cause)

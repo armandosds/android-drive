@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.DrawerState
@@ -37,12 +38,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import me.proton.core.compose.component.ProtonListSectionTitle
+import me.proton.core.compose.theme.ProtonDimens.DefaultIconSize
 import me.proton.core.compose.theme.ProtonDimens.DefaultSpacing
 import me.proton.core.compose.theme.ProtonDimens.SmallSpacing
 import me.proton.core.compose.theme.ProtonTheme
@@ -112,11 +118,15 @@ fun NavigationDrawer(
                         .testTag(NavigationDrawerTestTag.content),
                     verticalArrangement = Arrangement.Top
                 ) {
-                    UpgradeStorageInfo(
-                        onUpgradeClicked = { viewEvent.onSubscription() },
-                        withTopDivider = true,
-                        withBottomDivider = true
-                    )
+                    if (viewState.isSpringSalePromoEnabled) {
+                        SpringSalePromoListItem(closeDrawerAction, viewEvent)
+                    } else {
+                        UpgradeStorageInfo(
+                            onUpgradeClicked = { viewEvent.onSubscription() },
+                            withTopDivider = true,
+                            withBottomDivider = true
+                        )
+                    }
 
                     MyFilesListItem(closeDrawerAction, viewEvent)
 
@@ -304,6 +314,44 @@ private fun GetFreeStorageListItem(
 }
 
 @Composable
+private fun SpringSalePromoListItem(
+    closeDrawerAction: (() -> Unit) -> Unit,
+    viewEvent: NavigationDrawerViewEvent,
+    modifier: Modifier = Modifier,
+) {
+    val springSalePromoColor = Color(0xFFFF4C81)
+    NavigationDrawerListItem(
+        imagePainter = painterResource(BasePresentation.drawable.drive_subscription_badge_spring_sale_2026),
+        title = stringResource(I18N.string.promo_spring_sale_drawer_title).uppercase(),
+        textStyle = ProtonTheme.typography.defaultStrongNorm.copy(color = springSalePromoColor),
+        closeDrawerAction = closeDrawerAction,
+        modifier = modifier,
+        onClick = { viewEvent.onSpringSalePromo() },
+    )
+}
+
+@Composable
+fun NavigationDrawerListItem(
+    @StringRes title: Int,
+    closeDrawerAction: (() -> Unit) -> Unit,
+    modifier: Modifier = Modifier,
+    textStyle: TextStyle = ProtonTheme.typography.defaultNorm,
+    onClick: () -> Unit,
+    leadingContent: @Composable () -> Unit,
+) {
+    ProtonListItem(
+        title = stringResource(title),
+        textStyle = textStyle,
+        modifier = modifier
+            .clickable {
+                closeDrawerAction(onClick)
+            }
+            .padding(horizontal = DefaultSpacing),
+        leadingContent = leadingContent,
+    )
+}
+
+@Composable
 fun NavigationDrawerListItem(
     @DrawableRes icon: Int,
     @StringRes title: Int,
@@ -317,6 +365,50 @@ fun NavigationDrawerListItem(
         icon = icon,
         iconTintColor = iconTintColor,
         title = title,
+        textStyle = textStyle,
+        modifier = modifier
+            .clickable {
+                closeDrawerAction(onClick)
+            }
+            .padding(horizontal = DefaultSpacing),
+    )
+}
+
+@Composable
+fun NavigationDrawerListItem(
+    @DrawableRes image: Int,
+    @StringRes title: Int,
+    closeDrawerAction: (() -> Unit) -> Unit,
+    modifier: Modifier = Modifier,
+    imageModifier: Modifier = Modifier,
+    textStyle: TextStyle = ProtonTheme.typography.defaultNorm,
+    onClick: () -> Unit,
+) {
+    NavigationDrawerListItem(
+        imagePainter = painterResource(image),
+        title = stringResource(title),
+        imageModifier = imageModifier,
+        textStyle = textStyle,
+        modifier = modifier,
+        closeDrawerAction = closeDrawerAction,
+        onClick = onClick,
+    )
+}
+
+@Composable
+fun NavigationDrawerListItem(
+    imagePainter: Painter,
+    title: String,
+    closeDrawerAction: (() -> Unit) -> Unit,
+    modifier: Modifier = Modifier,
+    imageModifier: Modifier = Modifier,
+    textStyle: TextStyle = ProtonTheme.typography.defaultNorm,
+    onClick: () -> Unit,
+) {
+    ProtonListItem(
+        imagePainter = imagePainter,
+        title = title,
+        imageModifier = imageModifier,
         textStyle = textStyle,
         modifier = modifier
             .clickable {
@@ -351,6 +443,7 @@ fun PreviewDrawerWithUser() {
                 override val onBugReport = {}
                 override val onSubscription = {}
                 override val onGetFreeStorage = {}
+                override val onSpringSalePromo = {}
             }
         )
     }
@@ -372,6 +465,7 @@ private fun PreviewDrawerWithoutUser() {
                 override val onBugReport = {}
                 override val onSubscription = {}
                 override val onGetFreeStorage = {}
+                override val onSpringSalePromo = {}
             }
         )
     }

@@ -536,14 +536,9 @@ class DownloadManagerImpl @Inject constructor(
         downloadCleanup(
             volumeId = volumeId,
             linkId = fileId,
-        )
-            .onSuccess {
-                CoreLogger.d(
-                    fileId.logTag,
-                    "Download cleanup successful"
-                )
-            }
-            .getOrNull(fileId.logTag, "Download cleanup failed")
+        ).onSuccess {
+            CoreLogger.d(fileId.logTag, "Download cleanup successful")
+        }.getOrNull(fileId.logTag, "Download cleanup failed")
     }
 
     private suspend fun cancelFolderDownload(
@@ -686,9 +681,10 @@ class DownloadManagerImpl @Inject constructor(
         appContext.observeNetworkTypes
             .distinctUntilChanged()
             .onEach { networkTypes ->
-                CoreLogger.d(
+                CoreLogger.i(
                     tag = LogTag.DOWNLOAD,
-                    message = "NetworkTypes old=${currentNetworkTypes.value.joinToString()}, new=${networkTypes.joinToString()}",
+                    message = "NetworkTypes old=${currentNetworkTypes.value.joinToString()}, " +
+                            "new=${networkTypes.joinToString()}",
                 )
                 pipelineManager.stopPipelines(
                     immediately = true,

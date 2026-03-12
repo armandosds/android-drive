@@ -71,11 +71,16 @@ private class LoggingDatabase<T : RoomDatabase>(
     private val captureStackForSlow: Duration,
     private val clazz: Class<T>,
 ) : SupportSQLiteDatabase by delegate {
+    private class SlowQueryException(
+        message: String? = null,
+        cause: Throwable? = null,
+    ) : Throwable(message, cause)
+
     private val Duration.shouldLog: Boolean get() = this > slowThreshold
     private val Duration.throwable: Throwable? get() = takeIf {
         this > captureStackForSlow && captureStackForSlow > Duration.ZERO
     }?.let {
-        RuntimeException("Slow DB query detected (${activityManager.logMemoryInfo}).").apply {
+        SlowQueryException("Slow DB query detected (${activityManager.logMemoryInfo}).").apply {
             stackTrace = Thread.currentThread().stackTrace
         }
     }
@@ -86,7 +91,7 @@ private class LoggingDatabase<T : RoomDatabase>(
                 tag = tag,
                 message = message,
                 level = LoggerLevel.WARNING,
-            ) ?: CoreLogger.d(
+            ) ?: CoreLogger.v(
                 tag = tag,
                 message = message + "\n${activityManager.logMemoryInfo}",
             )

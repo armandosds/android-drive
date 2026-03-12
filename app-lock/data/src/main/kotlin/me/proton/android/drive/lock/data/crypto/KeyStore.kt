@@ -20,8 +20,9 @@ package me.proton.android.drive.lock.data.crypto
 import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
+import me.proton.core.drive.base.data.entity.LoggerLevel
+import me.proton.core.drive.base.data.extension.log
 import me.proton.core.drive.base.domain.log.LogTag
-import me.proton.core.util.kotlin.CoreLogger
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -125,12 +126,16 @@ fun SecretKeyProperties.getInitializedCipherForEncryption(
 private fun getCipher(transformation: String): Cipher = Cipher.getInstance(transformation)
 
 fun removeKey(keyProperties: SecretKeyProperties) {
-    try {
+    runCatching {
         KeyStore.getInstance(keyProperties.keyStoreType).run {
             load(null)
             deleteEntry(keyProperties.keyAlias)
         }
-    } catch (e: Exception) {
-        CoreLogger.d(LogTag.DEFAULT, e, e.message.orEmpty())
+    }.onFailure { error ->
+        error.log(
+            tag = LogTag.DEFAULT,
+            message = "Cannot remove key: ${keyProperties.keyAlias}",
+            level = LoggerLevel.WARNING,
+        )
     }
 }

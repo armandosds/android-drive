@@ -25,6 +25,7 @@ import kotlinx.coroutines.withContext
 import me.proton.core.drive.base.domain.entity.Bytes
 import me.proton.core.drive.base.domain.entity.TimestampS
 import me.proton.core.drive.base.domain.entity.toTimestampS
+import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.crypto.domain.usecase.file.GetFileName
 import me.proton.core.drive.linkupload.domain.entity.UploadFileLink
@@ -44,6 +45,7 @@ class CreateNewFileSdk @Inject constructor(
     private val updateUploadState: UpdateUploadState,
     private val getFileName: GetFileName,
     private val updateUploadFileCreationTime: UpdateUploadFileCreationTime,
+    private val configurationProvider: ConfigurationProvider,
 ) {
 
     suspend operator fun invoke(
@@ -86,7 +88,7 @@ class CreateNewFileSdk @Inject constructor(
         lastModified: TimestampS,
     ) = uploadSdkManager.enqueue(this@enqueue) { client ->
         client.uploader(
-            FileUploaderRequest(
+            request = FileUploaderRequest(
                 parentFolderUid = Uid.makeNodeUid(
                     volumeId = volumeId.id,
                     nodeId = parentLinkId.id,
@@ -96,7 +98,8 @@ class CreateNewFileSdk @Inject constructor(
                 fileSize = size.value,
                 lastModificationTime = lastModified.value,
                 overrideExistingDraftByOtherClient = false,
-            )
+            ),
+            timeout = configurationProvider.sdkQueueTimeout,
         )
     }
 }

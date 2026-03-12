@@ -23,4 +23,5 @@ sealed interface UserOverlay {
     data class WhatsNew(val key: WhatsNewKey) : UserOverlay
     data class Subcription(val key: String) : UserOverlay
     data object RatingBooster : UserOverlay
+    data object SpringSalePromo : UserOverlay
 }

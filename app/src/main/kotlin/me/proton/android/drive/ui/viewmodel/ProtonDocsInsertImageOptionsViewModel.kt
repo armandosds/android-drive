@@ -30,8 +30,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import me.proton.android.drive.extension.log
 import me.proton.android.drive.usecase.GetUriForFile
 import me.proton.android.drive.usecase.NotifyActivityNotFound
+import me.proton.core.drive.base.data.entity.LoggerLevel
 import me.proton.core.drive.base.domain.log.LogTag.VIEW_MODEL
 import me.proton.core.drive.base.domain.usecase.BroadcastMessages
 import me.proton.core.drive.base.domain.usecase.GetCacheTempFolder
@@ -122,8 +124,8 @@ class ProtonDocsInsertImageOptionsViewModel @Inject constructor(
             val photoFile = File.createTempFile("IMG_${now}_", ".jpg", getCacheTempFolder(userId))
             updatePhotoUri(photoFile)
             getUriForFile(photoFile)
-                .onFailure { throwable ->
-                    CoreLogger.w(VIEW_MODEL, throwable, "Failed to get Uri for a file")
+                .onFailure { error ->
+                    error.log(VIEW_MODEL, "Failed to get Uri for a file", LoggerLevel.WARNING)
                 }
                 .onSuccess { uri ->
                     viewModelScope.launch {

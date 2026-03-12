@@ -21,6 +21,7 @@ package me.proton.core.drive.backup.domain.usecase
 import kotlinx.coroutines.flow.first
 import me.proton.core.drive.backup.domain.entity.BackupErrorType
 import me.proton.core.drive.base.domain.log.LogTag
+import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.feature.flag.domain.entity.FeatureFlagId
 import me.proton.core.drive.feature.flag.domain.usecase.GetFeatureFlag
@@ -38,7 +39,7 @@ class RetryBackup @Inject constructor(
     private val resetFilesAttempts: ResetFilesAttempts,
 ) {
     suspend operator fun invoke(folderId: FolderId) = coRunCatching {
-        CoreLogger.i(LogTag.BACKUP, "Retry")
+        CoreLogger.i(LogTag.BACKUP, "Retrying backup for ${folderId.id.logId()}")
         getFeatureFlag(FeatureFlagId.drivePhotosUploadDisabled(folderId.userId)) {
             getErrors(folderId).first().any { error ->
                 error.type == BackupErrorType.PHOTOS_UPLOAD_NOT_ALLOWED

@@ -121,7 +121,8 @@ private fun LogoHeader(
                 )
             ),
             contentDescription = null,
-            contentScale = ContentScale.None,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.matchParentSize(),
         )
     }
 }

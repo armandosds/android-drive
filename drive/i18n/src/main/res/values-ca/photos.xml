@@ -62,7 +62,7 @@
   <string name="photos_error_no_folders">No s\'ha trobat cap carpeta %1$s per a la còpia de seguretat.</string>
   <string name="photos_error_backup_disabled">S\'ha desactivat la còpia de seguretat.</string>
   <string name="photos_error_backup_disabled_action">Activa</string>
-  <string name="photos_error_backup_missing_folder">No s\'ha trobat la carpeta de còpia de seguretat</string>
+  <string name="photos_error_backup_missing_folder">No s\'ha trobat la carpeta predeterminada de la càmera</string>
   <string name="photos_error_backup_failed">Error en la còpia de seguretat.</string>
   <string name="photos_error_backup_temporarily_disabled">Les còpies de seguretat estan temporalment desactivades.</string>
   <string name="photos_error_missing_permissions">Falten permisos.</string>
@@ -173,4 +173,6 @@
     <item quantity="one">Operació en curs: %1$s fitxer està migrant i %2$s altre es troba a l\'espera de ser descarregat.</item>
     <item quantity="other">Operació en curs: %1$s fitxers estan migrant i %2$s més es troben a l\'espera de ser descarregats.</item>
   </plurals>
+  <string name="photos_folder_selection_title">Feu una còpia de seguretat de les fotos de</string>
+  <string name="photos_folder_selection_description">Seleccioneu carpetes per fer-ne una còpia de seguretat i les seves fotos apareixeran a la pestanya Fotos.</string>
 </resources>

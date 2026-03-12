@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2026 Proton AG.
+  ~ This file is part of Proton Drive.
+  ~
+  ~ Proton Drive is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ Proton Drive is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with Proton Drive.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+<resources>
+  <!-- tag(q1campaign) -->
+  <string name="promo_storage_title">1 TB 저장공간: 현재 요금제의 200배</string>
+  <!-- tag(q1campaign) -->
+  <string name="promo_document_title">온라인 문서 편집기</string>
+  <!-- tag(q1campaign) -->
+  <string name="promo_secure_title">안전한 파일 저장공간 및 공유</string>
+  <!-- tag(q1campaign) -->
+  <string name="promo_private_title">개인 사진 백업</string>
+  <!-- tag(q1campaign) -->
+  <string name="promo_claim_offer_button">혜택 신청하기</string>
+  <!-- tag(q1campaign) -->
+  <string name="promo_spring_sale_drawer_title">봄맞이 세일</string>
+  <!-- tag(q1campaign)
+        Variable %1$s is price per month
+        Example:
+            "only $6.99"
+    -->
+  <string name="promo_offer_per_month_details">단 %1$s</string>
+</resources>

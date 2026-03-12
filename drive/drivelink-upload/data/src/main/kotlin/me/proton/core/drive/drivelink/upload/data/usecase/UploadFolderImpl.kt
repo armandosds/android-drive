@@ -21,10 +21,13 @@ package me.proton.core.drive.drivelink.upload.data.usecase
 import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkManager
 import androidx.work.await
+import me.proton.core.drive.base.domain.log.LogTag
+import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.drivelink.upload.data.worker.UploadFolderWorker
 import me.proton.core.drive.drivelink.upload.domain.usecase.UploadFolder
 import me.proton.core.drive.link.domain.entity.FolderId
+import me.proton.core.util.kotlin.CoreLogger
 import javax.inject.Inject
 
 class UploadFolderImpl @Inject constructor(
@@ -36,6 +39,7 @@ class UploadFolderImpl @Inject constructor(
         uriString: String,
         shouldBroadcastMessage: Boolean,
     ): Result<Unit> = coRunCatching {
+        CoreLogger.i(LogTag.UPLOAD, "Uploading folder from uri: $uriString in ${folderId.id.logId()}")
         workManager.enqueueUniqueWork(
             uniqueWorkName = UploadFolderWorker.getUniqueWorkName(uriString),
             existingWorkPolicy = ExistingWorkPolicy.KEEP,

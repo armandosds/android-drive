@@ -22,6 +22,8 @@ import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
+import me.proton.core.drive.base.data.entity.LoggerLevel
+import me.proton.core.drive.base.data.extension.log
 import me.proton.core.drive.base.domain.log.LogTag
 import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.drivelink.photo.data.db.DriveLinkPhotoDatabase
@@ -52,7 +54,7 @@ class TaggedPhotoListingRemoteMediator @Inject constructor(
         state: PagingState<Int, PhotoListing>,
     ): MediatorResult {
         return try {
-            CoreLogger.d(LogTag.PAGING, "Remote ${loadType.name}")
+            CoreLogger.v(LogTag.PAGING, "Remote ${loadType.name}")
             val pageKey = when (loadType) {
                 LoadType.REFRESH -> null
                 LoadType.PREPEND -> return MediatorResult.Success(endOfPaginationReached = true)
@@ -63,20 +65,24 @@ class TaggedPhotoListingRemoteMediator @Inject constructor(
                     ?.data?.lastOrNull()?.linkId?.id
             }
             val (photoListings, saveAction) = remotePhotoListings(pageKey, state.config.pageSize)
-                .onFailure { throwable ->
-                    CoreLogger.d(LogTag.PAGING, throwable, "Getting remote photo listings failed")
-                    return MediatorResult.Error(throwable)
+                .onFailure { error ->
+                    error.log(
+                        tag = LogTag.PAGING,
+                        message = "Getting remote photo listings failed",
+                        level = LoggerLevel.WARNING,
+                    )
+                    return MediatorResult.Error(error)
                 }
                 .getOrThrow()
             val endOfPaginationReached = photoListings.size < state.config.pageSize ||
                     photoListings.size % state.config.pageSize > 0
-            CoreLogger.d(LogTag.PAGING, "loaded photo listings (${photoListings.size})")
+            CoreLogger.v(LogTag.PAGING, "loaded photo listings (${photoListings.size})")
             val nextPageKey = if (endOfPaginationReached) {
                 null
             } else {
                 photoListings.lastOrNull()?.linkId?.id
             }
-            CoreLogger.d(LogTag.PAGING, "pageKey ($pageKey) nextPageKey ($nextPageKey)")
+            CoreLogger.v(LogTag.PAGING, "pageKey ($pageKey) nextPageKey ($nextPageKey)")
             val remoteKeys = photoListings.map { photoListing: PhotoListing ->
                 TaggedPhotoListingRemoteKeyEntity(
                     key = pagedListKey,
@@ -101,14 +107,18 @@ class TaggedPhotoListingRemoteMediator @Inject constructor(
             }
             MediatorResult.Success(endOfPaginationReached)
         } catch (e: ApiException) {
-            CoreLogger.d(LogTag.PAGING, e, e.message.orEmpty())
+            e.log(
+                tag = LogTag.PAGING,
+                message = "Failed to load $loadType with $state",
+                level = LoggerLevel.WARNING,
+            )
             MediatorResult.Error(e)
         }
     }
 
     private suspend fun getLastRemoteKey(): TaggedPhotoListingRemoteKeyEntity? {
         val lastRemoteKey = remoteKeyDao.getLastRemoteKey(pagedListKey, volumeId.id)
-        CoreLogger.d(
+        CoreLogger.v(
             LogTag.PAGING,
             "last db remote key ${lastRemoteKey?.linkId?.logId()} - ${lastRemoteKey?.shareId?.logId()}"
         )

@@ -20,6 +20,7 @@ package me.proton.core.drive.documentsprovider.domain.usecase
 
 import android.provider.DocumentsContract
 import me.proton.core.drive.base.domain.log.LogTag
+import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.documentsprovider.domain.entity.DocumentId
 import me.proton.core.drive.folder.create.domain.usecase.CreateFolder
 import me.proton.core.drive.link.domain.entity.FileId
@@ -45,7 +46,7 @@ class CreateDocument @Inject constructor(
             if (mimeType == DocumentsContract.Document.MIME_TYPE_DIR) {
                 val (_, folderId) = createFolder(driveLink.id, displayName)
                     .getOrThrow()
-                CoreLogger.d(LogTag.DOCUMENTS_PROVIDER, "Folder created with id: $folderId")
+                CoreLogger.d(LogTag.DOCUMENTS_PROVIDER, "Folder created with id: ${folderId.id.logId()}")
                 DocumentId(userId, folderId)
             } else {
                 val link = createUploadFile(
@@ -64,7 +65,7 @@ class CreateDocument @Inject constructor(
                     uploadFileLink = link,
                 ).getOrThrow().let { uploadFileLink ->
                     val fileId = FileId(uploadFileLink.shareId, requireNotNull(uploadFileLink.linkId))
-                    CoreLogger.d(LogTag.DOCUMENTS_PROVIDER, "File created with id: $fileId")
+                    CoreLogger.d(LogTag.DOCUMENTS_PROVIDER, "File created with id: ${fileId.id.logId()}")
                     DocumentId(userId, fileId)
                 }
             }

@@ -114,7 +114,7 @@ class CreateFolderTreeAndScheduleUpload @Inject constructor(
                     showFilesBeingUploaded = false,
                 )
             }
-        CoreLogger.d(LogTag.UPLOAD, "Finished processing upload folder from uri: $uriString")
+        CoreLogger.i(LogTag.UPLOAD, "Finished processing upload folder from uri: $uriString")
     }
 
     private suspend fun checkAvailableSpace(userId: UserId, root: DocumentFile) {
@@ -130,7 +130,10 @@ class CreateFolderTreeAndScheduleUpload @Inject constructor(
                     )
                 )
             }
-        CoreLogger.d(LogTag.UPLOAD, "Upload folder required space: ${uploadFileDescriptions.mapNotNull { uploadFileDescription -> uploadFileDescription.properties?.size }.sumOf { size -> size.value }} bytes")
+        val requiredSpace = uploadFileDescriptions
+                .mapNotNull { uploadFileDescription -> uploadFileDescription.properties?.size }
+                .sumOf { size -> size.value }
+        CoreLogger.d(LogTag.UPLOAD, "Upload folder required space: $requiredSpace bytes")
         val hasEnoughSpace = hasEnoughAvailableSpace(
             userId = userId,
             uploadFileDescriptions = uploadFileDescriptions,
@@ -142,8 +145,7 @@ class CreateFolderTreeAndScheduleUpload @Inject constructor(
             }
         )
         if (!hasEnoughSpace) {
-            CoreLogger.d(LogTag.UPLOAD, "Not enough available space")
-            throw NotEnoughSpaceException()
+            throw NotEnoughSpaceException("Not enough available space to schedule upload folder")
         }
     }
 

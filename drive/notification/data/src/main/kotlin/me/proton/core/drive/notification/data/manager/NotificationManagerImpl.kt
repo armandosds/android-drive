@@ -99,11 +99,11 @@ class NotificationManagerImpl @Inject constructor(
     private fun deleteNotificationChannel(channelId: String) = runCatching {
         notificationManagerCompat.deleteNotificationChannel(channelId)
     }
-        .recoverCatching { throwable ->
-            if (throwable !is SecurityException) {
-                throw throwable
+        .recoverCatching { error ->
+            if (error !is SecurityException) {
+                throw error
             } else {
-                throwable.log(
+                error.log(
                     tag = LogTag.NOTIFICATION,
                     message = "Failed removing notification channel $channelId",
                     level = WARNING,
@@ -115,11 +115,11 @@ class NotificationManagerImpl @Inject constructor(
     private fun deleteNotificationChannelGroup(userId: UserId) = runCatching {
         notificationManagerCompat.deleteNotificationChannelGroup(userId.id)
     }
-        .recoverCatching { throwable ->
-            if (throwable !is SecurityException) {
-                throw throwable
+        .recoverCatching { error ->
+            if (error !is SecurityException) {
+                throw error
             } else {
-                throwable.log(
+                error.log(
                     tag = LogTag.NOTIFICATION,
                     message = "Failed removing notification channel group",
                     level = WARNING,

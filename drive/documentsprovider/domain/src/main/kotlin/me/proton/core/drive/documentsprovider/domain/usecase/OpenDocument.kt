@@ -30,6 +30,7 @@ import me.proton.core.drive.base.domain.log.LogTag
 import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.usecase.GetCacheFolder
 import me.proton.core.drive.documentsprovider.domain.entity.DocumentId
+import me.proton.core.drive.drivelink.download.domain.extension.throwable
 import me.proton.core.drive.drivelink.download.domain.usecase.GetFile
 import me.proton.core.drive.drivelink.upload.domain.usecase.UploadAlreadyCreatedFiles
 import me.proton.core.drive.linkupload.domain.entity.UploadFileLink
@@ -121,6 +122,9 @@ class OpenDocument @Inject constructor(
             }
         }
         if (state !is GetFile.State.Ready) {
+            state.throwable?.let{ error ->
+                CoreLogger.e(LogTag.DOCUMENTS_PROVIDER, error, "Document could not be opened")
+            }
             throw FileNotFoundException("Document could not be opened")
         }
 

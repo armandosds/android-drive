@@ -180,7 +180,7 @@ class AlbumViewModel @Inject constructor(
                 .mapWithPrevious { previous, result ->
                     result
                         .onSuccess { driveLink ->
-                            CoreLogger.d(VIEW_MODEL, "drive link (${driveLink.id.id.logId()}) onSuccess")
+                            CoreLogger.d(VIEW_MODEL, "Link (${driveLink.id.id.logId()}) loaded")
                             driveLink.coverLinkId?.let { coverLinkId ->
                                 photoDriveLinks.load(setOf(coverLinkId))
                             }
@@ -188,10 +188,10 @@ class AlbumViewModel @Inject constructor(
                             return@mapWithPrevious driveLink
                         }
                         .onFailure { error ->
-                            CoreLogger.d(VIEW_MODEL, "drive link (${albumId.id.logId()}) onFailure")
-                            error.cause?.let { throwable ->
-                                CoreLogger.d(VIEW_MODEL, throwable, "drive link (${albumId.id.logId()}) onFailure")
-                                if (throwable is NoSuchElementException) {
+                            CoreLogger.w(VIEW_MODEL, "Cannot get drive link for ${albumId.id.logId()}")
+                            error.cause?.let { cause ->
+                                CoreLogger.w(VIEW_MODEL, cause, "Cannot get drive link for ${albumId.id.logId()}")
+                                if (cause is NoSuchElementException) {
                                     viewEvent?.onBackPressed?.invoke()
                                     return@onFailure
                                 }

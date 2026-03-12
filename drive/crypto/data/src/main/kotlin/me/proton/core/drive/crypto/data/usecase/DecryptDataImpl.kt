@@ -50,7 +50,7 @@ class DecryptDataImpl @Inject constructor() : DecryptData {
             cipherSpec.algorithmParameterSpec(iv),
         )
         cipher.doFinal(cipherText)
-    }.recoverCatching { throwable ->
-        throw CryptoException(throwable)
+    }.recoverCatching { error ->
+        throw CryptoException(error)
     }
 }

@@ -85,8 +85,8 @@
             "23 items failed"
     -->
   <plurals name="in_app_notification_add_to_album_failed">
-    <item quantity="one">Error amb %1$d element</item>
-    <item quantity="other">Error amb %1$d elements</item>
+    <item quantity="one">Ha fallat %1$d element</item>
+    <item quantity="other">Han fallat %1$d elements</item>
   </plurals>
   <!--
         Variable %1$d is a number of photos added to your Drive
@@ -135,8 +135,8 @@
             "23 items failed"
     -->
   <plurals name="in_app_notification_removed_from_album_failed">
-    <item quantity="one">Error amb %1$d element</item>
-    <item quantity="other">Error amb %1$d elements</item>
+    <item quantity="one">Ha fallat %1$d element</item>
+    <item quantity="other">Han fallat %1$d elements</item>
   </plurals>
   <string name="albums_empty_album_screen_title">Sense fotos</string>
   <string name="albums_empty_album_screen_description">Les fotos afegides per vosaltres o altres membres apareixeran aquí.</string>

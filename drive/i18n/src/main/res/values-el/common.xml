@@ -41,6 +41,7 @@
   <string name="common_all">Όλα</string>
   <string name="common_unknown">Άγνωστο</string>
   <string name="common_month">Μήνα</string>
+  <string name="common_year">Έτος</string>
   <!-- endregion -->
   <!-- region Common actions -->
   <string name="common_ok_action">Εντάξει</string>
@@ -203,6 +204,5 @@
             "System could not found any application that could take a picture"
     -->
   <string name="common_in_app_notification_activity_not_found">Το σύστημα δεν μπόρεσε να βρει καμία εφαρμογή που θα μπορούσε να %1$s</string>
-  <!-- endregion -->
   <!-- endregion -->
 </resources>

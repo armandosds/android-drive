@@ -41,6 +41,7 @@
   <string name="common_all">Alle</string>
   <string name="common_unknown">Ukjent</string>
   <string name="common_month">Måned</string>
+  <string name="common_year">År</string>
   <!-- endregion -->
   <!-- region Common actions -->
   <string name="common_ok_action">OK</string>
@@ -76,7 +77,7 @@
   <string name="common_save_all_action">Lagre alle</string>
   <string name="common_add_to_albums_action">Legg til i album</string>
   <string name="common_tag_photo_action">Skann bilde for tagger</string>
-  <string name="common_save_as_action">Save as</string>
+  <string name="common_save_as_action">Lagre som</string>
   <!-- endregion -->
   <!-- region Common file types -->
   <string name="common_type_audio">Lyd</string>
@@ -203,6 +204,5 @@
             "System could not found any application that could take a picture"
     -->
   <string name="common_in_app_notification_activity_not_found">Systemet kunne ikke finne en applikasjon som kan %1$s.</string>
-  <!-- endregion -->
   <!-- endregion -->
 </resources>

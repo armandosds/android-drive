@@ -62,7 +62,7 @@
   <string name="photos_error_no_folders">Yedeklenecek bir %1$s klasörü bulunamadı</string>
   <string name="photos_error_backup_disabled">Yedeklemeler kapalı.</string>
   <string name="photos_error_backup_disabled_action">Aç</string>
-  <string name="photos_error_backup_missing_folder">Yedek klasörü bulunamadı</string>
+  <string name="photos_error_backup_missing_folder">Varsayılan kamera klasörü bulunamadı</string>
   <string name="photos_error_backup_failed">Yedekleme tamamlanamadı.</string>
   <string name="photos_error_backup_temporarily_disabled">Yedekleme geçici olarak kullanımdan kaldırıldı.</string>
   <string name="photos_error_missing_permissions">İzinler eksik.</string>
@@ -173,4 +173,6 @@
     <item quantity="one">İşlem sürüyor. %1$s dosya aktarılıyor, %2$s indirilmeyi bekliyor.</item>
     <item quantity="other">İşlem sürüyor. %1$s dosya aktarılıyor, %2$s indirilmeyi bekliyor.</item>
   </plurals>
+  <string name="photos_folder_selection_title">Şuradaki fotoğrafları yedekle</string>
+  <string name="photos_folder_selection_description">Yedeklemek istediğiniz klasörleri seçin. Bu klasörlerdeki fotoğraflar Fotoğraflar sekmesinde görüntülenir.</string>
 </resources>

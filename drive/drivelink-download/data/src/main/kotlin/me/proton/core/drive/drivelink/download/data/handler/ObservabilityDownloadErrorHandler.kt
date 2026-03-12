@@ -23,6 +23,7 @@ import me.proton.core.drive.base.domain.extension.toResult
 import me.proton.core.drive.base.domain.log.LogTag
 import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.util.coRunCatching
+import me.proton.core.drive.drivelink.domain.usecase.UseSdkForDownload
 import me.proton.core.drive.drivelink.download.data.extension.toDownloadErrorType
 import me.proton.core.drive.drivelink.download.domain.handler.DownloadErrorHandler
 import me.proton.core.drive.drivelink.download.domain.manager.DownloadErrorManager
@@ -41,6 +42,8 @@ import me.proton.core.drive.share.domain.entity.ShareId
 import me.proton.core.drive.share.domain.usecase.GetShare
 import me.proton.core.drive.user.domain.extension.isWithoutProtonSubscription
 import me.proton.core.user.domain.usecase.GetUser
+import me.proton.core.util.kotlin.CoreLogger
+import me.proton.drive.sdk.ProtonDriveSdkException
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.minutes
 
@@ -50,10 +53,20 @@ class ObservabilityDownloadErrorHandler @Inject constructor(
     private val countConstraint: CountConstraint,
     private val minimumIntervalConstraint: MinimumIntervalConstraint,
     private val getUser: GetUser,
+    private val useSdkForDownload: UseSdkForDownload,
 ) : DownloadErrorHandler {
 
     override suspend fun onError(downloadError: DownloadErrorManager.Error) {
         coRunCatching {
+            val downloadedBySdk = useSdkForDownload(downloadError.fileId)
+                .getOrDefault(false)
+            if (downloadedBySdk) {
+                CoreLogger.d(
+                    tag = downloadError.logTag,
+                    message = "Skipping observability download error for file downloaded by SDK",
+                )
+                return@coRunCatching
+            }
             val shareType = getShareType(downloadError.fileId.shareId)
             notifyDownloadErrorsTotalMetric(downloadError, shareType)
             notifyDownloadErroringUsersTotalMetric(downloadError, shareType)

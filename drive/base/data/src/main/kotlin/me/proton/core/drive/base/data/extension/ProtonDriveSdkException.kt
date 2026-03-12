@@ -40,5 +40,14 @@ fun ProtonDriveSdkException.log(
     message: String? = null,
     level: LoggerLevel? = LoggerLevel.ERROR,
 ): ProtonDriveSdkException = also {
-    level.log(tag, this, message)
+    if (error?.domain in warningErrorDomains && level == LoggerLevel.ERROR) {
+        LoggerLevel.WARNING.log(tag, this, message)
+    } else {
+        level.log(tag, this, message)
+    }
 }
+
+private val warningErrorDomains = listOf(
+    ProtonSdkError.ErrorDomain.Network,
+    ProtonSdkError.ErrorDomain.Transport,
+)

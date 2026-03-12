@@ -63,7 +63,7 @@
   <string name="photos_error_no_folders">Folderul %1$s nu a fost găsit pentru a fi conservat.</string>
   <string name="photos_error_backup_disabled">Conservare dezactivată.</string>
   <string name="photos_error_backup_disabled_action">Pornire</string>
-  <string name="photos_error_backup_missing_folder">Folderul de conservare nu a fost găsit.</string>
+  <string name="photos_error_backup_missing_folder">Folderul implicit al camerei nu a fost găsit.</string>
   <string name="photos_error_backup_failed">Conservarea a eșuat.</string>
   <string name="photos_error_backup_temporarily_disabled">Conservarea este momentan dezactivată.</string>
   <string name="photos_error_missing_permissions">Lipsesc permisiunile.</string>
@@ -178,4 +178,6 @@
     <item quantity="few">În desfășurare. Fișiere de migrat: %1$s. Așteaptă descărcarea: %2$s.</item>
     <item quantity="other">În desfășurare. Fișiere de migrat: %1$s. Așteaptă descărcarea: %2$s.</item>
   </plurals>
+  <string name="photos_folder_selection_title">Conservare fotografii din</string>
+  <string name="photos_folder_selection_description">Selectați folderele de conservat și fotografiile din acestea vor apărea în rubrica „Fotografii”.</string>
 </resources>

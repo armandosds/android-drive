@@ -24,7 +24,6 @@ import me.proton.core.drive.base.data.datastore.GetUserDataStore.Keys.subscripti
 import me.proton.core.drive.base.data.extension.get
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.feature.flag.domain.entity.FeatureFlagId
-import me.proton.core.drive.feature.flag.domain.extension.off
 import me.proton.core.drive.feature.flag.domain.extension.on
 import me.proton.core.drive.feature.flag.domain.usecase.GetFeatureFlag
 import me.proton.core.payment.domain.PaymentManager
@@ -76,7 +75,6 @@ class ShouldShowSubscriptionPromo @Inject constructor(
             null
         }
     }
-
 
     private companion object {
         const val PLAN_NAME_LITE = "drivelite2024"

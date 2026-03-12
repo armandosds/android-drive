@@ -62,7 +62,7 @@
   <string name="photos_error_no_folders">Aucun dossier %1$s n\'a été trouvé pour la sauvegarde.</string>
   <string name="photos_error_backup_disabled">La sauvegarde est désactivée.</string>
   <string name="photos_error_backup_disabled_action">Activer</string>
-  <string name="photos_error_backup_missing_folder">Le dossier de la sauvegarde est introuvable.</string>
+  <string name="photos_error_backup_missing_folder">Le dossier par défaut de l\'appareil photo est introuvable.</string>
   <string name="photos_error_backup_failed">La sauvegarde n\'a pas abouti.</string>
   <string name="photos_error_backup_temporarily_disabled">La sauvegarde est temporairement désactivée.</string>
   <string name="photos_error_missing_permissions">Des autorisations sont nécessaires.</string>
@@ -173,4 +173,6 @@
     <item quantity="one">Migration en cours pour %1$s fichier et %2$s en attente de téléchargement</item>
     <item quantity="other">Migration en cours pour %1$s fichiers et %2$s en attente de téléchargement</item>
   </plurals>
+  <string name="photos_folder_selection_title">Sauvegarder des photos depuis</string>
+  <string name="photos_folder_selection_description">Sélectionnez les dossiers à sauvegarder et leurs photos apparaîtront dans l\'onglet Photos.</string>
 </resources>

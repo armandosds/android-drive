@@ -64,7 +64,7 @@
   <string name="photos_error_no_folders">Nebyla nalezena žádná složka %1$s pro zálohování</string>
   <string name="photos_error_backup_disabled">Zálohování vypnuto.</string>
   <string name="photos_error_backup_disabled_action">Zapnout</string>
-  <string name="photos_error_backup_missing_folder">Složka k zálohování nebyla nalezena.</string>
+  <string name="photos_error_backup_missing_folder">Výchozí složka fotoaparátu nebyla nalezena</string>
   <string name="photos_error_backup_failed">Zálohování selhalo.</string>
   <string name="photos_error_backup_temporarily_disabled">Zálohování je dočasně vypnuto.</string>
   <string name="photos_error_missing_permissions">Chybějící oprávnění.</string>
@@ -183,4 +183,6 @@
     <item quantity="many">Probíhá migrace %1$s souborů, %2$s ve frontě ke stažení.</item>
     <item quantity="other">Probíhá migrace %1$s souborů, %2$s ve frontě ke stažení.</item>
   </plurals>
+  <string name="photos_folder_selection_title">Zálohovat fotky z</string>
+  <string name="photos_folder_selection_description">Vyberte složky, které chcete zálohovat, a jejich fotky se zobrazí na kartě Fotky.</string>
 </resources>

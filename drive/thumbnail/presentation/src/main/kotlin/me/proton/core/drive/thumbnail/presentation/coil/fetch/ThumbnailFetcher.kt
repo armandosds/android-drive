@@ -28,6 +28,7 @@ import coil.fetch.Fetcher
 import coil.fetch.SourceResult
 import coil.key.Keyer
 import coil.request.Options
+import me.proton.core.drive.base.data.extension.log
 import me.proton.core.drive.base.domain.log.LogTag.THUMBNAIL
 import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.crypto.domain.usecase.DecryptThumbnail
@@ -151,9 +152,8 @@ class ThumbnailFetcher(
                 )
             }
         }.onFailure { error ->
-            CoreLogger.w(
+            error.log(
                 THUMBNAIL,
-                error,
                 "Error while fetching thumbnail with sdk ${data.thumbnailId.id.logId()}"
             )
         }.getOrThrow()
@@ -170,9 +170,8 @@ class ThumbnailFetcher(
                 )
             }
         }.onFailure { error ->
-            CoreLogger.w(
+            error.log(
                 THUMBNAIL,
-                error,
                 "Error while fetching thumbnail with legacy ${data.thumbnailId.id.logId()}"
             )
         }.getOrThrow()

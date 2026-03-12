@@ -61,7 +61,7 @@
   <string name="photos_error_no_folders">找不到%1$s資料夾以供備份</string>
   <string name="photos_error_backup_disabled">備份已停用。</string>
   <string name="photos_error_backup_disabled_action">開啟</string>
-  <string name="photos_error_backup_missing_folder">找不到備份資料夾</string>
+  <string name="photos_error_backup_missing_folder">Default camera folder not found</string>
   <string name="photos_error_backup_failed">備份失敗</string>
   <string name="photos_error_backup_temporarily_disabled">備份已暫時停用。</string>
   <string name="photos_error_missing_permissions">缺少權限。</string>
@@ -168,4 +168,6 @@
   <plurals name="photos_tags_migration_ongoing">
     <item quantity="other">進行中，正在移轉 %1$s 檔案，%2$s 等待下載。</item>
   </plurals>
+  <string name="photos_folder_selection_title">Backup photos from</string>
+  <string name="photos_folder_selection_description">Select folders to back up and their photos will appear in the Photos tab.</string>
 </resources>

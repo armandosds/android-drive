@@ -64,7 +64,7 @@
   <string name="photos_error_no_folders">Не знойдзена папка %1$s для рэзервовай копіі</string>
   <string name="photos_error_backup_disabled">Рэзервовае капіяванне адключана.</string>
   <string name="photos_error_backup_disabled_action">Уключыць</string>
-  <string name="photos_error_backup_missing_folder">Папка рэзервовага капіявання не знойдзена</string>
+  <string name="photos_error_backup_missing_folder">Прадвызначаная папка для камеры не знойдзена</string>
   <string name="photos_error_backup_failed">Збой рэзервовага капіявання.</string>
   <string name="photos_error_backup_temporarily_disabled">Стварэнне рэзервовай копіі часова адключана.</string>
   <string name="photos_error_missing_permissions">Дазволы адсутнічаюць.</string>
@@ -183,4 +183,6 @@
     <item quantity="many">Адбываецца перанос %1$s файлаў. Чакаюць спампоўвання %2$s.</item>
     <item quantity="other">Адбываецца перанос %1$s файлаў. Чакаюць спампоўвання %2$s.</item>
   </plurals>
+  <string name="photos_folder_selection_title">Рэзерваваць фатаграфіі з</string>
+  <string name="photos_folder_selection_description">Выберыце папкі для рэзервовага капіявання, і іх фатаграфіі з\'явяцца на ўкладцы \"Фотаграфіі\".</string>
 </resources>

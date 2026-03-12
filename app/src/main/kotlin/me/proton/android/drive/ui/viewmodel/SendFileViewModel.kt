@@ -42,7 +42,10 @@ import kotlinx.coroutines.flow.take
 import me.proton.android.drive.ui.navigation.Screen
 import me.proton.core.domain.arch.DataResult
 import me.proton.core.domain.arch.mapSuccessValueOrNull
+import me.proton.core.drive.base.data.extension.log
 import me.proton.core.drive.base.domain.entity.Percentage
+import me.proton.core.drive.base.domain.log.LogTag.VIEW_MODEL
+import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.usecase.BroadcastMessages
 import me.proton.core.drive.base.domain.usecase.isConnectedToNetwork
@@ -50,6 +53,7 @@ import me.proton.core.drive.base.presentation.extension.require
 import me.proton.core.drive.base.presentation.viewmodel.UserViewModel
 import me.proton.core.drive.documentsprovider.domain.usecase.GetFileUri
 import me.proton.core.drive.drivelink.crypto.domain.usecase.GetDecryptedDriveLink
+import me.proton.core.drive.drivelink.download.domain.extension.throwable
 import me.proton.core.drive.drivelink.download.domain.usecase.GetFile
 import me.proton.core.drive.link.domain.entity.FileId
 import me.proton.core.drive.messagequeue.domain.entity.BroadcastMessage
@@ -96,6 +100,7 @@ class SendFileViewModel @Inject constructor(
                 emit(ShareState.Downloading(emptyFlow()))
                 emitAll(
                     getFile(driveLink, checkSignature = false).map { state ->
+                        state.throwable?.log(VIEW_MODEL, "Cannot get file ${driveLink.id.id.logId()}")
                         when (state) {
                             GetFile.State.Decrypting -> ShareState.Decrypting
                             is GetFile.State.Downloading -> ShareState.Downloading(progress = state.progress)

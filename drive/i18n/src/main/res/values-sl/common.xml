@@ -41,6 +41,7 @@
   <string name="common_all">Vse</string>
   <string name="common_unknown">Neznano</string>
   <string name="common_month">Mesec</string>
+  <string name="common_year">Year</string>
   <!-- endregion -->
   <!-- region Common actions -->
   <string name="common_ok_action">V redu</string>
@@ -207,6 +208,5 @@
             "System could not found any application that could take a picture"
     -->
   <string name="common_in_app_notification_activity_not_found">Sistem ni našel nobene aplikacije, ki bi lahko %1$s</string>
-  <!-- endregion -->
   <!-- endregion -->
 </resources>

@@ -25,6 +25,7 @@ import me.proton.core.drive.base.data.entity.WorkInfoStopReason
 import me.proton.core.drive.base.domain.extension.toResult
 import me.proton.core.drive.base.domain.log.LogTag
 import me.proton.core.drive.base.domain.util.coRunCatching
+import me.proton.core.drive.drivelink.domain.usecase.UseSdkForUpload
 import me.proton.core.drive.linkupload.domain.entity.UploadFileLink
 import me.proton.core.drive.linkupload.domain.extension.toInitiator
 import me.proton.core.drive.observability.data.extension.toShareType
@@ -52,6 +53,7 @@ import me.proton.core.drive.upload.domain.manager.UploadErrorManager
 import me.proton.core.drive.upload.domain.manager.UploadWorkManager
 import me.proton.core.drive.user.domain.extension.isWithoutProtonSubscription
 import me.proton.core.user.domain.usecase.GetUser
+import me.proton.core.util.kotlin.CoreLogger
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.minutes
 
@@ -62,10 +64,20 @@ class ObservabilityUploadErrorHandler @Inject constructor(
     private val uploadWorkManager: UploadWorkManager,
     private val minimumIntervalConstraint: MinimumIntervalConstraint,
     private val countConstraint: CountConstraint,
+    private val useSdkForUpload: UseSdkForUpload,
 ) : UploadErrorHandler {
 
     override suspend fun onError(uploadError: UploadErrorManager.Error) {
         coRunCatching {
+            val uploadedBySdk = useSdkForUpload(uploadError.uploadFileLink.parentLinkId)
+                .getOrDefault(false)
+            if (uploadedBySdk) {
+                CoreLogger.d(
+                    tag = uploadError.uploadFileLink.logTag(),
+                    message = "Skipping observability upload error for file uploaded by SDK",
+                )
+                return
+            }
             val shareType = getShareType(uploadError.uploadFileLink.shareId)
             notifyUploadErrorsTotalMetric(uploadError, shareType)
             notifyUploadErrorsFileSizeHistogramMetric(uploadError)

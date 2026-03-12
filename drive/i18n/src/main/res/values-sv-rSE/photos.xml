@@ -62,7 +62,7 @@
   <string name="photos_error_no_folders">Ingen %1$s-mapp hittades för säkerhetskopiering</string>
   <string name="photos_error_backup_disabled">Säkerhetskopiering inaktiverad.</string>
   <string name="photos_error_backup_disabled_action">Slå på</string>
-  <string name="photos_error_backup_missing_folder">Säkerhetskopieringsmapp hittades inte</string>
+  <string name="photos_error_backup_missing_folder">Standardmapp för kameran hittades inte</string>
   <string name="photos_error_backup_failed">Säkerhetskopiering misslyckades.</string>
   <string name="photos_error_backup_temporarily_disabled">Säkerhetskopiering är tillfälligt inaktiverat.</string>
   <string name="photos_error_missing_permissions">Saknar behörigheter.</string>
@@ -173,4 +173,6 @@
     <item quantity="one">Pågår, migrerar %1$s fil, %2$s väntar på nedladdning.</item>
     <item quantity="other">Pågår, migrerar %1$s filer, %2$s väntar på nedladdning.</item>
   </plurals>
+  <string name="photos_folder_selection_title">Säkerhetskopiera foton från</string>
+  <string name="photos_folder_selection_description">Välj mappar att säkerhetskopiera och deras foton kommer visas i fliken “Foton“.</string>
 </resources>

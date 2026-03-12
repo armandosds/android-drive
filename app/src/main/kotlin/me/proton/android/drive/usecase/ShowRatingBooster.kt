@@ -50,7 +50,6 @@ class ShowRatingBooster @Inject constructor(
                                     accountManager.getPrimaryUserId().firstOrNull()?.let { userId ->
                                         markRatingBoosterAsShown(userId = userId)
                                             .getOrNull(UI, "Marking rating booster as shown failed")
-                                        CoreLogger.d(UI, "Success")
                                     } ?: {
                                         CoreLogger.w(UI, "User Id is null, please investigate")
                                     }()

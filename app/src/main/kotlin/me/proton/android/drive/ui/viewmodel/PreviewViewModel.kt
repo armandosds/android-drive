@@ -77,6 +77,7 @@ import me.proton.core.drive.base.domain.extension.filterSuccessOrError
 import me.proton.core.drive.base.domain.function.pagedList
 import me.proton.core.drive.base.domain.log.LogTag
 import me.proton.core.drive.base.domain.log.LogTag.VIEW_MODEL
+import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.usecase.BroadcastMessages
 import me.proton.core.drive.base.domain.util.coRunCatching
@@ -90,6 +91,7 @@ import me.proton.core.drive.drivelink.domain.extension.getThumbnailId
 import me.proton.core.drive.drivelink.domain.extension.isNameEncrypted
 import me.proton.core.drive.drivelink.domain.usecase.GetDriveLink
 import me.proton.core.drive.drivelink.domain.usecase.GetDriveLinksCount
+import me.proton.core.drive.drivelink.download.domain.extension.throwable
 import me.proton.core.drive.drivelink.download.domain.usecase.GetFile
 import me.proton.core.drive.drivelink.list.domain.usecase.GetDecryptedDriveLinks
 import me.proton.core.drive.drivelink.offline.domain.usecase.GetDecryptedOfflineDriveLinks
@@ -311,9 +313,9 @@ class PreviewViewModel @Inject constructor(
         override val onMoreOptions = { navigateToFileOrFolderOptions(fileId, albumId) }
         override val onSingleTap = { toggleFullscreen() }
         override val onRenderSucceeded = { source: Any -> handleRenderSuccess(source) }
-        override val onRenderFailed = { throwable: Throwable, source: Any ->
-            throwable.log(VIEW_MODEL)
-            renderFailed.value = throwable to source
+        override val onRenderFailed = { error: Throwable, source: Any ->
+            error.log(VIEW_MODEL)
+            renderFailed.value = error to source
         }
         override val mediaControllerVisibility = { visible: Boolean ->
             if ((visible && isFullscreen.value) || (!visible && !isFullscreen.value)) {
@@ -489,6 +491,7 @@ class PreviewViewModel @Inject constructor(
                             getFile(this, trigger.verifySignature),
                             renderFailed,
                         ) { fileState, renderFailed ->
+                            fileState.throwable?.log(VIEW_MODEL, "Cannot get file ${id.id.logId()}")
                             getContentState(this, fileState, renderFailed, previewFallbackSources)
                         }
                     }

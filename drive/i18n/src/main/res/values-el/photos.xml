@@ -62,7 +62,7 @@
   <string name="photos_error_no_folders">Δεν βρέθηκε φάκελος %1$s για δημιουργία αντιγράφων ασφαλείας</string>
   <string name="photos_error_backup_disabled">Η δημιουργία αντιγράφων ασφαλείας είναι απενεργοποιημένη.</string>
   <string name="photos_error_backup_disabled_action">Ενεργοποίηση</string>
-  <string name="photos_error_backup_missing_folder">Ο φάκελος αντιγράφων ασφαλείας δεν βρέθηκε</string>
+  <string name="photos_error_backup_missing_folder">Δεν βρέθηκε ο προεπιλεγμένος φάκελος της κάμερας</string>
   <string name="photos_error_backup_failed">Αποτυχία δημιουργίας αντιγράφου ασφαλείας.</string>
   <string name="photos_error_backup_temporarily_disabled">Η δημιουργία αντιγράφων ασφαλείας είναι προσωρινά απενεργοποιημένη.</string>
   <string name="photos_error_missing_permissions">Ελλειπή δικαιώματα.</string>
@@ -173,4 +173,6 @@
     <item quantity="one">Σε εξέλιξη, μετεγκατάσταση %1$s αρχείου, %2$s σε αναμονή λήψης.</item>
     <item quantity="other">Σε εξέλιξη, μετεγκατάσταση %1$s αρχεία, %2$s σε αναμονή λήψης.</item>
   </plurals>
+  <string name="photos_folder_selection_title">Αντίγραφα ασφαλείας φωτογραφιών από</string>
+  <string name="photos_folder_selection_description">Επιλέξτε τους φακέλους που θέλετε να δημιουργήσετε αντίγραφα ασφαλείας και οι φωτογραφίες τους θα εμφανιστούν στην καρτέλα Φωτογραφίες.</string>
 </resources>

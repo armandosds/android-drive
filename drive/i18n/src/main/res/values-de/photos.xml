@@ -62,7 +62,7 @@
   <string name="photos_error_no_folders">Kein %1$s Ordner für die Sicherung gefunden</string>
   <string name="photos_error_backup_disabled">Sicherung deaktiviert.</string>
   <string name="photos_error_backup_disabled_action">Aktivieren</string>
-  <string name="photos_error_backup_missing_folder">Ordner für die Sicherung wurde nicht gefunden.</string>
+  <string name="photos_error_backup_missing_folder">Standard-Kameraordner nicht gefunden</string>
   <string name="photos_error_backup_failed">Sicherung fehlgeschlagen.</string>
   <string name="photos_error_backup_temporarily_disabled">Die Sicherung ist vorübergehend deaktiviert.</string>
   <string name="photos_error_missing_permissions">Fehlende Berechtigungen.</string>
@@ -173,4 +173,6 @@
     <item quantity="one">Wird ausgeführt, Migration von %1$s Datei, auf das Herunterladen von %2$s wird gewartet.</item>
     <item quantity="other">Wird ausgeführt, Migration von %1$s Dateien, auf das Herunterladen von %2$s wird gewartet.</item>
   </plurals>
+  <string name="photos_folder_selection_title">Sichere Fotos von</string>
+  <string name="photos_folder_selection_description">Ordner zum Sichern auswählen und dessen Fotos werden im Tab \"Fotos\" angezeigt.</string>
 </resources>

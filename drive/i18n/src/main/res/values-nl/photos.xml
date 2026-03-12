@@ -62,7 +62,7 @@
   <string name="photos_error_no_folders">Geen %1$s map gevonden voor back-up</string>
   <string name="photos_error_backup_disabled">Back-up uitgeschakeld.</string>
   <string name="photos_error_backup_disabled_action">Inschakelen</string>
-  <string name="photos_error_backup_missing_folder">Back-up map niet gevonden</string>
+  <string name="photos_error_backup_missing_folder">Standaard camera map niet gevonden</string>
   <string name="photos_error_backup_failed">Back-up mislukt.</string>
   <string name="photos_error_backup_temporarily_disabled">Back-up is tijdelijk onbeschikbaar.</string>
   <string name="photos_error_missing_permissions">Ontbrekende machtigingen.</string>
@@ -173,4 +173,6 @@
     <item quantity="one">Lopend, %1$s bestand aan het migreren, %2$s wachten op download.</item>
     <item quantity="other">Lopend, %1$s bestanden aan het migreren, %2$s wachten op download.</item>
   </plurals>
+  <string name="photos_folder_selection_title">Back-up foto\'s van</string>
+  <string name="photos_folder_selection_description">Selecteer mappen om back-up van te maken en de foto\'s verschijnen in het tabblad Foto\'s.</string>
 </resources>

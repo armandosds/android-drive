@@ -155,6 +155,7 @@ fun PickerPhotos(
                 navigateToSubscription = {},
                 navigateToPhotosIssues = {},
                 navigateToPhotosUpsell = {},
+                navigateToSpringSalePromo = {},
                 navigateToBackupSettings = {},
                 navigateToEnableBackupDialog = {},
                 navigateToNotificationPermissionRationale = {},

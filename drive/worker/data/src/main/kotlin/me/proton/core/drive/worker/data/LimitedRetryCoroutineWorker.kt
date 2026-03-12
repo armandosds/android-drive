@@ -21,6 +21,8 @@ package me.proton.core.drive.worker.data
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.base.domain.extension.getOrNull
 import me.proton.core.drive.worker.domain.usecase.CanRun
@@ -49,7 +51,7 @@ abstract class LimitedRetryCoroutineWorker(
                 is Result.Retry -> if (canRetry()){
                     result
                 } else {
-                    CoreLogger.i(logTag, "Max retries reached, giving up")
+                    CoreLogger.d(logTag, "Max retries reached, giving up")
                     done()
                     Result.failure()
                 }
@@ -66,9 +68,13 @@ abstract class LimitedRetryCoroutineWorker(
 
     abstract suspend fun doLimitedRetryWork(): Result
 
-    suspend fun canRetry(): Boolean = canRun(userId, id.toString()).getOrNull(logTag) ?: true
+    suspend fun canRetry(): Boolean = withContext(NonCancellable) {
+        canRun(userId, id.toString()).getOrNull(logTag) ?: true
+    }
 
     private fun isLimitOverreached() = canRun(runAttemptCount - 1).getOrNull(logTag) != true
 
-    private suspend fun done() = done(userId, id.toString())
+    private suspend fun done() = withContext(NonCancellable) {
+        done(userId, id.toString())
+    }
 }

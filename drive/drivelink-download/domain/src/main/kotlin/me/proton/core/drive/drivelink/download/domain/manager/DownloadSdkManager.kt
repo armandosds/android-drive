@@ -66,7 +66,7 @@ class DownloadSdkManager @Inject constructor(
         with(nodeRevisionUid.state()) {
             mutex.withLock {
                 if (downloader == null) {
-                    CoreLogger.i(fileId.logTag, "Creating drive downloader")
+                    CoreLogger.d(fileId.logTag, "Creating drive downloader")
                     val driveClient = protonDriveClientProvider
                         .getOrCreate(fileId.userId)
                         .getOrThrow()
@@ -90,7 +90,7 @@ class DownloadSdkManager @Inject constructor(
         with(nodeRevisionUid.state()) {
             mutex.withLock {
                 if (downloader == null) {
-                    CoreLogger.i(fileId.logTag, "Creating photo downloader")
+                    CoreLogger.d(fileId.logTag, "Creating photo downloader")
                     val photosClient = protonPhotosClientProvider
                         .getOrCreate(fileId.userId)
                         .getOrThrow()
@@ -133,7 +133,7 @@ class DownloadSdkManager @Inject constructor(
         )
         val state = states.remove(nodeRevisionUid) ?: return
         with(state) {
-            CoreLogger.i(
+            CoreLogger.d(
                 DOWNLOAD, "Closing sdk: " +
                         "downloader: ${downloader != null}, " +
                         "controller: ${controller != null}"
@@ -158,7 +158,7 @@ class DownloadSdkManager @Inject constructor(
         )
         val state = states.remove(nodeRevisionUid) ?: return
         with(state) {
-            CoreLogger.i(
+            CoreLogger.d(
                 DOWNLOAD, "Cancelling sdk: " +
                         "uploader: ${downloader != null}, " +
                         "controller: ${controller != null}"

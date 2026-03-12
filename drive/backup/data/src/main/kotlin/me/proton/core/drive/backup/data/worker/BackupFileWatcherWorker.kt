@@ -20,16 +20,12 @@ package me.proton.core.drive.backup.data.worker
 
 import android.content.Context
 import android.net.Uri
-import android.os.Build
 import android.provider.MediaStore
-import androidx.annotation.RequiresApi
 import androidx.hilt.work.HiltWorker
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.Data
-import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
-import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -40,6 +36,7 @@ import me.proton.core.drive.backup.domain.entity.BucketUpdate
 import me.proton.core.drive.backup.domain.usecase.CheckMissingFolders
 import me.proton.core.drive.backup.domain.usecase.RescanAllFolders
 import me.proton.core.drive.backup.domain.usecase.SyncFolders
+import me.proton.core.drive.base.data.entity.LoggerLevel
 import me.proton.core.drive.base.data.extension.log
 import me.proton.core.drive.base.domain.log.LogTag.BACKUP
 import me.proton.core.drive.base.domain.util.coRunCatching
@@ -47,14 +44,12 @@ import me.proton.core.drive.linkupload.domain.entity.UploadFileLink
 import me.proton.core.util.kotlin.CoreLogger
 
 @HiltWorker
-@RequiresApi(Build.VERSION_CODES.N)
 class BackupFileWatcherWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted workerParams: WorkerParameters,
     private val syncFolders: SyncFolders,
     private val rescanAllFolders: RescanAllFolders,
     private val checkMissingFolders: CheckMissingFolders,
-    private val workManager: WorkManager,
     private val contextScanFilesRepository: ContextScanFilesRepository,
 ) : CoroutineWorker(context, workerParams) {
 
@@ -97,11 +92,6 @@ class BackupFileWatcherWorker @AssistedInject constructor(
                 )
             }
         }
-        workManager.enqueueUniqueWork(
-            uniqueWorkName(userId),
-            ExistingWorkPolicy.APPEND_OR_REPLACE,
-            getWorkRequest(userId)
-        )
         return Result.success()
     }
 
@@ -141,7 +131,7 @@ class BackupFileWatcherWorker @AssistedInject constructor(
                     uploadPriority = UploadFileLink.RECENT_BACKUP_PRIORITY,
                     allBuckets = bucketUpdates.any { bucketUpdate -> bucketUpdate == null },
                 ).onFailure { error ->
-                    CoreLogger.w(BACKUP, error, "Cannot sync buckets")
+                    error.log(BACKUP, "Cannot sync buckets")
                 }.onSuccess { backupFolders ->
                     CoreLogger.d(BACKUP, "Synced ${backupFolders.size} buckets")
                 }

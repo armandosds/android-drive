@@ -127,6 +127,7 @@ interface ConfigurationProvider {
     val preferSdkForDownload: Boolean get() = true
     val preferSdkForThumbnail: Boolean get() = true
     val createFolderInParallel: Int get() = 16
+    val sdkQueueTimeout: Duration get() = 30.seconds
 
     data class Thumbnail(
         val maxWidth: Int,

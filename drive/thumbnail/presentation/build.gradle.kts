@@ -28,6 +28,7 @@ driveModule(
     hilt = true,
     compose = true,
 ) {
+    api(project(":drive:base:data"))
     api(project(":drive:base:presentation"))
     api(project(":drive:crypto:domain"))
     api(project(":drive:drivelink:domain"))

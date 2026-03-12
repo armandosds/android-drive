@@ -61,6 +61,7 @@ import me.proton.core.drive.base.domain.extension.filterSuccessOrError
 import me.proton.core.drive.base.domain.extension.mapWithPrevious
 import me.proton.core.drive.base.domain.extension.onFailure
 import me.proton.core.drive.base.domain.log.LogTag.VIEW_MODEL
+import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.usecase.BroadcastMessages
 import me.proton.core.drive.base.presentation.common.Action
@@ -193,8 +194,7 @@ class AlbumsViewModel @Inject constructor(
                 .mapWithPrevious { previous, result ->
                     result
                         .onSuccess { driveLink ->
-                            CoreLogger.d(VIEW_MODEL, "drive link onSuccess")
-                            //parentFolderId.value = driveLink.id
+                            CoreLogger.d(VIEW_MODEL, "Link (${driveLink.id.id.logId()}) loaded")
                             return@mapWithPrevious driveLink
                         }
                         .onFailure { error ->

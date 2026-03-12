@@ -62,7 +62,7 @@
   <string name="photos_error_no_folders">Ingen %1$s-mappe funnet for sikkerhetskopiering</string>
   <string name="photos_error_backup_disabled">Sikkerhetskopiering deaktivert</string>
   <string name="photos_error_backup_disabled_action">Slå på</string>
-  <string name="photos_error_backup_missing_folder">Sikkerhetskopimappen ble ikke funnet</string>
+  <string name="photos_error_backup_missing_folder">Standard kameramappe ble ikke funnet</string>
   <string name="photos_error_backup_failed">Sikkerhetskopiering mislyktes</string>
   <string name="photos_error_backup_temporarily_disabled">Sikkerhetskopiering er midlertidig deaktivert.</string>
   <string name="photos_error_missing_permissions">Mangler tillatelser</string>
@@ -173,4 +173,6 @@
     <item quantity="one">Pågår, migrerer %1$s fil, %2$s venter på nedlasting.</item>
     <item quantity="other">Pågår, migrerer %1$s filer, %2$s venter på nedlasting.</item>
   </plurals>
+  <string name="photos_folder_selection_title">Sikkerhetskopier bilder fra</string>
+  <string name="photos_folder_selection_description">Velg mapper som skal sikkerhetskopieres, og bildene deres vises i Bilder-fanen.</string>
 </resources>

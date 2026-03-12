@@ -41,6 +41,7 @@
   <string name="common_all">全部</string>
   <string name="common_unknown">未知</string>
   <string name="common_month">每月</string>
+  <string name="common_year">年</string>
   <!-- endregion -->
   <!-- region Common actions -->
   <string name="common_ok_action">好的</string>
@@ -201,6 +202,5 @@
             "System could not found any application that could take a picture"
     -->
   <string name="common_in_app_notification_activity_not_found">系统找不到任何可以 %1$s 的应用程序</string>
-  <!-- endregion -->
   <!-- endregion -->
 </resources>

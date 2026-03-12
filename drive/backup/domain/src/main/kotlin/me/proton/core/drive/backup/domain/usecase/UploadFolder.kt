@@ -72,7 +72,7 @@ class UploadFolder @Inject constructor(
         val count = configurationProvider.uploadLimitThreshold - uploading
         val user = getUser(userId, false)
         val availableSpace = user.availableSpace
-        CoreLogger.d(BACKUP, "Available space: $availableSpace")
+        CoreLogger.i(BACKUP, "Available space: $availableSpace")
 
         val retryCount = markAllFailedAsReady(
             folderId = folderId,
@@ -96,7 +96,7 @@ class UploadFolder @Inject constructor(
         if (files.isNotEmpty()) {
             val min = filesToBackup.minBy { file -> file.date }.date
             val max = filesToBackup.maxBy { file -> file.date }.date
-            CoreLogger.d(
+            CoreLogger.i(
                 BACKUP,
                 "Uploading ${files.size}/${filesToBackup.size} files (min:$min, max: $max)"
             )
@@ -134,11 +134,11 @@ class UploadFolder @Inject constructor(
             }
             markAsEnqueued(folderId, files.map { backupFile -> backupFile.uriString }).getOrThrow()
         } else if (filesToBackup.isNotEmpty()) {
-            CoreLogger.d(BACKUP, "Cannot continue upload, ${filesToBackup.size} left")
+            CoreLogger.i(BACKUP, "Cannot continue upload, ${filesToBackup.size} left")
             CoreLogger.d(BACKUP, "First excluded file size: ${filesToBackup.first().size}")
             stopBackup(folderId, BackupError.DriveStorage()).getOrThrow()
         } else {
-            CoreLogger.d(BACKUP, "Nothing to upload")
+            CoreLogger.i(BACKUP, "Nothing to upload")
             cleanUpCompleteBackup(backupFolder).getOrThrow()
         }
     }

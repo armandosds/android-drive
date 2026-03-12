@@ -29,7 +29,7 @@ class MarkAsFailed @Inject constructor(
     private val repository: BackupFileRepository
 ) {
     suspend operator fun invoke(folderId: FolderId, uriString: String) = coRunCatching {
-        CoreLogger.d(BACKUP, "Mark as failed: $uriString")
+        CoreLogger.i(BACKUP, "Mark as failed: $uriString")
         repository.markAsFailed(folderId, uriString)
     }
 }

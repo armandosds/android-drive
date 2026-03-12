@@ -106,6 +106,7 @@ import me.proton.android.drive.ui.screen.AppAccessScreen
 import me.proton.android.drive.ui.screen.BackupIssuesScreen
 import me.proton.android.drive.ui.screen.CreateNewAlbumScreen
 import me.proton.android.drive.ui.screen.DefaultHomeTabScreen
+import me.proton.android.drive.ui.screen.SpringSalePromoScreen
 import me.proton.android.drive.ui.screen.SubscriptionPromoScreen
 import me.proton.android.drive.ui.screen.FileInfoScreen
 import me.proton.android.drive.ui.screen.GetMoreFreeStorageScreen
@@ -277,6 +278,7 @@ fun AppNavGraph(
         )
         addSignOutConfirmationDialog(navController)
         addSigningOut()
+
         addHome(
             navController = navController,
             homeNavController = homeNavController,
@@ -400,6 +402,7 @@ fun AppNavGraph(
         addPickerPhotos(navController)
         addPickerAlbum(navController)
         addSubscriptionPromoScreen(navigateToUpgradePlan)
+        addSpringSalePromoScreen(navController, navigateToSubscription)
         addConfirmLeaveAlbumDialog(navController)
         addShareMultiplePhotosOptions(navController)
         addAddToAlbumsOptions(navController)
@@ -1020,6 +1023,9 @@ internal fun NavGraphBuilder.addHome(
         },
         navigateToSubscriptionPromo = { key ->
             navController.navigate(Screen.Promo.Subscription(userId, key))
+        },
+        navigateToSpringSalePromo = {
+            navController.navigate(Screen.Promo.SpringSale2026(userId))
         },
         modifier = Modifier.fillMaxSize(),
     )
@@ -2045,6 +2051,24 @@ fun NavGraphBuilder.addSubscriptionPromoScreen(
     SubscriptionPromoScreen(
         runAction = runAction,
         navigateToSubscription = navigateToSubscription,
+    )
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+fun NavGraphBuilder.addSpringSalePromoScreen(
+    navController: NavHostController,
+    navigateToSubscription: () -> Unit,
+) = composable(
+    route = Screen.Promo.SpringSale2026.route,
+    arguments = listOf(
+        navArgument(Screen.Promo.SpringSale2026.USER_ID) { type = NavType.StringType }
+    ),
+    enterTransition = defaultEnterSlideTransition { true },
+    popExitTransition = defaultPopExitSlideTransition { true },
+) {
+    SpringSalePromoScreen(
+        navigateToSubscription = navigateToSubscription,
+        navigateBack = { navController.popBackStack() },
     )
 }
 

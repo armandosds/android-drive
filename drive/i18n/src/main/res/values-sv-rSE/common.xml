@@ -41,6 +41,7 @@
   <string name="common_all">Alla</string>
   <string name="common_unknown">Okänd</string>
   <string name="common_month">Månad</string>
+  <string name="common_year">År</string>
   <!-- endregion -->
   <!-- region Common actions -->
   <string name="common_ok_action">OK</string>
@@ -203,6 +204,5 @@
             "System could not found any application that could take a picture"
     -->
   <string name="common_in_app_notification_activity_not_found">System kunde inte hitta någon applikation som kunde %1$s</string>
-  <!-- endregion -->
   <!-- endregion -->
 </resources>

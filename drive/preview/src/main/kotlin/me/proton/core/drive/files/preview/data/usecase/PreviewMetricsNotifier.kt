@@ -153,7 +153,7 @@ class PreviewMetricsNotifier @Inject constructor(
                     Value = duration.inWholeMilliseconds,
                 )
             ).also {
-                CoreLogger.d(
+                CoreLogger.v(
                     tag = LogTag.METRIC,
                     message = buildString {
                         append("previewToFullContent ")
@@ -206,7 +206,7 @@ class PreviewMetricsNotifier @Inject constructor(
                         Value = duration.inWholeMilliseconds,
                     )
                 ).also {
-                    CoreLogger.d(
+                    CoreLogger.v(
                         tag = LogTag.METRIC,
                         message = buildString {
                             append("previewToThumbnail ")

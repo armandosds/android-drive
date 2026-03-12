@@ -41,6 +41,7 @@
   <string name="common_all">Усе</string>
   <string name="common_unknown">Невядома</string>
   <string name="common_month">Месяц</string>
+  <string name="common_year">Год</string>
   <!-- endregion -->
   <!-- region Common actions -->
   <string name="common_ok_action">OK</string>
@@ -76,7 +77,7 @@
   <string name="common_save_all_action">Захаваць усе</string>
   <string name="common_add_to_albums_action">Дадаць у альбомы</string>
   <string name="common_tag_photo_action">Сканіраваць фатаграфію для тэгаў</string>
-  <string name="common_save_as_action">Save as</string>
+  <string name="common_save_as_action">Захаваць як</string>
   <!-- endregion -->
   <!-- region Common file types -->
   <string name="common_type_audio">Аўдыя</string>
@@ -207,6 +208,5 @@
             "System could not found any application that could take a picture"
     -->
   <string name="common_in_app_notification_activity_not_found">У сістэме адсутнічае праграма, якая зможа %1$s</string>
-  <!-- endregion -->
   <!-- endregion -->
 </resources>

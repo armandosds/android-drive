@@ -24,7 +24,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
-import kotlinx.coroutines.withTimeoutOrNull
 import me.proton.core.util.kotlin.CoreLogger
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
@@ -38,6 +37,6 @@ fun timeLimitedScope(
     try {
         withTimeout(timeout, block)
     } catch (e: TimeoutCancellationException) {
-        CoreLogger.e(tag, e)
+        CoreLogger.e(tag, e, "Timeout for $tag after $timeout")
     }
 }

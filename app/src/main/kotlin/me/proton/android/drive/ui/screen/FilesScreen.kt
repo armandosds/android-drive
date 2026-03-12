@@ -56,6 +56,7 @@ fun FilesScreen(
     navigateToMultipleFileOrFolderOptions: (selectionId: SelectionId) -> Unit,
     navigateToParentFolderOptions: (folderId: FolderId) -> Unit,
     navigateToSubscription: () -> Unit,
+    navigateToSpringSalePromo: () -> Unit,
     navigateBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -78,6 +79,7 @@ fun FilesScreen(
             navigateToMultipleFileOrFolderOptions,
             navigateToParentFolderOptions,
             navigateToSubscription,
+            navigateToSpringSalePromo,
             navigateBack,
             lifecycle,
         )

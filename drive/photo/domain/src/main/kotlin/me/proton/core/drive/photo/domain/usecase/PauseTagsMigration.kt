@@ -31,7 +31,7 @@ class PauseTagsMigration @Inject constructor(
     private val workManager: PhotoTagWorkManager,
 ) {
     suspend operator fun invoke(userId: UserId, volumeId: VolumeId) = coRunCatching {
-        CoreLogger.i(PHOTO, "Pausing migration for volume: ${volumeId.id.logId()}")
+        CoreLogger.i(PHOTO, "Pausing tags migration for volume: ${volumeId.id.logId()}")
         workManager.cancel(userId, volumeId)
     }
 }

@@ -62,7 +62,7 @@
   <string name="photos_error_no_folders">Kansiota %1$s ei löytynyt varmuuskopioitavaksi</string>
   <string name="photos_error_backup_disabled">Varmuuskopiointi poistettu käytöstä.</string>
   <string name="photos_error_backup_disabled_action">Ota käyttöön</string>
-  <string name="photos_error_backup_missing_folder">Varmuuskopiointikansiota ei löytynyt</string>
+  <string name="photos_error_backup_missing_folder">Oletuskamerakansiota ei löytynyt</string>
   <string name="photos_error_backup_failed">Varmuuskopiointi epäonnistui.</string>
   <string name="photos_error_backup_temporarily_disabled">Varmuuskopiointi on poistettu tilapäisesti käytöstä.</string>
   <string name="photos_error_missing_permissions">Käyttöoikeuksia puuttuu.</string>
@@ -173,4 +173,6 @@
     <item quantity="one">Menossa. Siirretään %1$s tiedostoa, %2$s odottaa lataamista.</item>
     <item quantity="other">Menossa. Siirretään %1$s tiedostoa, %2$s odottaa lataamista.</item>
   </plurals>
+  <string name="photos_folder_selection_title">Varmuuskopioi valokuvat kohteesta</string>
+  <string name="photos_folder_selection_description">Valitse varmuuskopioitavat kansiot, ja niiden valokuvat tulevat näkyviin Valokuvat-välilehdessä.</string>
 </resources>

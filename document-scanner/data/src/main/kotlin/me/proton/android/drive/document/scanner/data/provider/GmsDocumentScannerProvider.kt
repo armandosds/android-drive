@@ -34,6 +34,8 @@ import kotlinx.coroutines.sync.withLock
 import me.proton.android.drive.document.scanner.data.extension.setScannerOptions
 import me.proton.android.drive.document.scanner.domain.entity.ScannerOptions
 import me.proton.android.drive.document.scanner.domain.provider.DocumentScannerProvider
+import me.proton.core.drive.base.data.entity.LoggerLevel
+import me.proton.core.drive.base.data.extension.log
 import me.proton.core.drive.base.domain.log.LogTag
 import me.proton.core.util.kotlin.CoreLogger
 import javax.inject.Inject
@@ -74,10 +76,11 @@ class GmsDocumentScannerProvider @Inject constructor(
                             )
                             continuation.resume(true)
                         }
-                        .addOnFailureListener {
-                            CoreLogger.i(
+                        .addOnFailureListener { error ->
+                            error.log(
                                 tag = LogTag.DOCUMENT_SCANNER,
-                                message = "Start scan intent failed"
+                                message = "Start scan intent failed",
+                                level = LoggerLevel.INFO
                             )
                             continuation.resume(false)
                         }

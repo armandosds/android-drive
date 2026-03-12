@@ -22,7 +22,11 @@ import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
+import androidx.paging.RemoteMediator.InitializeAction
+import androidx.paging.RemoteMediator.MediatorResult
 import me.proton.core.domain.entity.UserId
+import me.proton.core.drive.base.data.entity.LoggerLevel
+import me.proton.core.drive.base.data.extension.log
 import me.proton.core.drive.base.domain.log.LogTag
 import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.drivelink.domain.entity.DriveLink
@@ -47,7 +51,7 @@ class DriveLinkRemoteMediator(
 
     override suspend fun load(loadType: LoadType, state: PagingState<Int, DriveLink>): MediatorResult {
         return try {
-            CoreLogger.d(LogTag.PAGING, loadType.name)
+            CoreLogger.v(LogTag.PAGING, loadType.name)
             val pageIndex = when (loadType) {
                 LoadType.REFRESH -> getClosestRemoteKey(state)?.nextKey?.let { pageIndex ->
                     pageIndex - 1
@@ -61,18 +65,18 @@ class DriveLinkRemoteMediator(
                         page.prevKey?.plus(2) ?: 1
                     } ?: 0
             }
-            CoreLogger.d(LogTag.PAGING, "page index $pageIndex size ${state.config.pageSize}")
+            CoreLogger.v(LogTag.PAGING, "page index $pageIndex size ${state.config.pageSize}")
             val (links, saveAction) = remoteLinks(pageIndex, state.config.pageSize)
-                .onFailure { throwable ->
-                    CoreLogger.d(LogTag.PAGING, throwable, "Getting remote links failed")
-                    return MediatorResult.Error(throwable)
+                .onFailure { error ->
+                    error.log(LogTag.PAGING, "Getting remote links failed", LoggerLevel.WARNING)
+                    return MediatorResult.Error(error)
                 }
                 .getOrThrow()
             val endOfPaginationReached = links.size < state.config.pageSize || links.size % state.config.pageSize > 0
-            CoreLogger.d(LogTag.PAGING, "loaded links (${links.size})")
+            CoreLogger.v(LogTag.PAGING, "loaded links (${links.size})")
             val previousPageIndex = if (pageIndex == 0) null else pageIndex - 1
             val nextPageIndex = if (endOfPaginationReached) null else pageIndex + 1
-            CoreLogger.d(LogTag.PAGING, "pageIndex ($pageIndex) nextPageIndex ($nextPageIndex)")
+            CoreLogger.v(LogTag.PAGING, "pageIndex ($pageIndex) nextPageIndex ($nextPageIndex)")
             val remoteKeys = links.map { encryptedLinkEntity ->
                 DriveLinkRemoteKeyEntity(
                     key = pagedListKey,
@@ -92,13 +96,17 @@ class DriveLinkRemoteMediator(
             }
             MediatorResult.Success(endOfPaginationReached)
         } catch (e: ApiException) {
-            CoreLogger.d(LogTag.PAGING, e, e.message.orEmpty())
+            e.log(
+                tag = LogTag.PAGING,
+                message = "Failed to load $loadType with $state",
+                level = LoggerLevel.WARNING,
+            )
             MediatorResult.Error(e)
         }
     }
 
     private suspend fun getClosestRemoteKey(state: PagingState<Int, DriveLink>): DriveLinkRemoteKeyEntity? {
-        CoreLogger.d(LogTag.PAGING, "anchorPosition ${state.anchorPosition}")
+        CoreLogger.v(LogTag.PAGING, "anchorPosition ${state.anchorPosition}")
         return state.anchorPosition?.let { position ->
             state.closestItemToPosition(position)?.let { linkId ->
                 dao.getLinkRemoteKey(pagedListKey, linkId.id)
@@ -108,7 +116,7 @@ class DriveLinkRemoteMediator(
 
     private suspend fun getLastRemoteKey(): DriveLinkRemoteKeyEntity? {
         val lastRemoteKey = dao.getLastRemoteKey(userId, pagedListKey)
-        CoreLogger.d(
+        CoreLogger.v(
             LogTag.PAGING,
             "last db remote key ${lastRemoteKey?.linkId?.logId()} - ${lastRemoteKey?.shareId?.logId()}"
         )

@@ -68,7 +68,7 @@ class BackupManagerImpl @Inject constructor(
         withFeatureFlag(FeatureFlagId.drivePhotosUploadDisabled(folderId.userId)) { featureFlag ->
             featureFlag
                 .onDisabledOrNotFound {
-                    CoreLogger.d(BACKUP, "start")
+                    CoreLogger.i(BACKUP, "Starting backup in ${folderId.id.logId()}")
                     startForegroundWork(folderId.userId)
                     syncAllFolders(folderId)
                 }

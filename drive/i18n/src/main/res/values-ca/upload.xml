@@ -54,8 +54,8 @@
             "3 files failed to be uploaded to: Pictures"
     -->
   <plurals name="files_upload_being_ignored_notification">
-    <item quantity="one">El fitxer %1$d es va ignorar</item>
-    <item quantity="other">%1$d fitxers es van ignorar</item>
+    <item quantity="one">S\'ha ignorat %1$d fitxer</item>
+    <item quantity="other">S\'han ignorat %1$d fitxers</item>
   </plurals>
   <string name="files_upload_preparing">S\'està preparant la pujada. Això pot trigar una estona.</string>
   <!--

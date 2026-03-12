@@ -111,6 +111,7 @@ fun HomeScreen(
     navigateToCreateNewAlbum: () -> Unit,
     navigateToAlbum: (AlbumId) -> Unit,
     navigateToSubscriptionPromo: (String) -> Unit,
+    navigateToSpringSalePromo: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     setLocalSnackbarPadding(BottomNavigationHeight)
@@ -145,6 +146,7 @@ fun HomeScreen(
             navigateToWhatsNew = navigateToWhatsNew,
             navigateToRatingBooster = navigateToRatingBooster,
             navigateToSubscriptionPromo = navigateToSubscriptionPromo,
+            navigateToSpringSalePromo = navigateToSpringSalePromo,
         )
     }
     viewState?.let { currentViewState ->
@@ -170,6 +172,7 @@ fun HomeScreen(
             navigateToUserInvitation = navigateToUserInvitation,
             navigateToCreateNewAlbum = navigateToCreateNewAlbum,
             navigateToAlbum = navigateToAlbum,
+            navigateToSpringSalePromo = navigateToSpringSalePromo,
             arguments = arguments,
             viewState = currentViewState,
             viewEvent = viewEvent,
@@ -213,6 +216,7 @@ internal fun Home(
     navigateToUserInvitation: (Boolean) -> Unit,
     navigateToCreateNewAlbum: () -> Unit,
     navigateToAlbum: (AlbumId) -> Unit,
+    navigateToSpringSalePromo: () -> Unit,
 ) {
     val homeScaffoldState = rememberHomeScaffoldState()
     val isDrawerOpen = with(homeScaffoldState.scaffoldState.drawerState) {
@@ -313,6 +317,7 @@ internal fun Home(
                     navigateToUserInvitation,
                     navigateToCreateNewAlbum,
                     navigateToAlbum,
+                    navigateToSpringSalePromo,
                 )
             }
         }

@@ -62,7 +62,7 @@
   <string name="photos_error_no_folders">Nem található %1$s mappa a biztonsági mentéshez.</string>
   <string name="photos_error_backup_disabled">Biztonsági mentés letiltva.</string>
   <string name="photos_error_backup_disabled_action">Bekapcsolás</string>
-  <string name="photos_error_backup_missing_folder">A biztonsági mentés mappa nem található</string>
+  <string name="photos_error_backup_missing_folder">Default camera folder not found</string>
   <string name="photos_error_backup_failed">A biztonsági mentés nem sikerült.</string>
   <string name="photos_error_backup_temporarily_disabled">A biztonsági mentés ideiglenesen le van tiltva.</string>
   <string name="photos_error_missing_permissions">Hiányzó engedélyek.</string>
@@ -173,4 +173,6 @@
     <item quantity="one">Folyamatban, %1$s fájl átvitele, %2$s vár letöltésre.</item>
     <item quantity="other">Folyamatban, %1$s fájl átvitele, %2$s vár letöltésre.</item>
   </plurals>
+  <string name="photos_folder_selection_title">Backup photos from</string>
+  <string name="photos_folder_selection_description">Select folders to back up and their photos will appear in the Photos tab.</string>
 </resources>

@@ -52,7 +52,7 @@ suspend fun List<PhotosItem>.getFastScrollAnchors(
                 separatorWithIndex = current,
                 count = (next?.index ?: size) - current.index,
             ).also {
-                CoreLogger.d(
+                CoreLogger.v(
                     tag = LogTag.PHOTO,
                     message =listOf(
                         "Triple(${it.separatorWithIndex.separator.year}",
@@ -62,6 +62,7 @@ suspend fun List<PhotosItem>.getFastScrollAnchors(
                 )
             }
         }
+        .toList()
     var availableAnchors = anchors - 1
     val separatorsToAnchors = separators.associateWith {
         if (availableAnchors > 0) {
@@ -118,12 +119,16 @@ suspend fun List<PhotosItem>.getFastScrollAnchors(
             anchorIndex++
         }
     }
-    fastScrollAnchors.add(
-        FastScrollAnchor(
-            scrollToPosition = size - 1,
-            dragLabel = getLabel(separators.last().separatorWithIndex.separator.afterCaptureTime),
-        )
-    )
+    separators
+        .lastOrNull()
+        ?.let { last ->
+            fastScrollAnchors.add(
+                FastScrollAnchor(
+                    scrollToPosition = size - 1,
+                    dragLabel = getLabel(last.separatorWithIndex.separator.afterCaptureTime),
+                )
+            )
+        }
     return fastScrollAnchors
 }
 

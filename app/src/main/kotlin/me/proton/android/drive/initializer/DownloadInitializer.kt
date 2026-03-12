@@ -39,7 +39,9 @@ import me.proton.core.accountmanager.presentation.onAccountReady
 import me.proton.core.accountmanager.presentation.onAccountRemoved
 import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.base.data.datastore.GetUserDataStore
+import me.proton.core.drive.base.data.entity.LoggerLevel
 import me.proton.core.drive.base.data.extension.get
+import me.proton.core.drive.base.data.extension.log
 import me.proton.core.drive.base.domain.extension.getOrNull
 import me.proton.core.drive.base.domain.log.LogTag
 import me.proton.core.drive.base.domain.log.LogTag.TRACKING
@@ -129,7 +131,7 @@ class DownloadInitializer : Initializer<Unit> {
             coRunCatching {
                 getDownloadStagingTempFolder(userId).deleteRecursively()
             }.onFailure { error ->
-                CoreLogger.w(LogTag.DOWNLOAD, "Cannot delete temp folder")
+                error.log(LogTag.DOWNLOAD, "Cannot delete temp folder", LoggerLevel.WARNING)
             }
         }
     }

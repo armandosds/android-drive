@@ -58,12 +58,12 @@ class StartTagsMigration @Inject constructor(
 ) {
     suspend operator fun invoke(userId: UserId, volumeId: VolumeId) = coRunCatching {
         if (getFeatureFlag(drivePhotosTagsMigrationDisabled(userId)).on) {
-            CoreLogger.i(PHOTO, "Kill switch for migration enabled, aborting")
+            CoreLogger.w(PHOTO, "Kill switch for tags migration enabled, aborting")
             return@coRunCatching
         }
         val status = getTagsMigrationStatus(userId, volumeId).getOrThrow()
         if (status.finished) {
-            CoreLogger.i(PHOTO, "Migration already finished for volume: ${volumeId.id.logId()}")
+            CoreLogger.i(PHOTO, "Tags migration already finished for volume: ${volumeId.id.logId()}")
             return@coRunCatching
         }
         val statusAnchor = status.anchor
@@ -72,7 +72,7 @@ class StartTagsMigration @Inject constructor(
         if (migrationClientUid != null && migrationClientUid != applicationClientUid) {
             CoreLogger.i(
                 PHOTO,
-                "Migration started by another client: $migrationClientUid for volume: ${volumeId.id.logId()}"
+                "Tags migration started by another client: $migrationClientUid for volume: ${volumeId.id.logId()}"
             )
             return@coRunCatching
         }
@@ -102,7 +102,7 @@ class StartTagsMigration @Inject constructor(
             if (statistics.data.isEmpty()) {
                 CoreLogger.i(
                     PHOTO,
-                    "Updating migration as finished for volume: ${volumeId.id.logId()}"
+                    "Updating tags migration as finished for volume: ${volumeId.id.logId()}"
                 )
 
                 updateTagsMigrationStatus(
@@ -115,7 +115,7 @@ class StartTagsMigration @Inject constructor(
                 if (!statistics.isFinished && statistics.progress != null) {
                     CoreLogger.i(
                         PHOTO,
-                        "Restarting migration for the remaining local files $statistics"
+                        "Restarting tags migration for the remaining local files $statistics"
                     )
                     workManager.enqueue(userId, volumeId)
                 }
@@ -123,7 +123,7 @@ class StartTagsMigration @Inject constructor(
             return@coRunCatching
         }
 
-        CoreLogger.i(PHOTO, "Starting migration for volume: ${volumeId.id.logId()}")
+        CoreLogger.i(PHOTO, "Starting tags migration for volume: ${volumeId.id.logId()}")
         insertTagsMigrationFiles(photoListings.map { photoListing ->
             TagsMigrationFile(
                 volumeId = volumeId,

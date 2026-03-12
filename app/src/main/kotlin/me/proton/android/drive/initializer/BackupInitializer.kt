@@ -22,6 +22,7 @@ import android.content.Context
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.coroutineScope
 import androidx.startup.Initializer
+import androidx.work.WorkManager
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -30,10 +31,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
 import me.proton.android.drive.extension.log
@@ -43,6 +47,7 @@ import me.proton.core.accountmanager.presentation.observe
 import me.proton.core.accountmanager.presentation.onAccountReady
 import me.proton.core.accountmanager.presentation.onAccountRemoved
 import me.proton.core.domain.entity.UserId
+import me.proton.core.drive.backup.data.worker.BackupFileWatcherWorker
 import me.proton.core.drive.backup.domain.entity.BackupErrorType
 import me.proton.core.drive.backup.domain.entity.BackupPermissions
 import me.proton.core.drive.backup.domain.manager.BackupPermissionsManager
@@ -92,7 +97,10 @@ class BackupInitializer : Initializer<Unit> {
                         }
                     }.launchIn(scope)
 
-                    hasFolders(userId).onEach { hasFolders ->
+                    combine(
+                        hasFolders(userId),
+                        watchFoldersDone(userId),
+                    ) { hasFolders, _ ->
                         if (hasFolders) {
                             watchFolders(userId).onFailure { error ->
                                 error.log(BACKUP, "Cannot watch folders")
@@ -134,13 +142,20 @@ class BackupInitializer : Initializer<Unit> {
                     userId = userId,
                     uploadPriority = UploadFileLink.RECENT_BACKUP_PRIORITY
                 ).onSuccess { folders ->
-                    CoreLogger.d(BACKUP, "Syncing ${folders.size} stale folders")
+                    CoreLogger.i(BACKUP, "Syncing ${folders.size} stale folders")
                 }.onFailure { error ->
                     error.log(BACKUP, "Cannot sync stale folders")
                 }
             }
         }.launchIn(scope)
 
+    private fun BackupInitializerEntryPoint.watchFoldersDone(
+        userId: UserId
+    ): Flow<Boolean> = workManager
+        .getWorkInfosForUniqueWorkFlow(BackupFileWatcherWorker.uniqueWorkName(userId))
+        .map { workInfos ->
+            workInfos.all { workInfo -> workInfo.state.isFinished }
+        }
 
     override fun dependencies(): List<Class<out Initializer<*>>> = listOf(
         WorkManagerInitializer::class.java,
@@ -162,5 +177,6 @@ class BackupInitializer : Initializer<Unit> {
         val observeConfigurationChanges: ObserveConfigurationChanges
         val syncStaleFolders: SyncStaleFolders
         val announceFolderStatus: AnnounceFolderStatus
+        val workManager: WorkManager
     }
 }

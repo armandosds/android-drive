@@ -19,6 +19,7 @@ package me.proton.core.drive.base.presentation.component
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -48,22 +49,11 @@ import me.proton.core.compose.theme.defaultNorm
 
 @Composable
 fun ProtonListItem(
-    @DrawableRes icon: Int,
-    @StringRes title: Int,
-    modifier: Modifier = Modifier,
-    iconTitlePadding: Dp = ListItemTextStartPadding,
-    iconTintColor: Color = ProtonTheme.colors.iconNorm,
-    textStyle: TextStyle = ProtonTheme.typography.defaultNorm,
-) = ProtonListItem(painterResource(icon), stringResource(title), modifier, iconTitlePadding, iconTintColor, textStyle)
-
-@Composable
-fun ProtonListItem(
-    icon: Painter,
     title: String,
     modifier: Modifier = Modifier,
-    iconTitlePadding: Dp = ListItemTextStartPadding,
-    iconTintColor: Color = ProtonTheme.colors.iconNorm,
+    leadingContentTitlePadding: Dp = ListItemTextStartPadding,
     textStyle: TextStyle = ProtonTheme.typography.defaultNorm,
+    leadingContent: @Composable () -> Unit,
 ) {
     Row(
         modifier = modifier
@@ -74,19 +64,98 @@ fun ProtonListItem(
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
+        leadingContent()
+        Text(
+            text = title,
+            style = textStyle,
+            modifier = Modifier.padding(start = leadingContentTitlePadding),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+fun ProtonListItem(
+    icon: Painter,
+    title: String,
+    modifier: Modifier = Modifier,
+    leadingContentTitlePadding: Dp = ListItemTextStartPadding,
+    iconTintColor: Color = ProtonTheme.colors.iconNorm,
+    textStyle: TextStyle = ProtonTheme.typography.defaultNorm,
+) {
+    ProtonListItem(
+        title = title,
+        modifier = modifier,
+        leadingContentTitlePadding = leadingContentTitlePadding,
+        textStyle = textStyle,
+    ) {
         Icon(
-            modifier = Modifier
-                .size(DefaultIconSize),
+            modifier = Modifier.size(DefaultIconSize),
             painter = icon,
             tint = iconTintColor,
             contentDescription = null,
         )
-        Text(
-            text = title,
-            style = textStyle,
-            modifier = Modifier.padding(start = iconTitlePadding),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+    }
+}
+
+@Composable
+fun ProtonListItem(
+    @DrawableRes icon: Int,
+    @StringRes title: Int,
+    modifier: Modifier = Modifier,
+    leadingContentTitlePadding: Dp = ListItemTextStartPadding,
+    iconTintColor: Color = ProtonTheme.colors.iconNorm,
+    textStyle: TextStyle = ProtonTheme.typography.defaultNorm,
+) {
+    ProtonListItem(
+        icon = painterResource(icon),
+        title = stringResource(title),
+        modifier = modifier,
+        leadingContentTitlePadding = leadingContentTitlePadding,
+        iconTintColor = iconTintColor,
+        textStyle = textStyle,
+    )
+}
+
+@Composable
+fun ProtonListItem(
+    @DrawableRes image: Int,
+    @StringRes title: Int,
+    modifier: Modifier = Modifier,
+    imageModifier: Modifier = Modifier,
+    leadingContentTitlePadding: Dp = ListItemTextStartPadding,
+    textStyle: TextStyle = ProtonTheme.typography.defaultNorm,
+) {
+    ProtonListItem(
+        imagePainter = painterResource(image),
+        title = stringResource(title),
+        modifier = modifier,
+        imageModifier = imageModifier,
+        leadingContentTitlePadding = leadingContentTitlePadding,
+        textStyle = textStyle,
+    )
+}
+
+@Composable
+fun ProtonListItem(
+    imagePainter: Painter,
+    title: String,
+    modifier: Modifier = Modifier,
+    imageModifier: Modifier = Modifier,
+    leadingContentTitlePadding: Dp = ListItemTextStartPadding,
+    textStyle: TextStyle = ProtonTheme.typography.defaultNorm,
+) {
+    ProtonListItem(
+        title = title,
+        modifier = modifier,
+        leadingContentTitlePadding = leadingContentTitlePadding,
+        textStyle = textStyle,
+    ) {
+        Image(
+            modifier = imageModifier,
+            painter = imagePainter,
+            contentDescription = null,
         )
     }
 }

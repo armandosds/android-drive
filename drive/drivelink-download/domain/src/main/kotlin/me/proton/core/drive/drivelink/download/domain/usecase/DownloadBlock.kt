@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
 import me.proton.core.domain.entity.UserId
+import me.proton.core.drive.base.domain.log.LogTag
 import me.proton.core.drive.base.domain.log.LogTag.TRACKING
 import me.proton.core.drive.base.domain.usecase.GetPermanentFolder
 import me.proton.core.drive.base.domain.util.coRunCatching
@@ -80,7 +81,8 @@ class DownloadBlock @Inject constructor(
                     throw VerificationException("Hash from downloaded block does not match expected hash")
                 }
             }
-            .onFailure {
+            .onFailure { error ->
+                CoreLogger.w(LogTag.DOWNLOAD, error, "Cannot download url for block ${block.index}")
                 file.delete()
             }
             .getOrThrow().also {

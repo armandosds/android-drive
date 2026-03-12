@@ -18,8 +18,6 @@
 package me.proton.core.drive.upload.domain.outputstream
 
 import me.proton.core.drive.base.domain.entity.Bytes
-import me.proton.core.drive.base.domain.log.LogTag
-import me.proton.core.util.kotlin.CoreLogger
 import java.io.File
 import java.io.IOException
 import java.io.OutputStream
@@ -60,19 +58,26 @@ class MultipleFileOutputStream(
         }
     }
 
-    override fun flush() = _files.forEach { (_, outputStream) ->
-        try {
-            outputStream.flush()
-        } catch (e: IOException) {
-            CoreLogger.d(LogTag.UPLOAD, e, e.message ?: "Flush for output stream failed")
-        }
+    override fun flush() {
+        operation("flush") { stream -> stream.flush() }
     }
 
-    override fun close() = _files.forEach { (_, outputStream) ->
-        try {
-            outputStream.close()
-        } catch (e: IOException) {
-            CoreLogger.d(LogTag.UPLOAD, e, e.message ?: "Close for output stream failed")
+    override fun close() {
+        operation("close") { stream -> stream.close() }
+    }
+
+    private inline fun operation(name: String, block: (OutputStream) -> Unit) {
+        _files.mapNotNull { (_, outputStream) ->
+            try {
+                block(outputStream)
+                null
+            } catch (e: IOException) {
+                e
+            }
+        }.takeUnless { it.isEmpty() }?.let { errors ->
+            throw IOException("Failed to $name ${errors.size}/${_files.size} files").apply {
+                errors.forEach { error -> addSuppressed(error) }
+            }
         }
     }
 

@@ -48,7 +48,7 @@ class UploadSdkManager @Inject constructor(
         with(uploadFileLink.state()) {
             mutex.withLock {
                 if (uploader == null) {
-                    CoreLogger.i(uploadFileLink.id.logTag(), "Creating uploader")
+                    CoreLogger.d(uploadFileLink.id.logTag(), "Creating uploader")
                     val driveClient = protonDriveClientProvider
                         .getOrCreate(uploadFileLink.userId)
                         .getOrThrow()
@@ -74,7 +74,7 @@ class UploadSdkManager @Inject constructor(
         val id = uploadFileLink.id
         val state = states.remove(id) ?: return
         with(state) {
-            CoreLogger.i(
+            CoreLogger.d(
                 id.logTag(), "Closing sdk: " +
                         "uploader: ${uploader != null}, " +
                         "controller: ${controller != null}"
@@ -91,7 +91,7 @@ class UploadSdkManager @Inject constructor(
         val id = uploadFileLink.id
         val state = states.remove(id) ?: return
         with(state) {
-            CoreLogger.i(
+            CoreLogger.d(
                 id.logTag(), "Cancelling sdk: " +
                         "uploader: ${uploader != null}, " +
                         "controller: ${controller != null}"

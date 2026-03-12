@@ -191,9 +191,12 @@ class DownloadFileLegacy @Inject constructor(
                 }
                 .getOrThrow()
         }
+    }.onFailure { error ->
+        CoreLogger.w(LogTag.DOWNLOAD, error, "Cannot download file ${fileId.id.logId()} (legacy)")
+        setDownloadState(fileId, DownloadState.Error)
+    }.onSuccess {
+        setDownloadState(fileId, DownloadState.Ready)
     }
-        .onFailure { setDownloadState(fileId, DownloadState.Error) }
-        .onSuccess { setDownloadState(fileId, DownloadState.Ready) }
 
     private suspend fun List<Block>.blocksForDownload(
         userId: UserId,

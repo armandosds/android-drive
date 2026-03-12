@@ -48,7 +48,7 @@
   <string name="folder_option_create_document">Luo asiakirja</string>
   <string name="folder_option_create_spreadsheet">Luo laskentataulukko</string>
   <string name="folder_option_import_folder">Tallenna kansio</string>
-  <string name="folder_option_scan_document">Scan document</string>
+  <string name="folder_option_scan_document">Skannaa dokumentti</string>
   <string name="settings_theme_system_default">Seuraa järjestelmää</string>
   <string name="settings_theme_dark">Tumma</string>
   <string name="settings_theme_light">Vaalea</string>
@@ -200,7 +200,7 @@
   <string name="operation_open_document">avata asiakirjan</string>
   <string name="operation_create_document">luoda asiakirjan</string>
   <string name="operation_take_picture">ottaa kuvan</string>
-  <string name="operation_scan_document">scan a document</string>
+  <string name="operation_scan_document">skannaa dokumentti</string>
   <!-- region Get more free storage -->
   <!--
         Variable %1$s is a quantity (formatted) of max free storage
@@ -280,5 +280,4 @@
             "Upgrade for $0.99"
     -->
   <string name="drive_plus_promo_action">Päivitä hintaan %1$s</string>
-  <!-- endregion -->
 </resources>
