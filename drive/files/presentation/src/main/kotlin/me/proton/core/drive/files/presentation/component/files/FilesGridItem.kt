@@ -93,6 +93,7 @@ fun FilesGridItem(
     isSelected: Boolean = false,
     inMultiselect: Boolean = false,
     isMoreOptionsEnabled: Boolean = true,
+    isHighlighted: Boolean = false,
     onRenderThumbnail: (DriveLink) -> Unit,
 ) {
     val transferProgress = transferProgressFlow?.run {
@@ -102,6 +103,7 @@ fun FilesGridItem(
         isMarkedAsOffline && downloadState is DownloadState.Downloading
     }
     val haptic = LocalHapticFeedback.current
+    val highlightColor = rememberHighlightColor(isHighlighted)
     Box(
         modifier = modifier
             .combinedClickable(
@@ -111,6 +113,10 @@ fun FilesGridItem(
                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     onLongClick(link)
                 },
+            )
+            .background(
+                color = highlightColor,
+                shape = ProtonTheme.shapes.medium,
             )
             .background(
                 color = if (isSelected) ProtonTheme.colors.backgroundSecondary else Color.Transparent,

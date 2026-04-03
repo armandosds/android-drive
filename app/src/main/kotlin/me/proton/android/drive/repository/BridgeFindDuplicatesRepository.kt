@@ -26,7 +26,6 @@ import me.proton.core.drive.backup.domain.entity.BackupDuplicate
 import me.proton.core.drive.backup.domain.repository.FindDuplicatesRepository
 import me.proton.core.drive.base.domain.entity.ClientUid
 import me.proton.core.drive.base.domain.extension.filterSuccessOrError
-import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.link.domain.entity.ParentId
 import me.proton.core.drive.share.domain.entity.Share
@@ -46,7 +45,7 @@ class BridgeFindDuplicatesRepository @Inject constructor(
     ): List<BackupDuplicate> {
         val share = getShare(parentId.shareId)
             .filterSuccessOrError().mapSuccessValueOrNull().first()
-        requireNotNull(share) { "Cannot find share for folder: ${parentId.id.logId()}" }
+        requireNotNull(share) { "Cannot find share for folder: ${parentId.id}" }
         return if (share.type == Share.Type.PHOTO) {
             photo.findDuplicates(parentId, nameHashes, clientUids)
         } else {

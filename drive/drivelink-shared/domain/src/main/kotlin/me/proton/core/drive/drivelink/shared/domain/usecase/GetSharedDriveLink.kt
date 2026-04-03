@@ -25,6 +25,7 @@ import me.proton.core.domain.arch.DataResult
 import me.proton.core.domain.arch.ResponseSource
 import me.proton.core.drive.base.domain.extension.asSuccess
 import me.proton.core.drive.base.domain.extension.transformSuccess
+import me.proton.core.drive.base.domain.usecase.ReportError
 import me.proton.core.drive.drivelink.domain.entity.DriveLink
 import me.proton.core.drive.drivelink.shared.domain.entity.SharedDriveLink
 import me.proton.core.drive.link.domain.usecase.GetLink
@@ -43,7 +44,8 @@ class GetSharedDriveLink @Inject constructor(
     private val getShareUrl: GetShareUrl,
     getPublicUrl: GetPublicUrl,
     getCustomUrlPassword: GetCustomUrlPassword,
-) : BaseSharedDriveLink(getPublicUrl, getCustomUrlPassword) {
+    reportError: ReportError,
+) : BaseSharedDriveLink(getPublicUrl, getCustomUrlPassword, reportError) {
     operator fun invoke(driveLink: DriveLink): Flow<DataResult<SharedDriveLink?>> =
         getLink(driveLink.id).transformSuccess { dataResult ->
             val sharingDetails = dataResult.value.sharingDetails

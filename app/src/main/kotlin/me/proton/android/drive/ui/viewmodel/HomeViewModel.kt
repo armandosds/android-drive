@@ -25,6 +25,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -32,10 +33,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 import me.proton.android.drive.BuildConfig
+import me.proton.android.drive.extension.log
 import me.proton.android.drive.ui.navigation.HomeTab
 import me.proton.android.drive.ui.navigation.Screen
 import me.proton.android.drive.ui.viewevent.HomeViewEvent
@@ -46,6 +50,7 @@ import me.proton.android.drive.usecase.ShouldShowOverlay
 import me.proton.core.domain.entity.SessionUserId
 import me.proton.core.drive.base.domain.extension.getOrNull
 import me.proton.core.drive.base.domain.log.LogTag.VIEW_MODEL
+import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.usecase.BroadcastMessages
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.base.presentation.component.NavigationTab
@@ -79,6 +84,7 @@ class HomeViewModel @Inject constructor(
     private val shouldShowOverlay: ShouldShowOverlay,
     private val paymentManager: PaymentManager,
     private val isSpringSalePromoEnabled: IsSpringSalePromoEnabled,
+    private val configurationProvider: ConfigurationProvider,
 ) : ViewModel(), NotificationDotViewModel, UserViewModel by UserViewModel(savedStateHandle) {
     private var navigateToTab: ((route: String) -> Unit)? = null
 
@@ -148,6 +154,14 @@ class HomeViewModel @Inject constructor(
         override val onTab = { tab: NavigationTab -> navigateToTab(tab.screen(userId)) }
         override val onFirstLaunch: (NavigationTab?) -> Unit = { navigationTab ->
             viewModelScope.launch {
+                try {
+                    withTimeout(configurationProvider.tabsLoadTimeout) {
+                        tabs.first { it.isNotEmpty() }
+                    }
+                } catch (error: TimeoutCancellationException) {
+                    error.log(VIEW_MODEL, "Timeout waiting for tabs")
+                    return@launch
+                }
                 when (val overlay = shouldShowOverlay(navigationTab?.homeTabEntity)) {
                     UserOverlay.Onboarding -> navigateToOnboarding()
                     is UserOverlay.WhatsNew -> navigateToWhatsNew(overlay.key)

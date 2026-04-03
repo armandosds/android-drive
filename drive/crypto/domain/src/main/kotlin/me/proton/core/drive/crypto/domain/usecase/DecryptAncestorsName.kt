@@ -23,7 +23,6 @@ import me.proton.core.domain.arch.ResponseSource
 import me.proton.core.domain.arch.mapSuccess
 import me.proton.core.drive.base.domain.extension.getOrNull
 import me.proton.core.drive.base.domain.log.LogTag.ENCRYPTION
-import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.cryptobase.domain.CryptoScope
 import me.proton.core.drive.link.domain.entity.Link
 import me.proton.core.drive.link.domain.entity.LinkId
@@ -46,7 +45,7 @@ class DecryptAncestorsName @Inject constructor(
         getLinkAncestors(linkId).mapSuccess { (_, links) ->
             DataResult.Success(ResponseSource.Local, links.map { link ->
                 val decryptedName = decryptLinkName(link, coroutineContext)
-                    .getOrNull(ENCRYPTION, "Cannot decrypt name for: ${linkId.id.logId()}")
+                    .getOrNull(ENCRYPTION, "Cannot decrypt name for: ${linkId.id}")
                 if (decryptedName != null) {
                     when (link) {
                         is Link.Folder -> link.copy(name = decryptedName.text)

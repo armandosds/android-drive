@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Proton AG.
+ * Copyright (c) 2024-2026 Proton AG.
  * This file is part of Proton Core.
  *
  * Proton Core is free software: you can redistribute it and/or modify
@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.first
 import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.base.domain.entity.Bytes
 import me.proton.core.drive.base.domain.extension.bytes
+import me.proton.core.drive.base.domain.extension.toResult
 import me.proton.core.drive.base.domain.log.LogTag.UPLOAD
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.usecase.GetInternalStorageInfo
@@ -32,11 +33,14 @@ import me.proton.core.drive.linkupload.domain.extension.sizeOrZero
 import me.proton.core.drive.linkupload.domain.usecase.GetPendingUploadFileLinksSize
 import me.proton.core.drive.linkupload.domain.usecase.GetUploadFileLinksCount
 import me.proton.core.drive.linkupload.domain.usecase.GetUploadFileLinksWithUriByPriority
+import me.proton.core.drive.volume.domain.entity.Volume
+import me.proton.core.drive.volume.domain.usecase.GetActiveVolumes
 import me.proton.core.util.kotlin.CoreLogger
 import javax.inject.Inject
 
 class GetNextUploadFileLinks @Inject constructor(
     private val configurationProvider: ConfigurationProvider,
+    private val getActiveVolumes: GetActiveVolumes,
     private val getUploadFileLinksCount: GetUploadFileLinksCount,
     private val getPendingUploadFileLinksSize: GetPendingUploadFileLinksSize,
     private val getUploadFileLinksWithUriByPriority: GetUploadFileLinksWithUriByPriority,
@@ -45,35 +49,61 @@ class GetNextUploadFileLinks @Inject constructor(
     suspend operator fun invoke(
         userId: UserId,
     ): Result<List<UploadFileLink>> = coRunCatching {
-        val uploadCount = getUploadFileLinksCount(userId).first()
+        getActiveVolumes(userId).toResult().getOrThrow().map { volume ->
+            invoke(userId, volume)
+        }.flatten()
+    }
+
+    private suspend fun invoke(userId: UserId, volume: Volume): List<UploadFileLink> {
+        val uploadCount = getUploadFileLinksCount(userId, volume.id).first()
         if (uploadCount.total == 0) {
             CoreLogger.d(UPLOAD, "Nothing to upload")
-            return@coRunCatching emptyList<UploadFileLink>()
+            return emptyList()
         }
         val running = uploadCount.totalWithUri - uploadCount.totalUnprocessedWithUri
         val runningNonUserUploads =
             uploadCount.totalWithUriNonUserPriority - uploadCount.totalUnprocessedWithUriNonUserPriority
-        val notRunning = uploadCount.totalUnprocessedWithUri
-        val availableUploadSlots = configurationProvider.uploadsInParallel - running
         val availableNonUserUploadSlots =
             configurationProvider.nonUserUploadsInParallel - runningNonUserUploads
         val availableInternalStorage =
             getInternalStorageInfo().getOrThrow().available - getPendingUploadFileLinksSize(userId)
-        if (notRunning > 0 && availableUploadSlots > 0) {
-            getUploadFileLinksWithUriByPriority(
-                userId = userId,
-                states = setOf(UploadState.UNPROCESSED),
-                count = availableUploadSlots,
-            ).first()
-                .takeNonUserPriorityLimited(availableNonUserUploadSlots)
-                .takeOnlyInSizeOrFirst(availableInternalStorage, running)
-        } else {
-            CoreLogger.d(
-                UPLOAD,
-                "Ignoring state, notRunning: $notRunning, availableUploadSlots: $availableUploadSlots "
-            )
-            emptyList()
+
+        val uploadFileLinks = getUploadFileLinksWithUriByPriority(
+            userId = userId,
+            volumeId = volume.id,
+            states = setOf(UploadState.UNPROCESSED, UploadState.CREATING_NEW_FILE),
+            count = uploadCount.totalWithUri,
+        ).first()
+
+        if (uploadFileLinks.isEmpty()) {
+            CoreLogger.d(UPLOAD, "Nothing to upload for ${volume.type}")
+            return emptyList()
         }
+
+        val selected = uploadFileLinks
+            .groupBy { it.volumeId }
+            .values
+            .flatMap { volumeLinks -> volumeLinks.selectNextForVolume(running) }
+            .sortedBy { it.priority }
+
+        if (selected.isEmpty()) {
+            return emptyList()
+        }
+
+        return selected
+            .takeNonUserPriorityLimited(availableNonUserUploadSlots)
+            .takeOnlyInSizeOrFirst(availableInternalStorage, running)
+    }
+
+    private fun List<UploadFileLink>.selectNextForVolume(running: Int): List<UploadFileLink> {
+        val availableSlots = configurationProvider.uploadsInParallelPerVolume - running
+
+        if (any { it.state == UploadState.CREATING_NEW_FILE } || availableSlots <= 0) {
+            return emptyList()
+        }
+
+        val unprocessed = filter { it.state == UploadState.UNPROCESSED }
+        return unprocessed.take(minOf(2, availableSlots))
     }
 
     private fun List<UploadFileLink>.takeOnlyInSizeOrFirst(

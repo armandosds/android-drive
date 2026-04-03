@@ -204,8 +204,6 @@
   <string name="error_share_locked">Sdílení je uzamčeno.</string>
   <string name="error_main_share_not_found">Hlavní sdílení nebylo nalezeno.</string>
   <string name="error_share_not_found">Sdílení nebylo nalezeno.</string>
-  <string name="error_creating_photo_share_not_allowed">Zálohování fotek je dočasně deaktivováno.</string>
-  <string name="error_creating_share_not_allowed">Vytváření sdílení je dočasně vypnuto.</string>
   <string name="error_camera_permission">Je vyžadováno oprávnění k fotoaparátu.</string>
   <string name="operation_open_document">otevřít dokument</string>
   <string name="operation_create_document">vytvořit dokument</string>

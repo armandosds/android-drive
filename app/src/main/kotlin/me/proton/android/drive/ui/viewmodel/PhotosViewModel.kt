@@ -122,9 +122,6 @@ import me.proton.core.drive.drivelink.photo.domain.usecase.GetPagedPhotoListings
 import me.proton.core.drive.drivelink.photo.domain.usecase.GetPhotoCount
 import me.proton.core.drive.drivelink.selection.domain.usecase.GetSelectedDriveLinks
 import me.proton.core.drive.drivelink.selection.domain.usecase.SelectAll
-import me.proton.core.drive.feature.flag.domain.entity.FeatureFlagId.Companion.driveAlbumsDisabled
-import me.proton.core.drive.feature.flag.domain.extension.off
-import me.proton.core.drive.feature.flag.domain.usecase.GetFeatureFlagFlow
 import me.proton.core.drive.feature.flag.domain.usecase.IsSpringSalePromoEnabled
 import me.proton.core.drive.files.domain.usecase.ToFirstItemMetricsNotifier
 import me.proton.core.drive.link.domain.entity.FileId
@@ -175,7 +172,6 @@ class PhotosViewModel @Inject constructor(
     showUpsell: ShowUpsell,
     userManager: UserManager,
     getSubscriptionAction: GetSubscriptionAction,
-    getFeatureFlagFlow: GetFeatureFlagFlow,
     hasPhotoVolume: HasPhotoVolume,
     shouldUpgradeStorage: ShouldUpgradeStorage,
     getTagsMigrationStatusFlow: GetTagsMigrationStatusFlow,
@@ -209,13 +205,6 @@ class PhotosViewModel @Inject constructor(
     ),
     HomeTabViewModel,
     NotificationDotViewModel by NotificationDotViewModel(shouldUpgradeStorage) {
-
-    private val albumsFeatureFlagOn: StateFlow<Boolean> =
-        getFeatureFlagFlow(driveAlbumsDisabled(userId))
-            .map { killSwitch ->
-                killSwitch.off
-            }
-            .stateIn(viewModelScope, Eagerly, true)
 
     private val isSpringSalePromoEnabledFlow: Flow<Boolean> = flowOf {
         isSpringSalePromoEnabled(userId)
@@ -431,13 +420,12 @@ class PhotosViewModel @Inject constructor(
         forceStatusExpand,
         notificationDotRequested,
         photoListingsFilter,
-        albumsFeatureFlagOn,
         hasPhotoVolume(userId),
         userManager.observeUser(userId),
         isFastScrollEnabled,
         photosFilters,
         isSpringSalePromoEnabledFlow,
-    ) { selected, contentState, backupState, count, firstVisibleItemIndex, forceStatusExpand, notificationDotRequested, photoListingsFilter, albumsFeatureFlagOn, hasPhotoVolume, user, isFastScrollEnabled, photosFilters, isSpringSalePromoEnabled ->
+    ) { selected, contentState, backupState, count, firstVisibleItemIndex, forceStatusExpand, notificationDotRequested, photoListingsFilter, hasPhotoVolume, user, isFastScrollEnabled, photosFilters, isSpringSalePromoEnabled ->
         val listContentState = when (contentState) {
             is ListContentState.Empty -> contentState.copy(
                 imageResId = emptyStateImageResId,
@@ -672,7 +660,7 @@ class PhotosViewModel @Inject constructor(
             enablePhotosBackup(folderId).onSuccess { state ->
                 onPhotoBackupState(state)
             }.onFailure { error ->
-                error.log(BACKUP, "Cannot enable backup for folder: ${folderId.id.logId()}")
+                error.log(BACKUP, "Cannot enable backup for folder: ${folderId.id}")
                 broadcastMessages(
                     userId = userId,
                     message = error.getDefaultMessage(

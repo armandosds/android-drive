@@ -42,7 +42,7 @@ core-test-quark = "14.1.0"
 # Dagger
 dagger = "2.53.1"
 # Drive
-drive-sdk = "0.7.0-alpha.16"
+drive-sdk = "0.11.1"
 # Desugar
 desugar = "2.0.4"
 # Github

@@ -18,86 +18,106 @@
 
 package me.proton.core.drive.thumbnail.domain.usecase
 
-import me.proton.core.drive.base.domain.extension.toResult
-import me.proton.core.drive.base.domain.log.logId
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.withIndex
+import me.proton.core.domain.entity.UserId
+import me.proton.core.drive.base.domain.entity.NodeUid
+import me.proton.core.drive.base.domain.log.LogTag.THUMBNAIL
 import me.proton.core.drive.base.domain.provider.ProtonDriveClientProvider
 import me.proton.core.drive.base.domain.provider.ProtonPhotosClientProvider
+import me.proton.core.drive.base.domain.util.RequestBatcher
 import me.proton.core.drive.base.domain.util.coRunCatching
+import me.proton.core.drive.drivelink.domain.usecase.GetVolumeType
 import me.proton.core.drive.file.base.domain.entity.ThumbnailType
 import me.proton.core.drive.link.domain.entity.FileId
-import me.proton.core.drive.link.domain.entity.Link
-import me.proton.core.drive.link.domain.extension.isPhoto
 import me.proton.core.drive.link.domain.extension.userId
-import me.proton.core.drive.link.domain.usecase.GetLink
+import me.proton.core.drive.volume.domain.entity.Volume
 import me.proton.core.drive.volume.domain.entity.VolumeId
+import me.proton.core.util.kotlin.CoreLogger
 import me.proton.drive.sdk.Uid
-import java.io.ByteArrayOutputStream
+import java.util.concurrent.atomic.AtomicInteger
 import java.io.InputStream
-import java.nio.channels.Channels
 import javax.inject.Inject
+import javax.inject.Singleton
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import me.proton.drive.sdk.entity.ThumbnailType as SdkThumbnailType
 
+@Singleton
 class GetThumbnailSdk @Inject constructor(
     private val protonDriveClientProvider: ProtonDriveClientProvider,
     private val protonPhotosClientProvider: ProtonPhotosClientProvider,
-    private val getLink: GetLink,
+    private val getVolumeType: GetVolumeType,
 ) {
+    private data class BatchKey(
+        val userId: UserId,
+        val type: SdkThumbnailType,
+        val volumeType: Volume.Type?,
+    )
+
+    private val batchCounter = AtomicInteger(0)
+
+    companion object {
+        private const val UID_LOG_LENGTH = 8
+    }
+
+    private val batcher = RequestBatcher<BatchKey, NodeUid, InputStream>(
+        scope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
+        delay = 50.milliseconds,
+        timeout = 30.seconds,
+    ) { key, uids ->
+        val batchId = batchCounter.getAndIncrement()
+        fun logThumbnail(message: String) {
+            CoreLogger.d(THUMBNAIL, "Batch[$batchId/${key.type}] $message")
+        }
+        val shortUids = uids.map { it.takeLast(UID_LOG_LENGTH) }
+        when (key.volumeType) {
+            Volume.Type.PHOTO -> {
+                logThumbnail("photos: $shortUids")
+                protonPhotosClientProvider
+                    .getOrCreate(key.userId).getOrThrow()
+                    .enumerateThumbnails(photoUids = uids, type = key.type)
+            }
+
+            Volume.Type.REGULAR -> {
+                logThumbnail("drive: $shortUids")
+                protonDriveClientProvider
+                    .getOrCreate(key.userId).getOrThrow()
+                    .enumerateThumbnails(fileUids = uids, type = key.type)
+            }
+
+            else -> error("Cannot get thumbnail for volume type: ${key.volumeType}")
+        }.withIndex().map { (index, thumbnail) ->
+            val status = if (thumbnail.result.isSuccess) {
+                "Success"
+            } else {
+                "Failure(${thumbnail.result.exceptionOrNull()?.message})"
+            }
+            logThumbnail(
+                "(${index + 1}/${uids.size}) received: ${
+                    thumbnail.uid.takeLast(UID_LOG_LENGTH)
+                } in $status"
+            )
+            thumbnail.uid to thumbnail.result.map { bytes -> bytes.inputStream() }
+        }
+    }
 
     suspend operator fun invoke(
         volumeId: VolumeId,
         fileId: FileId,
         thumbnailType: ThumbnailType,
     ): Result<InputStream> = coRunCatching {
-        val link = getLink(fileId).toResult().getOrThrow()
-        val outputStream = if (link.isPhoto) {
-            link.getPhotoThumbnail(volumeId, thumbnailType)
-        } else {
-            link.getFileThumbnail(volumeId, thumbnailType)
-        }
-        checkNotNull(outputStream) { "Thumbnail not found for ${fileId.id.logId()}" }
-            .toByteArray().inputStream()
-    }
-
-    private suspend fun Link.File.getFileThumbnail(
-        volumeId: VolumeId,
-        thumbnailType: ThumbnailType,
-    ): ByteArrayOutputStream? {
-        var outputStream: ByteArrayOutputStream? = null
-        val fileUid = Uid.makeNodeUid(
-            volumeId = volumeId.id,
-            nodeId = id.id,
-        )
-        protonDriveClientProvider
-            .getOrCreate(userId)
-            .getOrThrow()
-            .getThumbnails(
-                fileUids = listOf(fileUid),
+        batcher.enqueue(
+            key = BatchKey(
+                userId = fileId.userId,
                 type = thumbnailType.toSdkType(),
-            ) {
-                Channels.newChannel(ByteArrayOutputStream().also { outputStream = it })
-            }
-        return outputStream
-    }
-
-    private suspend fun Link.File.getPhotoThumbnail(
-        volumeId: VolumeId,
-        thumbnailType: ThumbnailType,
-    ): ByteArrayOutputStream? {
-        var outputStream: ByteArrayOutputStream? = null
-        val photoUid = Uid.makeNodeUid(
-            volumeId = volumeId.id,
-            nodeId = id.id,
+                volumeType = getVolumeType(fileId).getOrThrow(),
+            ),
+            item = Uid.makeNodeUid(volumeId = volumeId.id, nodeId = fileId.id)
         )
-        protonPhotosClientProvider
-            .getOrCreate(userId)
-            .getOrThrow()
-            .getThumbnails(
-                photoUids = listOf(photoUid),
-                type = thumbnailType.toSdkType(),
-            ) {
-                Channels.newChannel(ByteArrayOutputStream().also { outputStream = it })
-            }
-        return outputStream
     }
 }
 

@@ -35,6 +35,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import me.proton.android.drive.extension.getDefaultMessage
 import me.proton.android.drive.extension.log
+import me.proton.android.drive.ui.handler.FolderCreatedHandler
+import me.proton.android.drive.ui.handler.FolderCreatedHandlerDelegate
 import me.proton.android.drive.ui.navigation.UploadParameters
 import me.proton.android.drive.ui.viewevent.UploadToViewEvent
 import me.proton.android.drive.ui.viewstate.UploadToViewState
@@ -72,7 +74,13 @@ class UploadToViewModel @Inject constructor(
     getDriveLink: GetDecryptedDriveLink,
     getPagedDriveLinks: GetPagedDriveLinksList,
     configurationProvider: ConfigurationProvider,
-) : HostFilesViewModel(appContext, getDriveLink, getPagedDriveLinks, savedStateHandle, configurationProvider) {
+    private val folderCreatedHandlerDelegate: FolderCreatedHandlerDelegate,
+) : HostFilesViewModel(appContext, getDriveLink, getPagedDriveLinks, savedStateHandle, configurationProvider),
+    FolderCreatedHandler by folderCreatedHandlerDelegate {
+
+    val folderCreatedFlow: Flow<FolderId> = folderCreatedHandlerDelegate.folderCreatedFlow
+
+    fun consumeFolderCreated() = folderCreatedHandlerDelegate.consume()
     private val parentShareId: ShareId? = savedStateHandle.get<String?>(PARENT_SHARE_ID)?.let { id ->
         ShareId(userId, id)
     }

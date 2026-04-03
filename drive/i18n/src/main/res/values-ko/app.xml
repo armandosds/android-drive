@@ -48,7 +48,7 @@
   <string name="folder_option_create_document">문서 생성</string>
   <string name="folder_option_create_spreadsheet">스프레드시트 생성</string>
   <string name="folder_option_import_folder">폴더 업로드</string>
-  <string name="folder_option_scan_document">Scan document</string>
+  <string name="folder_option_scan_document">문서 스캔</string>
   <string name="settings_theme_system_default">시스템 기본값</string>
   <string name="settings_theme_dark">다크</string>
   <string name="settings_theme_light">라이트</string>
@@ -189,13 +189,11 @@
   <string name="error_share_locked">공유가 잠겼습니다.</string>
   <string name="error_main_share_not_found">주 공유를 찾을 수 없습니다.</string>
   <string name="error_share_not_found">공유를 찾을 수 없습니다.</string>
-  <string name="error_creating_photo_share_not_allowed">사진 백업이 일시적으로 비활성화되었습니다.</string>
-  <string name="error_creating_share_not_allowed">공유를 일시적으로 생성할 수 없습니다.</string>
   <string name="error_camera_permission">카메라 권한이 필요합니다.</string>
   <string name="operation_open_document">문서 열기</string>
   <string name="operation_create_document">문서 생성</string>
   <string name="operation_take_picture">사진 촬영</string>
-  <string name="operation_scan_document">scan a document</string>
+  <string name="operation_scan_document">문서 스캔</string>
   <!-- region Get more free storage -->
   <!--
         Variable %1$s is a quantity (formatted) of max free storage

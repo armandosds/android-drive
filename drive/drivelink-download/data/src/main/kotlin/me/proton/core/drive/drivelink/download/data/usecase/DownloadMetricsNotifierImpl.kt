@@ -21,6 +21,7 @@ package me.proton.core.drive.drivelink.download.data.usecase
 import me.proton.core.drive.base.domain.extension.getOrNull
 import me.proton.core.drive.base.domain.extension.toResult
 import me.proton.core.drive.base.domain.log.LogTag
+import me.proton.core.drive.base.domain.log.LogTag.DOWNLOAD
 import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.drivelink.domain.usecase.UseSdkForDownload
@@ -53,8 +54,9 @@ class DownloadMetricsNotifierImpl @Inject constructor(
         throwable: Throwable?,
         excludedErrorTypes: Set<DownloadErrorsTotal.Type>,
     ) {
-        val downloadedBySdk = useSdkForDownload(fileId).getOrDefault(false)
-        if (downloadedBySdk) {
+        val downloadedBySdk = useSdkForDownload(fileId)
+            .getOrNull(DOWNLOAD, "Cannot check sdk usage")
+        if (downloadedBySdk == true) {
             CoreLogger.d(
                 tag = fileId.logTag,
                 message = "Skipping download metrics notification for file downloaded by SDK",

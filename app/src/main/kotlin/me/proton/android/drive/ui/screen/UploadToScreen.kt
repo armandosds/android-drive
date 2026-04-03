@@ -48,6 +48,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import me.proton.android.drive.ui.component.FolderCreatedEffect
+import me.proton.android.drive.ui.component.rememberFolderHighlightState
 import me.proton.android.drive.ui.effect.SnackbarEffect
 import me.proton.android.drive.ui.viewevent.UploadToViewEvent
 import me.proton.android.drive.ui.viewmodel.UploadToViewModel
@@ -64,6 +66,7 @@ import me.proton.core.drive.base.presentation.component.TopAppBar
 import me.proton.core.drive.files.presentation.component.DriveLinksFlow
 import me.proton.core.drive.files.presentation.component.Files
 import me.proton.core.drive.link.domain.entity.FolderId
+import me.proton.core.drive.link.domain.entity.LinkId
 import me.proton.core.drive.i18n.R as I18N
 import me.proton.core.presentation.R as CorePresentation
 
@@ -83,6 +86,12 @@ fun UploadToScreen(
         viewModel.viewEvent(navigateToStorageFull, navigateToCreateFolder, exitApp)
     }
     val snackbarHostState = remember { ProtonSnackbarHostState() }
+    val folderHighlightState = rememberFolderHighlightState()
+    FolderCreatedEffect(
+        flow = viewModel.folderCreatedFlow,
+        onConsumed = viewModel::consumeFolderCreated,
+        action = { folderId -> folderHighlightState.scrollToId = folderId },
+    )
     val context = LocalContext.current
     LaunchedEffect(viewModel, LocalContext.current) {
         viewModel.snackbarEffect
@@ -107,6 +116,9 @@ fun UploadToScreen(
             effect = viewModel.listEffect
         ),
         snackbarHostState = snackbarHostState,
+        scrollToId = folderHighlightState.scrollToId,
+        onScrollCompleted = folderHighlightState::onScrollCompleted,
+        highlightedId = folderHighlightState.highlightedId,
         exitApp = exitApp,
         modifier = modifier,
     )
@@ -120,6 +132,9 @@ fun UploadTo(
     snackbarHostState: ProtonSnackbarHostState,
     exitApp: () -> Unit,
     modifier: Modifier = Modifier,
+    scrollToId: LinkId? = null,
+    onScrollCompleted: () -> Unit = {},
+    highlightedId: LinkId? = null,
 ) {
     BackHandler(enabled = viewState.isBackHandlerEnabled) { viewEvent.onTopAppBarNavigation() }
 
@@ -154,6 +169,9 @@ fun UploadTo(
                 viewState = viewState.filesViewState,
                 viewEvent = viewEvent,
                 showTopAppBar = false,
+                scrollToId = scrollToId,
+                onScrollCompleted = onScrollCompleted,
+                highlightedId = highlightedId,
             ) {}
             Row(
                 Modifier

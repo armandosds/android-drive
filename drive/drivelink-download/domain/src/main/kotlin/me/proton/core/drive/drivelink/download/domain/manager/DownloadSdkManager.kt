@@ -114,7 +114,7 @@ class DownloadSdkManager @Inject constructor(
         return with(nodeRevisionUid.state()) {
             mutex.withLock {
                 val downloader = this.downloader
-                    ?: error("Download was not enqueued or cancelled for ${fileId.id.logId()}")
+                    ?: error("Download was not enqueued or cancelled for ${fileId.id}")
 
                 controller ?: block(downloader).also { controller = it }
             }

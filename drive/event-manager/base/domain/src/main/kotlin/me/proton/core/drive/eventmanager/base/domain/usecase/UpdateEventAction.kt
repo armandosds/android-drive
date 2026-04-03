@@ -21,6 +21,8 @@ package me.proton.core.drive.eventmanager.base.domain.usecase
 import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.share.domain.entity.ShareId
 import me.proton.core.drive.volume.domain.entity.VolumeId
+import me.proton.core.drive.volume.domain.extension.volumeId
+import me.proton.drive.sdk.Uid
 
 interface UpdateEventAction {
 
@@ -36,4 +38,16 @@ interface UpdateEventAction {
         overrideMinimumFetchInterval: Boolean = true,
         block: suspend () -> T
     ): T
+
+    suspend operator fun <T> invoke(
+        userId: UserId,
+        nodeUid: String,
+        overrideMinimumFetchInterval: Boolean = true,
+        block: suspend () -> T
+    ): T = invoke(
+        userId = userId,
+        volumeId = Uid.volumeId(nodeUid),
+        overrideMinimumFetchInterval = overrideMinimumFetchInterval,
+        block = block,
+    )
 }

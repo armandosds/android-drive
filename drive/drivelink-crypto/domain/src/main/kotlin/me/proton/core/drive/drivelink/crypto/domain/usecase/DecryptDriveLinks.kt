@@ -22,14 +22,13 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.supervisorScope
 import me.proton.core.drive.base.domain.log.LogTag
-import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
+import me.proton.core.drive.base.domain.usecase.ReportError
 import me.proton.core.drive.cryptobase.domain.usecase.UnlockKey
 import me.proton.core.drive.drivelink.domain.entity.DriveLink
 import me.proton.core.drive.key.domain.extension.keyHolder
 import me.proton.core.drive.key.domain.usecase.GetLinkParentKey
 import me.proton.core.drive.link.domain.entity.LinkId
-import me.proton.core.util.kotlin.CoreLogger
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 
@@ -38,6 +37,7 @@ class DecryptDriveLinks @Inject constructor(
     private val unlockKey: UnlockKey,
     private val decryptDriveLink: DecryptDriveLink,
     private val configurationProvider: ConfigurationProvider,
+    private val reportError: ReportError,
 ) {
 
     suspend operator fun invoke(driveLinks: List<DriveLink>): List<DriveLink> {
@@ -52,10 +52,10 @@ class DecryptDriveLinks @Inject constructor(
                                     driveLinks.forEach { link ->
                                         decryptedLinks[link.id] = decryptDriveLink(unlockedKey, link)
                                             .onFailure { error ->
-                                                CoreLogger.e(
-                                                    LogTag.ENCRYPTION,
-                                                    error,
-                                                    "There was an error decrypting drive link: ${link.id.id.logId()}"
+                                                reportError(
+                                                    tag = LogTag.ENCRYPTION,
+                                                    error = error,
+                                                    message = "There was an error decrypting drive link: ${link.id.id}",
                                                 )
                                             }.getOrNull()
                                     }

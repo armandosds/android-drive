@@ -41,7 +41,6 @@ import me.proton.core.drive.base.presentation.extension.require
 import me.proton.core.drive.base.presentation.viewmodel.UserViewModel
 import me.proton.core.drive.drivelink.domain.entity.DriveLink
 import me.proton.core.drive.drivelink.domain.usecase.GetDriveLink
-import me.proton.core.drive.drivelink.shared.domain.extension.permissions
 import me.proton.core.drive.drivelink.shared.presentation.entry.ShareUserOptionEntry
 import me.proton.core.drive.link.domain.entity.FileId
 import me.proton.core.drive.messagequeue.domain.entity.BroadcastMessage
@@ -82,7 +81,7 @@ abstract class ShareInvitationOptionsViewModel(
                 InvitationOption.PermissionsEditor,
                 InvitationOption.PermissionsViewer,
                 InvitationOption.ResendInvitation,
-                InvitationOption.RemoveAccess -> driveLink.permissions.canWrite
+                InvitationOption.RemoveAccess -> driveLink.sharePermissions?.isAdmin == true
             }
         }.map { option ->
             when (option) {

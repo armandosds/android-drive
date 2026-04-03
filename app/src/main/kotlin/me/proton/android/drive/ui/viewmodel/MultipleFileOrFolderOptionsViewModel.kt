@@ -19,16 +19,13 @@
 package me.proton.android.drive.ui.viewmodel
 
 import android.content.Context
-import android.os.Build
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharingStarted.Companion.Eagerly
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import me.proton.android.drive.extension.getDefaultMessage
 import me.proton.android.drive.photos.domain.usecase.RemovePhotosFromAlbum
@@ -49,10 +46,6 @@ import me.proton.core.drive.documentsprovider.domain.usecase.ExportToDownload
 import me.proton.core.drive.drivelink.domain.entity.DriveLink
 import me.proton.core.drive.drivelink.domain.extension.lowestCommonPermissions
 import me.proton.core.drive.drivelink.selection.domain.usecase.GetSelectedDriveLinks
-import me.proton.core.drive.feature.flag.domain.entity.FeatureFlag
-import me.proton.core.drive.feature.flag.domain.entity.FeatureFlag.State.NOT_FOUND
-import me.proton.core.drive.feature.flag.domain.entity.FeatureFlagId.Companion.driveAlbumsDisabled
-import me.proton.core.drive.feature.flag.domain.usecase.GetFeatureFlagFlow
 import me.proton.core.drive.files.presentation.entry.OptionEntry
 import me.proton.core.drive.link.domain.entity.AlbumId
 import me.proton.core.drive.link.domain.entity.FolderId
@@ -71,7 +64,6 @@ import javax.inject.Inject
 class MultipleFileOrFolderOptionsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     getSelectedDriveLinks: GetSelectedDriveLinks,
-    getFeatureFlagFlow: GetFeatureFlagFlow,
     @ApplicationContext private val appContext: Context,
     private val sendToTrash: SendToTrash,
     private val exportToDownload: ExportToDownload,
@@ -92,8 +84,6 @@ class MultipleFileOrFolderOptionsViewModel @Inject constructor(
             albumId
         )
     }
-    private val albumsKillSwitch = getFeatureFlagFlow(driveAlbumsDisabled(userId))
-        .stateIn(viewModelScope, Eagerly, FeatureFlag(driveAlbumsDisabled(userId), NOT_FOUND))
 
     fun entries(
         driveLinks: List<DriveLink>,
@@ -102,13 +92,10 @@ class MultipleFileOrFolderOptionsViewModel @Inject constructor(
         navigateToAddToAlbumsOptions: (SelectionId) -> Unit,
         navigateToShareMultiplePhotosOptions: (SelectionId) -> Unit,
         dismiss: () -> Unit,
-    ): Flow<List<OptionEntry<Unit>>> = combine(
-        hasPhotoVolume(userId),
-        albumsKillSwitch,
-    ) { hasPhotoVolume, albumsKillSwitch ->
+    ): Flow<List<OptionEntry<Unit>>> = hasPhotoVolume(userId).map { hasPhotoVolume ->
         options
             .filterAll(driveLinks)
-            .filterAlbums(hasPhotoVolume, albumsKillSwitch, albumId)
+            .filterAlbums(hasPhotoVolume, albumId)
             .filterPhotoTag(configurationProvider.scanPhotoFileForTags)
             .filterShare(false, albumId)
             .filterPermissions(driveLinks.lowestCommonPermissions)

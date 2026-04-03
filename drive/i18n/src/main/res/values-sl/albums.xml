@@ -69,10 +69,10 @@
             "17 items added to album"
     -->
   <plurals name="in_app_notification_add_to_album_success">
-    <item quantity="one">%1$d item added to album</item>
-    <item quantity="two">%1$d items added to album</item>
-    <item quantity="few">%1$d items added to album</item>
-    <item quantity="other">%1$d items added to album</item>
+    <item quantity="one">%1$d predmet dodan v album</item>
+    <item quantity="two">%1$d predmeta dodana v album</item>
+    <item quantity="few">%1$d predmeti dodani v album</item>
+    <item quantity="other">%1$d predmetov dodanih v album</item>
   </plurals>
   <!--
         Variable %1$d is a number of photos that were not added because they already exist
@@ -81,7 +81,7 @@
             "7 items already exist"
     -->
   <plurals name="in_app_notification_add_to_album_already_exists">
-    <item quantity="one">%1$d item already exists</item>
+    <item quantity="one">%1$d predmet že obstaja</item>
     <item quantity="two">%1$d predmeta že obstajata</item>
     <item quantity="few">%1$d predmeti že obstajajo</item>
     <item quantity="other">%1$d predmetov že obstaja</item>
@@ -93,10 +93,10 @@
             "23 items failed"
     -->
   <plurals name="in_app_notification_add_to_album_failed">
-    <item quantity="one">%1$d item failed</item>
-    <item quantity="two">%1$d items failed</item>
-    <item quantity="few">%1$d items failed</item>
-    <item quantity="other">%1$d items failed</item>
+    <item quantity="one">%1$d predmet ni uspel.</item>
+    <item quantity="two">%1$d predmeta nista uspela.</item>
+    <item quantity="few">%1$d predmeti niso uspeli.</item>
+    <item quantity="other">%1$d predmetov ni uspelo.</item>
   </plurals>
   <!--
         Variable %1$d is a number of photos added to your Drive
@@ -105,10 +105,10 @@
             "17 items added to your Drive"
     -->
   <plurals name="in_app_notification_add_to_stream_success">
-    <item quantity="one">%1$d item added to your Drive</item>
-    <item quantity="two">%1$d items added to your Drive</item>
-    <item quantity="few">%1$d items added to your Drive</item>
-    <item quantity="other">%1$d items added to your Drive</item>
+    <item quantity="one">%1$d dodan v vaš Drive</item>
+    <item quantity="two">%1$d dodana v vaš Drive</item>
+    <item quantity="few">%1$d dodani v vaš Drive</item>
+    <item quantity="other">%1$d dodanih v vaš Drive</item>
   </plurals>
   <!--
         Variable %1$d is a number of photos that were not added because they already exist
@@ -117,10 +117,10 @@
             "7 items already exist"
     -->
   <plurals name="in_app_notification_add_to_stream_already_exists">
-    <item quantity="one">%1$d item already exists</item>
-    <item quantity="two">%1$d items already exist</item>
-    <item quantity="few">%1$d items already exist</item>
-    <item quantity="other">%1$d items already exist</item>
+    <item quantity="one">%1$d predmet že obstaja</item>
+    <item quantity="two">%1$d predmeta že obstajata</item>
+    <item quantity="few">%1$d predmeti že obstajajo</item>
+    <item quantity="other">%1$d predmetov že obstaja</item>
   </plurals>
   <!--
         Variable %1$d is a number of photos that were not added because adding failed
@@ -129,10 +129,10 @@
             "23 items failed"
     -->
   <plurals name="in_app_notification_add_to_stream_failed">
-    <item quantity="one">%1$d item failed</item>
-    <item quantity="two">%1$d items failed</item>
-    <item quantity="few">%1$d items failed</item>
-    <item quantity="other">%1$d items failed</item>
+    <item quantity="one">%1$d predmet ni uspel.</item>
+    <item quantity="two">%1$d predmeta nista uspela.</item>
+    <item quantity="few">%1$d predmeti niso uspeli.</item>
+    <item quantity="other">%1$d predmetov ni uspelio.</item>
   </plurals>
   <!--
         Variable %1$d is a number of photos removed from album
@@ -141,10 +141,10 @@
             "13 items removed from album"
     -->
   <plurals name="in_app_notification_remove_from_album_success">
-    <item quantity="one">%1$d item removed from album</item>
-    <item quantity="two">%1$d items removed from album</item>
-    <item quantity="few">%1$d items removed from album</item>
-    <item quantity="other">%1$d items removed from album</item>
+    <item quantity="one">%1$d predmet odstranjen iz albuma</item>
+    <item quantity="two">%1$d predmeta odstranjena iz albuma</item>
+    <item quantity="few">%1$d predmeti odstranjeni iz albuma</item>
+    <item quantity="other">%1$d predmetov odstranjenih iz albuma</item>
   </plurals>
   <!--
         Variable %1$d is a number of photos that were not removed because removing failed
@@ -153,13 +153,13 @@
             "23 items failed"
     -->
   <plurals name="in_app_notification_removed_from_album_failed">
-    <item quantity="one">%1$d item failed</item>
-    <item quantity="two">%1$d items failed</item>
-    <item quantity="few">%1$d items failed</item>
-    <item quantity="other">%1$d items failed</item>
+    <item quantity="one">%1$d predmet ni uspel.</item>
+    <item quantity="two">%1$d predmeta nista uspela</item>
+    <item quantity="few">%1$d predmeti niso uspeli</item>
+    <item quantity="other">%1$d predmetov ni uspelo</item>
   </plurals>
   <string name="albums_empty_album_screen_title">Brez fotografij</string>
-  <string name="albums_empty_album_screen_description">Photos that you or other members add will appear here</string>
+  <string name="albums_empty_album_screen_description">Fotografije, ki joh boste dodali vi ali drugi člani, bodo prikazane tukaj</string>
   <string name="albums_empty_albums_list_screen_title">Ni albumov</string>
   <string name="albums_empty_albums_list_screen_description">Albumi, ki jih ustvarite ali se jim pridružite, bodo prikazani tukaj</string>
   <string name="albums_empty_albums_my_albums_screen_description">Albumi, ki jih ustvarite, bodo prikazani tukaj</string>
@@ -175,9 +175,9 @@
     -->
   <plurals name="shared_with_me_album_invitations_banner_description">
     <item quantity="one">%1$d album v skupni rabi z vami</item>
-    <item quantity="two">%1$d albums shared with you</item>
-    <item quantity="few">%1$d albums shared with you</item>
-    <item quantity="other">%1$d albums shared with you</item>
+    <item quantity="two">%1$d albuma v skupni rabi z vami</item>
+    <item quantity="few">%1$d albumi v skupni rabi z vami</item>
+    <item quantity="other">%1$d albumov v skupni rabi z vami</item>
   </plurals>
   <string name="albums_share_multiple_photos_options_section_title">Deli prek</string>
   <string name="albums_share_multiple_photos_options_shared_albums_section_title">Dodaj v album v skupni rabi</string>
@@ -185,7 +185,7 @@
   <string name="albums_share_multiple_photos_options_new_shared_album">Nov album v skupni rabi</string>
   <string name="albums_add_to_album_start_message">Dodajanje fotografij v šifriran album. Aplikacija naj bo med postopkom odprta.</string>
   <string name="albums_add_to_albums_options_new_album">Dodaj v nov album</string>
-  <string name="albums_add_to_albums_options_shared_album">My shared album</string>
+  <string name="albums_add_to_albums_options_shared_album">Moj album skupni rabi</string>
   <!--
         Variable %1$s is an album owner name i.e. display name or email
         Example:

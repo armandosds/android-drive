@@ -18,7 +18,6 @@
 
 package me.proton.core.drive.drivelink.domain.usecase
 
-import me.proton.core.drive.base.domain.extension.orOwner
 import me.proton.core.drive.base.domain.extension.toResult
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.util.coRunCatching
@@ -28,18 +27,14 @@ import me.proton.core.drive.feature.flag.domain.entity.FeatureFlagId.Companion.d
 import me.proton.core.drive.feature.flag.domain.extension.on
 import me.proton.core.drive.feature.flag.domain.usecase.GetFeatureFlag
 import me.proton.core.drive.link.domain.entity.LinkId
-import me.proton.core.drive.link.domain.extension.shareId
 import me.proton.core.drive.link.domain.extension.userId
-import me.proton.core.drive.share.domain.usecase.GetShare
 import me.proton.core.drive.volume.domain.entity.Volume.Type
-import me.proton.core.drive.volume.domain.usecase.GetVolume
 import javax.inject.Inject
 
 class UseSdkForUpload @Inject constructor(
     private val configurationProvider: ConfigurationProvider,
     private val getDriveLink: GetDriveLink,
-    private val getVolume: GetVolume,
-    private val getShare: GetShare,
+    private val getVolumeType: GetVolumeType,
     private val getFeatureFlag: GetFeatureFlag,
 ) {
     suspend operator fun invoke(linkId: LinkId) = coRunCatching {
@@ -47,17 +42,11 @@ class UseSdkForUpload @Inject constructor(
     }
 
     suspend operator fun invoke(driveLink: DriveLink) = coRunCatching {
-        configurationProvider.preferSdkForUpload && when (driveLink.volumeType()) {
+        configurationProvider.preferSdkForUpload && when (getVolumeType(driveLink).getOrThrow()) {
             null, Type.UNKNOWN -> false
             Type.REGULAR -> getFeatureFlag(driveAndroidSDKUploadMain(driveLink.userId)).on
             Type.PHOTO -> getFeatureFlag(driveAndroidSDKUploadPhoto(driveLink.userId)).on
         }
-    }
-
-    private suspend fun DriveLink.volumeType(): Type? = if (sharePermissions.orOwner.isAdmin) {
-        getVolume(userId, volumeId).toResult().getOrThrow().type
-    } else {
-        getShare(shareId).toResult().getOrThrow().volumeType
     }
 
 }

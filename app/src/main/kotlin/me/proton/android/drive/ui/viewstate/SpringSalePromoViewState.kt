@@ -32,12 +32,20 @@ data class SpringSalePromoViewState(
     val monthlyPrice: String,
     val yearlyPrice: String,
     val period: String,
+    val oneMonthPeriod: String,
     val monthlyPricePeriod: String,
     val yearlyPricePeriod: String,
     val autoRenewPrice: String,
+    val selected: PlanPeriod = PlanPeriod.YEARLY,
+    val oneMonthPrice: String,
 ) {
     data class Item(
         @param:DrawableRes val imageResId: Int,
         val title: String
     )
+
+    enum class PlanPeriod {
+        MONTHLY,
+        YEARLY
+    }
 }

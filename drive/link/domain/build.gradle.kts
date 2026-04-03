@@ -30,6 +30,7 @@ driveModule(
     socialTest = true,
 ) {
     api(project(":drive:base:domain"))
+    api(project(":drive:feature-flag:domain"))
     api(project(":drive:share:domain"))
     api(project(":drive:share-url:base:domain"))
     testImplementation(project(":drive:db-test"))

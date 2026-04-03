@@ -65,7 +65,7 @@
         Example:
             "Expiration date must not be after more than 90 days"
     -->
-  <string name="shared_link_error_message_expiration_date_too_late">Expiration date must not be after more than %1$d days</string>
+  <string name="shared_link_error_message_expiration_date_too_late">Datum poteka ne sme presegati %1$d dni</string>
   <string name="shared_link_error_legacy_link">To je stara povezava, katere upravljanje ni podprto. Priporočamo, da prenehate deliti to povezavo in pridobite novo povezavo.</string>
   <string name="title_share_via_link">Deli prek povezave</string>
   <string name="shared_with_me_title">Deljeno z menoj</string>
@@ -73,7 +73,7 @@
   <string name="shared_empty_title">Nič še ni deljeno</string>
   <string name="shared_with_me_empty_description">Datoteke in mape, ki jih drugi delijo z vami, bodo prikazane tukaj.</string>
   <string name="shared_by_me_empty_description">Varno delite svoje datoteke in mape s šifriranjem od konca do konca.</string>
-  <string name="shared_by_me_invitation_banner_title">Pending shared items</string>
+  <string name="shared_by_me_invitation_banner_title">Čakajoči predmeti v skupni rabi</string>
   <!--
         Variable %1$d is a quantity of item shared
         Example:
@@ -82,29 +82,29 @@
     -->
   <plurals name="shared_by_me_invitation_banner_description">
     <item quantity="one">%1$d predmet v skupni rabi z vami</item>
-    <item quantity="two">%1$d items shared with you</item>
-    <item quantity="few">%1$d items shared with you</item>
-    <item quantity="other">%1$d items shared with you</item>
+    <item quantity="two">%1$d predmeta v skupni rabi z vami</item>
+    <item quantity="few">%1$d predmeti v skupni rabi z vami</item>
+    <item quantity="other">%1$d predmetov v skupni rabi z vami</item>
   </plurals>
   <!--
         Variable %1$d is a quantity of item shared
         Example:
             "Pending shared items (1)"
     -->
-  <string name="shared_user_invitations_title">Pending shared items (%1$d)</string>
+  <string name="shared_user_invitations_title">Čakajoči predmeti v skupni rabi (%1$d)</string>
   <!--
         Variable %1$d is a quantity of albums shared
         Example:
             "Pending shared albums (2)"
     -->
-  <string name="shared_user_album_invitations_title">Pending shared albums (%1$d)</string>
+  <string name="shared_user_album_invitations_title">Čakajoči albumi v skupni rabi (%1$d)</string>
   <string name="shared_user_invitations_title_empty">Ni čakajočih deljenih predmetov</string>
   <string name="shared_user_album_invitations_title_empty">Ni čakajočih deljenih albumov</string>
   <string name="shared_user_invitations_description_empty">Vsa nova povabila bodo tukaj</string>
   <string name="shared_user_invitations_accept_button">Sprejmi</string>
   <string name="shared_user_invitations_decline_button">Zavrni</string>
-  <string name="shared_user_invitations_accept_success">Shared item accepted</string>
-  <string name="shared_user_invitations_decline_success">Shared item declined</string>
+  <string name="shared_user_invitations_accept_success">Predmet v skupni rabi sprejet</string>
+  <string name="shared_user_invitations_decline_success">Predmet v skupni rabi je bil zavrnjen</string>
   <string name="shared_user_album_invitations_accept_success">Vabilo sprejeto</string>
-  <string name="shared_user_album_invitations_decline_success">Invitation declined</string>
+  <string name="shared_user_album_invitations_decline_success">Vabilo je bilo zavrnjeno</string>
 </resources>

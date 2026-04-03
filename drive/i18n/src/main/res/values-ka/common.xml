@@ -40,8 +40,8 @@
   <string name="common_off">გამორთული</string>
   <string name="common_all">ყველა</string>
   <string name="common_unknown">უცნობი</string>
-  <string name="common_month">Month</string>
-  <string name="common_year">Year</string>
+  <string name="common_month">თვე</string>
+  <string name="common_year">წელი</string>
   <!-- endregion -->
   <!-- region Common actions -->
   <string name="common_ok_action">დიახ</string>
@@ -77,7 +77,8 @@
   <string name="common_save_all_action">ყველას შენახვა</string>
   <string name="common_add_to_albums_action">ალბომებში დამატება</string>
   <string name="common_tag_photo_action">ფოტოს დასკანირება თეგებისთვის</string>
-  <string name="common_save_as_action">Save as</string>
+  <string name="common_save_as_action">შენახვა, როგორც</string>
+  <string name="common_open_action">გახსნა</string>
   <!-- endregion -->
   <!-- region Common file types -->
   <string name="common_type_audio">აუდიო</string>
@@ -139,13 +140,13 @@
             "Security error occurred: password required or incorrect password"
     -->
   <string name="common_error_security_with_message">აღმოჩენილია უსაფრთოების შეცდომა: %1$s</string>
-  <string name="common_error_sdk">SDK error occurred</string>
+  <string name="common_error_sdk">აღმოჩენილია SDK-ის შეცდომა</string>
   <!--
         Variable %1$s is the non-null message from SDK exception
         Example:
             "SDK error occurred:  file or folder with that name already exists"
     -->
-  <string name="common_error_sdk_with_message">SDK error occurred: %1$s</string>
+  <string name="common_error_sdk_with_message">აღმოჩენილია SDK-ის შეცდომა: %1$s</string>
   <!-- endregion -->
   <!--
         Variable %1$s is a percentage

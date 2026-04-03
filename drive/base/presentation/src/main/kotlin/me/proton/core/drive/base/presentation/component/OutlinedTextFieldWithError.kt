@@ -18,6 +18,7 @@
 package me.proton.core.drive.base.presentation.component
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
@@ -39,6 +40,7 @@ fun OutlinedTextFieldWithError(
     errorText: String? = null,
     focusRequester: FocusRequester = remember { FocusRequester() },
     maxLines: Int = MaxLines,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     onValueChanged: (TextFieldValue) -> Unit,
 ) {
     Column(modifier = modifier) {
@@ -49,7 +51,8 @@ fun OutlinedTextFieldWithError(
             modifier = Modifier.focusRequester(focusRequester),
             isError = errorText != null,
             textStyle = ProtonTheme.typography.default,
-            colors = TextFieldDefaults.protonOutlineTextFieldColors()
+            colors = TextFieldDefaults.protonOutlineTextFieldColors(),
+            keyboardOptions = keyboardOptions,
         )
         Text(
             text = errorText ?: "",

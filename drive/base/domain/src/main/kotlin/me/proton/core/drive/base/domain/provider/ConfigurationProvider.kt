@@ -59,8 +59,8 @@ interface ConfigurationProvider {
     val maxSharedLinkPasswordLength: Int get() = 50
     val maxSharedLinkExpirationDuration: Duration get() = 90.days
     val uploadBlocksInParallel: Int get() = 4
-    val uploadsInParallel: Int get() = 6
-    val nonUserUploadsInParallel: Int get() = 4
+    val uploadsInParallelPerVolume: Int get() = 4
+    val nonUserUploadsInParallel: Int get() = 3
     val decryptionInParallel: Int get() = 4
     val bulkUploadThreshold: Int get() = 10
     val validateUploadLimit: Boolean get() = true
@@ -126,8 +126,10 @@ interface ConfigurationProvider {
     val preferSdkForUpload: Boolean get() = true
     val preferSdkForDownload: Boolean get() = true
     val preferSdkForThumbnail: Boolean get() = true
+    val preferSdkForNodeOperation: Boolean get() = false
     val createFolderInParallel: Int get() = 16
     val sdkQueueTimeout: Duration get() = 30.seconds
+    val tabsLoadTimeout: Duration get() = 3.seconds
 
     data class Thumbnail(
         val maxWidth: Int,

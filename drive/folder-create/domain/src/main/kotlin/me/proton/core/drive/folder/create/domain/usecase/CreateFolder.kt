@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2023 Proton AG.
+ * Copyright (c) 2026 Proton AG.
  * This file is part of Proton Core.
  *
  * Proton Core is free software: you can redistribute it and/or modify
@@ -15,44 +15,49 @@
  * You should have received a copy of the GNU General Public License
  * along with Proton Core.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 package me.proton.core.drive.folder.create.domain.usecase
 
 import me.proton.core.drive.base.domain.extension.toResult
 import me.proton.core.drive.base.domain.util.coRunCatching
-import me.proton.core.drive.crypto.domain.usecase.folder.CreateFolderInfo
-import me.proton.core.drive.eventmanager.base.domain.usecase.UpdateEventAction
-import me.proton.core.drive.folder.domain.repository.FolderRepository
 import me.proton.core.drive.link.domain.entity.FolderId
 import me.proton.core.drive.link.domain.entity.Link
+import me.proton.core.drive.link.domain.extension.id
+import me.proton.core.drive.link.domain.extension.nodeUid
+import me.proton.core.drive.link.domain.extension.userId
 import me.proton.core.drive.link.domain.usecase.GetLink
+import me.proton.core.drive.link.domain.usecase.UseSdkForNodeOperation
+import me.proton.core.drive.share.domain.usecase.GetShare
 import javax.inject.Inject
 
 class CreateFolder @Inject constructor(
-    private val folderRepository: FolderRepository,
+    private val createFolderLegacy: CreateFolderLegacy,
+    private val createFolderSdk: CreateFolderSdk,
+    private val useSdkForNodeOperation: UseSdkForNodeOperation,
     private val getLink: GetLink,
-    private val createFolderInfo: CreateFolderInfo,
-    private val updateEventAction: UpdateEventAction,
+    private val getShare: GetShare,
 ) {
     suspend operator fun invoke(
         parentFolder: Link.Folder,
         folderName: String,
         shouldUpdateEvent: Boolean = true,
     ): Result<Pair<String, FolderId>> = coRunCatching {
-        val block: suspend () -> Pair<String, FolderId> = {
-            val (name, folderInfo) = createFolderInfo(parentFolder, folderName).getOrThrow()
-            name to folderRepository.createFolder(
-                shareId = parentFolder.id.shareId,
-                folderInfo = folderInfo
-            ).getOrThrow()
-        }
-        if (shouldUpdateEvent) {
-            updateEventAction(
-                shareId = parentFolder.id.shareId,
-            ) {
-                block.invoke()
+        if (useSdkForNodeOperation(parentFolder.id).getOrElse { false }) {
+            val share = getShare(parentFolder.id.shareId).toResult().getOrThrow()
+            createFolderSdk(
+                userId = parentFolder.userId,
+                parentFolderUid = parentFolder.nodeUid(share.volumeId),
+                folderName = folderName,
+                shouldUpdateEvent = shouldUpdateEvent,
+            ).getOrThrow().let { (name, folderNode) ->
+                name to folderNode.id(parentFolder.id.shareId)
             }
         } else {
-            block.invoke()
+            createFolderLegacy(
+                parentFolder = parentFolder,
+                folderName = folderName,
+                shouldUpdateEvent = shouldUpdateEvent,
+            ).getOrThrow()
         }
     }
 

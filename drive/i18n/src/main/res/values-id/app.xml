@@ -47,8 +47,8 @@
   <string name="folder_option_take_a_photo">Ambil foto baru</string>
   <string name="folder_option_create_document">Buat dokumen</string>
   <string name="folder_option_create_spreadsheet">Buat spreadsheet</string>
-  <string name="folder_option_import_folder">Upload a folder</string>
-  <string name="folder_option_scan_document">Scan document</string>
+  <string name="folder_option_import_folder">Unggah folder</string>
+  <string name="folder_option_scan_document">Pindai dokumen</string>
   <string name="settings_theme_system_default">Bawaan sistem</string>
   <string name="settings_theme_dark">Gelap</string>
   <string name="settings_theme_light">Terang</string>
@@ -189,13 +189,11 @@
   <string name="error_share_locked">Pembagian terkunci.</string>
   <string name="error_main_share_not_found">Partisi share utama tidak ditemukan.</string>
   <string name="error_share_not_found">Pembagian tidak ditemukan.</string>
-  <string name="error_creating_photo_share_not_allowed">Pencadangan foto sementara dinonaktifkan.</string>
-  <string name="error_creating_share_not_allowed">Pembuatan tautan berbagi untuk sementara dinonaktifkan.</string>
   <string name="error_camera_permission">Perizinan kamera diperlukan.</string>
   <string name="operation_open_document">buka dokumen</string>
   <string name="operation_create_document">buat dokumen</string>
   <string name="operation_take_picture">ambil gambar</string>
-  <string name="operation_scan_document">scan a document</string>
+  <string name="operation_scan_document">pindai dokumen</string>
   <!-- region Get more free storage -->
   <!--
         Variable %1$s is a quantity (formatted) of max free storage

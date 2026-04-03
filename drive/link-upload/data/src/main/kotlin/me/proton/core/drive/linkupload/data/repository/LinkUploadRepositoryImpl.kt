@@ -59,6 +59,7 @@ import me.proton.core.drive.linkupload.domain.entity.UploadState
 import me.proton.core.drive.linkupload.domain.factory.UploadBlockFactory
 import me.proton.core.drive.linkupload.domain.repository.LinkUploadRepository
 import me.proton.core.drive.share.domain.entity.ShareId
+import me.proton.core.drive.volume.domain.entity.VolumeId
 import me.proton.core.util.kotlin.serialize
 import javax.inject.Inject
 import kotlin.time.Duration
@@ -167,10 +168,27 @@ class LinkUploadRepositoryImpl @Inject constructor(
                     }
             }
 
+    override suspend fun getUploadFileLinksWithUriByPriority(
+        userId: UserId,
+        volumeId: VolumeId,
+        states: Set<UploadState>,
+        count: Int,
+    ): Flow<List<UploadFileLink>> =
+        db.linkUploadDao.getAllWithUriByPriority(userId, volumeId.id, states, count)
+            .map { linkUploadEntities ->
+                linkUploadEntities.map { it.toUploadFileLink() }
+            }
+
     override fun getUploadFileLinksCount(userId: UserId): Flow<UploadCount> =
         db.linkUploadDao.getUploadCount(userId, UploadFileLink.USER_PRIORITY).map { linkUploadCountEntity ->
             linkUploadCountEntity.toUploadCount()
         }
+
+    override fun getUploadFileLinksCount(userId: UserId, volumeId: VolumeId): Flow<UploadCount> =
+        db.linkUploadDao.getUploadCount(userId, volumeId.id, UploadFileLink.USER_PRIORITY).map { linkUploadCountEntity ->
+            linkUploadCountEntity.toUploadCount()
+        }
+
     override suspend fun getUploadFileLinksSize(
         userId: UserId, uploadStates: Set<UploadState>
     ): Bytes = db.linkUploadDao.getUploadSumSize(userId, uploadStates)?.bytes ?: 0.bytes

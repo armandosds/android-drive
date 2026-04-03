@@ -26,6 +26,7 @@ import me.proton.core.drive.backup.domain.repository.BackupFileRepository
 import me.proton.core.drive.base.domain.extension.getHexMessageDigest
 import me.proton.core.drive.base.domain.log.LogTag.BACKUP
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
+import me.proton.core.drive.base.domain.usecase.ReportError
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.crypto.domain.usecase.file.GetContentHash
 import me.proton.core.drive.key.domain.entity.Key
@@ -44,6 +45,7 @@ class CheckDuplicates @Inject constructor(
     private val getNodeKey: GetNodeKey,
     private val getContentHash: GetContentHash,
     private val configurationProvider: ConfigurationProvider,
+    private val reportError: ReportError,
 ) {
     suspend operator fun invoke(
         backupFolder: BackupFolder,
@@ -72,10 +74,10 @@ class CheckDuplicates @Inject constructor(
                         if (error is FileNotFoundException) {
                             backupFile.onFileNotFound()
                         } else {
-                            CoreLogger.e(
-                                BACKUP,
-                                error,
-                                "Cannot get content has for ${backupFile.uriString}"
+                            reportError(
+                                tag = BACKUP,
+                                error = error,
+                                message = "Cannot get content has for ${backupFile.uriString}"
                             )
                         }
                     }.getOrNull()
@@ -113,7 +115,11 @@ class CheckDuplicates @Inject constructor(
         val uriString = uriString
         CoreLogger.d(BACKUP, "Deleting file not found: $uriString")
         deleteFile(folderId, uriString).onFailure { error ->
-            CoreLogger.e(BACKUP, error, "Cannot delete file: $uriString")
+            reportError(
+                tag = BACKUP,
+                error = error,
+                message = "Cannot delete file: $uriString",
+            )
         }
     }
 

@@ -27,16 +27,17 @@ import me.proton.core.util.kotlin.CoreLogger
 import javax.inject.Inject
 
 class GetUserEmail @Inject constructor(
-    private val userManager: UserManager
+    private val userManager: UserManager,
+    private val reportError: ReportError,
 ) {
     suspend operator fun invoke(userId: UserId): String =
         userManager.getUser(userId).email
             ?: userManager.getAddresses(userId).primary().let { userAddress ->
                 if (userAddress == null) {
-                    CoreLogger.e(
-                        KEY,
-                        IllegalStateException("Primary address not found"),
-                        "Primary address not found for $userId"
+                    reportError(
+                        tag = KEY,
+                        error = IllegalStateException("Primary address not found"),
+                        message = "Primary address not found for $userId",
                     )
                     userManager.getAddresses(userId).sorted().first()
                 } else {

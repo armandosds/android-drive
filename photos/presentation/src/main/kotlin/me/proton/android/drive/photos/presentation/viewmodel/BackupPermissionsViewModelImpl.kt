@@ -44,7 +44,6 @@ import me.proton.core.drive.backup.domain.entity.BackupPermissions
 import me.proton.core.drive.backup.domain.manager.BackupPermissionsManager
 import me.proton.core.drive.base.data.extension.log
 import me.proton.core.drive.base.domain.log.LogTag.BACKUP
-import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.usecase.BroadcastMessages
 import me.proton.core.drive.link.domain.entity.FolderId
@@ -131,7 +130,7 @@ class BackupPermissionsViewModelImpl @Inject constructor(
         coroutineScope.launch {
             togglePhotosBackup(folderId)
                 .onFailure { error ->
-                    error.log(BACKUP, "Cannot toggle backup for folder: ${folderId.id.logId()}")
+                    error.log(BACKUP, "Cannot toggle backup for folder: ${folderId.id}")
                     broadcastMessages(
                         userId = folderId.userId,
                         message = error.getDefaultMessage(appContext, configurationProvider.useExceptionMessage),

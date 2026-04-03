@@ -22,6 +22,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flowOf
 import me.proton.core.domain.arch.DataResult
 import me.proton.core.domain.arch.transformSuccess
 import me.proton.core.domain.entity.UserId
@@ -35,8 +36,8 @@ class GetOldestActiveVolume @Inject constructor(
     private val getVolumes: GetVolumes,
     private val getVolume: GetVolume,
 ) {
-    operator fun invoke(userId: UserId, type: Volume.Type): Flow<DataResult<Volume>> =
-        getVolumes(userId).transformSuccessToOldestActiveVolume(userId, type)
+    operator fun invoke(userId: UserId, type: Volume.Type, refresh: Flow<Boolean> = flowOf(false)): Flow<DataResult<Volume>> =
+        getVolumes(userId, refresh).transformSuccessToOldestActiveVolume(userId, type)
 
     private fun Flow<DataResult<List<Volume>>>.transformSuccessToOldestActiveVolume(
         userId: UserId,

@@ -43,6 +43,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import me.proton.android.drive.ui.component.FolderCreatedEffect
+import me.proton.android.drive.ui.component.rememberFolderHighlightState
 import me.proton.android.drive.ui.effect.SnackbarEffect
 import me.proton.android.drive.ui.viewmodel.MoveToFolderViewModel
 import me.proton.core.compose.component.ProtonSnackbarHost
@@ -75,6 +77,12 @@ fun MoveToFolder(
     )
     val viewEvent = remember(viewModel, navigateBack) { viewModel.viewEvent(navigateToCreateFolder, navigateBack) }
     val snackbarHostState = remember { ProtonSnackbarHostState() }
+    val folderHighlightState = rememberFolderHighlightState()
+    FolderCreatedEffect(
+        flow = viewModel.folderCreatedFlow,
+        onConsumed = viewModel::consumeFolderCreated,
+        action = { folderId -> folderHighlightState.scrollToId = folderId },
+    )
 
     val context = LocalContext.current
     LaunchedEffect(viewModel, LocalContext.current) {
@@ -128,6 +136,9 @@ fun MoveToFolder(
                 viewState = viewState.filesViewState,
                 viewEvent = viewEvent,
                 showTopAppBar = false,
+                scrollToId = folderHighlightState.scrollToId,
+                onScrollCompleted = folderHighlightState::onScrollCompleted,
+                highlightedId = folderHighlightState.highlightedId,
             ) {}
 
             Row(

@@ -45,7 +45,6 @@ import me.proton.core.domain.arch.mapSuccessValueOrNull
 import me.proton.core.drive.base.data.extension.log
 import me.proton.core.drive.base.domain.entity.Percentage
 import me.proton.core.drive.base.domain.log.LogTag.VIEW_MODEL
-import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.usecase.BroadcastMessages
 import me.proton.core.drive.base.domain.usecase.isConnectedToNetwork
@@ -100,7 +99,7 @@ class SendFileViewModel @Inject constructor(
                 emit(ShareState.Downloading(emptyFlow()))
                 emitAll(
                     getFile(driveLink, checkSignature = false).map { state ->
-                        state.throwable?.log(VIEW_MODEL, "Cannot get file ${driveLink.id.id.logId()}")
+                        state.throwable?.log(VIEW_MODEL, "Cannot get file ${driveLink.id.id}")
                         when (state) {
                             GetFile.State.Decrypting -> ShareState.Decrypting
                             is GetFile.State.Downloading -> ShareState.Downloading(progress = state.progress)

@@ -240,6 +240,20 @@ internal sealed class FileUploadFlow {
 
         override suspend fun enqueueWork(uploadTags: List<String>, uriString: String) = workManager
             .beginWith(
+                UpdateFileAttributesWorker.getWorkRequest(
+                    userId = userId,
+                    uploadFileLinkId = uploadFileLinkId,
+                    tags = uploadTags,
+                )
+            )
+            .then(
+                ExtractTagsWorker.getWorkRequest(
+                    userId = userId,
+                    uploadFileLinkId = uploadFileLinkId,
+                    tags = uploadTags,
+                )
+            )
+            .then(
                 CreateNewFileSdkWorker.getWorkRequest(
                     userId = userId,
                     uploadFileLinkId = uploadFileLinkId,

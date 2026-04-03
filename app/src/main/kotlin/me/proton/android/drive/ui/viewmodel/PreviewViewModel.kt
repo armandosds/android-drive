@@ -77,9 +77,9 @@ import me.proton.core.drive.base.domain.extension.filterSuccessOrError
 import me.proton.core.drive.base.domain.function.pagedList
 import me.proton.core.drive.base.domain.log.LogTag
 import me.proton.core.drive.base.domain.log.LogTag.VIEW_MODEL
-import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.usecase.BroadcastMessages
+import me.proton.core.drive.base.domain.usecase.ReportError
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.base.presentation.extension.require
 import me.proton.core.drive.base.presentation.viewmodel.UserViewModel
@@ -159,6 +159,7 @@ class PreviewViewModel @Inject constructor(
     sortDriveLinks: SortDriveLinks,
     val savedStateHandle: SavedStateHandle,
     private val previewMetricsNotifier: PreviewMetricsNotifier,
+    private val reportError: ReportError,
 ) : ViewModel(), UserViewModel by UserViewModel(savedStateHandle) {
 
     private val albumId =
@@ -372,7 +373,10 @@ class PreviewViewModel @Inject constructor(
                     }
                 }
                 else -> let {
-                    CoreLogger.e(VIEW_MODEL, "Unsupported file type: ${acceptTypes.joinToString()}")
+                    reportError(
+                        tag = VIEW_MODEL,
+                        message = "Unsupported file type: ${acceptTypes.joinToString()}",
+                    )
                     broadcastMessages(
                         userId = userId,
                         message = appContext.getString(I18N.string.proton_docs_unsupported_file_type),
@@ -491,7 +495,7 @@ class PreviewViewModel @Inject constructor(
                             getFile(this, trigger.verifySignature),
                             renderFailed,
                         ) { fileState, renderFailed ->
-                            fileState.throwable?.log(VIEW_MODEL, "Cannot get file ${id.id.logId()}")
+                            fileState.throwable?.log(VIEW_MODEL, "Cannot get file ${id.id}")
                             getContentState(this, fileState, renderFailed, previewFallbackSources)
                         }
                     }

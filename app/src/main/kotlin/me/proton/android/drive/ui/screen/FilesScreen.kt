@@ -31,6 +31,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import me.proton.android.drive.ui.component.FolderCreatedEffect
+import me.proton.android.drive.ui.component.rememberFolderHighlightState
 import me.proton.android.drive.ui.effect.HandleHomeEffect
 import me.proton.android.drive.ui.viewmodel.FilesViewModel
 import me.proton.android.drive.ui.viewstate.HomeScaffoldState
@@ -102,7 +104,14 @@ fun FilesScreen(
                 }
         }
     }
+    val folderHighlightState = rememberFolderHighlightState()
+
     viewModel.HandleHomeEffect(homeScaffoldState)
+    FolderCreatedEffect(
+        flow = viewModel.folderCreatedFlow,
+        onConsumed = viewModel::consumeFolderCreated,
+        action = { folderId -> folderHighlightState.scrollToId = folderId },
+    )
 
     ProtonPullToRefresh(
         isPullToRefreshEnabled = viewState.isRefreshEnabled,
@@ -117,6 +126,9 @@ fun FilesScreen(
             getTransferProgress = viewModel::getDownloadProgressFlow,
             uploadingFileLinks = viewModel.uploadingFileLinks,
             showTopAppBar = false,
+            scrollToId = folderHighlightState.scrollToId,
+            onScrollCompleted = folderHighlightState::onScrollCompleted,
+            highlightedId = folderHighlightState.highlightedId,
         )
     }
 }

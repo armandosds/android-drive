@@ -189,8 +189,6 @@
   <string name="error_share_locked">分享已锁定。</string>
   <string name="error_main_share_not_found">未找到主共享。</string>
   <string name="error_share_not_found">未找到分享。</string>
-  <string name="error_creating_photo_share_not_allowed">照片备份暂时禁用。</string>
-  <string name="error_creating_share_not_allowed">共享库暂时不可创建。</string>
   <string name="error_camera_permission">需要访问您相机的权限。</string>
   <string name="operation_open_document">打开文档</string>
   <string name="operation_create_document">创建文档</string>

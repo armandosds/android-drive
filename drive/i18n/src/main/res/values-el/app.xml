@@ -194,8 +194,6 @@
   <string name="error_share_locked">Η κοινή χρήση είναι κλειδωμένη.</string>
   <string name="error_main_share_not_found">Η κύρια κοινοποίηση δεν βρέθηκε.</string>
   <string name="error_share_not_found">Η κοινή χρήση δεν βρέθηκε</string>
-  <string name="error_creating_photo_share_not_allowed">Η δημιουργία αντιγράφων ασφαλείας φωτογραφιών είναι προσωρινά απενεργοποιημένη.</string>
-  <string name="error_creating_share_not_allowed">Η δημιουργία κοινόχρηστου στοιχείου είναι προσωρινά απενεργοποιημένη.</string>
   <string name="error_camera_permission">Απαιτείται άδεια κάμερας.</string>
   <string name="operation_open_document">άνοιξε ένα έγγραφο</string>
   <string name="operation_create_document">δημιούργησε ένα έγγραφο</string>

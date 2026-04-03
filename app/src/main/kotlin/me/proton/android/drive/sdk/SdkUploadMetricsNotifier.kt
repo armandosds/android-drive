@@ -21,6 +21,7 @@ package me.proton.android.drive.sdk
 import me.proton.core.auth.domain.usecase.GetPrimaryUser
 import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.base.domain.log.LogTag.DRIVE_SDK
+import me.proton.core.drive.base.domain.usecase.ReportError
 import me.proton.core.drive.observability.data.extension.toType
 import me.proton.core.drive.observability.data.extension.toVolumeType
 import me.proton.core.drive.observability.domain.constraint.CountConstraint
@@ -46,6 +47,7 @@ class SdkUploadMetricsNotifier @Inject constructor(
     private val minimumIntervalConstraint: MinimumIntervalConstraint,
     private val countConstraint: CountConstraint,
     private val getPrimaryUser: GetPrimaryUser,
+    private val reportError: ReportError,
 ) {
 
     suspend operator fun invoke(uploadEvent: UploadEvent) {
@@ -59,9 +61,9 @@ class SdkUploadMetricsNotifier @Inject constructor(
         } else {
             val type = error.toType()
             if (type == UploadErrorsTotal.Type.unknown) {
-                CoreLogger.e(
-                    DRIVE_SDK,
-                    "Unknown upload error: $error\n${uploadEvent.originalError}",
+                reportError(
+                    tag = DRIVE_SDK,
+                    message = "Unknown upload error: $error\n${uploadEvent.originalError}",
                 )
             }
             notifyUploadErrorsTotalMetric(
@@ -72,10 +74,10 @@ class SdkUploadMetricsNotifier @Inject constructor(
                 volumeType = volumeType,
             )
             notifyUploadErrorsTransferSizeHistogramMetric(
-                uploadedSize = uploadEvent.uploadedSize
+                uploadedSize = uploadEvent.approximateUploadedSize
             )
             notifyUploadErrorsFileSizeHistogramMetric(
-                fileSize = uploadEvent.expectedSize
+                fileSize = uploadEvent.approximateExpectedSize
             )
         }
     }

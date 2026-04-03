@@ -32,7 +32,6 @@ import me.proton.core.drive.base.data.extension.isRetryable
 import me.proton.core.drive.base.data.extension.log
 import me.proton.core.drive.base.data.workmanager.addTags
 import me.proton.core.drive.base.domain.log.LogTag
-import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.link.domain.entity.FileId
 import me.proton.core.drive.link.domain.extension.userId
 import me.proton.core.drive.photo.data.worker.WorkerKeys.KEY_FILE_ID
@@ -65,7 +64,7 @@ class TagsMigrationExtractTagsWorker @AssistedInject constructor(
             if (error.isRetryable) {
                 Result.retry()
             } else {
-                error.log(LogTag.PHOTO, "Cannot extract tags from photo ${fileId.id.logId()}")
+                error.log(LogTag.PHOTO, "Cannot extract tags from photo ${fileId.id}")
                 Result.failure()
             }
         }

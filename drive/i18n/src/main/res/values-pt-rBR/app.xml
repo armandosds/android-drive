@@ -194,8 +194,6 @@
   <string name="error_share_locked">O compartilhamento está bloqueado.</string>
   <string name="error_main_share_not_found">Compartilhamento principal não encontrado.</string>
   <string name="error_share_not_found">O compartilhamento não é encontrado.</string>
-  <string name="error_creating_photo_share_not_allowed">O backup de fotos está temporariamente desativado.</string>
-  <string name="error_creating_share_not_allowed">A criação de compartilhamento está temporariamente desativada.</string>
   <string name="error_camera_permission">É necessária a permissão de acesso à câmera.</string>
   <string name="operation_open_document">abrir um documento</string>
   <string name="operation_create_document">criar um documento</string>

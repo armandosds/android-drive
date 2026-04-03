@@ -110,7 +110,7 @@ class UploadEventWorker @AssistedInject constructor(
                     UploadState.UPLOADING_BLOCKS,
                     UploadState.UPDATING_REVISION,
                 ),
-                count = configurationProvider.uploadsInParallel * 2,
+                count = configurationProvider.uploadsInParallelPerVolume * 4,
             ), getUploadFileLinksCount(userId)) { uploadFileLinks, count ->
                 uploadFileLinks to count
             }

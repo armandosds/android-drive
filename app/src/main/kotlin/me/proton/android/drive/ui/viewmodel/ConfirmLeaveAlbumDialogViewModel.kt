@@ -42,7 +42,6 @@ import me.proton.core.domain.arch.mapSuccessValueOrNull
 import me.proton.core.drive.base.data.extension.log
 import me.proton.core.drive.base.domain.extension.filterSuccessOrError
 import me.proton.core.drive.base.domain.log.LogTag
-import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.usecase.BroadcastMessages
 import me.proton.core.drive.base.presentation.viewmodel.UserViewModel
@@ -124,7 +123,7 @@ class ConfirmLeaveAlbumDialogViewModel @Inject constructor(
             album.value?.let {
                 isSavingOperationInProgress.value = true
                 addPhotosToStream(albumId).onFailure { error ->
-                    error.log(LogTag.ALBUM, "Cannot copy photo to stream: ${albumId.id.logId()}")
+                    error.log(LogTag.ALBUM, "Cannot copy photo to stream: ${albumId.id}")
                     broadcastMessages(
                         userId = userId,
                         message = error.getDefaultMessage(

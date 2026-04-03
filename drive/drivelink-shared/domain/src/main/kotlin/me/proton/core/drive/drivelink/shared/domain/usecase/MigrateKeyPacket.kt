@@ -25,6 +25,7 @@ import me.proton.core.drive.base.domain.extension.filterSuccessOrError
 import me.proton.core.drive.base.domain.extension.hasHttpCode
 import me.proton.core.drive.base.domain.extension.toResult
 import me.proton.core.drive.base.domain.log.LogTag.SHARING
+import me.proton.core.drive.base.domain.usecase.ReportError
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.crypto.domain.usecase.base.ReencryptKeyPacket
 import me.proton.core.drive.key.domain.usecase.GetNodeKey
@@ -44,6 +45,7 @@ class MigrateKeyPacket @Inject constructor(
     private val fetchLinks: FetchLinks,
     private val reencryptKeyPacket: ReencryptKeyPacket,
     private val getNodeKey: GetNodeKey,
+    private val reportError: ReportError,
 ) {
 
     suspend operator fun invoke(userId: UserId) = coRunCatching {
@@ -88,10 +90,10 @@ class MigrateKeyPacket @Inject constructor(
                     ).getOrThrow()
                 }.fold(
                     onFailure = { error ->
-                        CoreLogger.e(
-                            SHARING,
-                            error,
-                            "Cannot generate passphrase node key packets for $shareId"
+                        reportError(
+                            tag = SHARING,
+                            error = error,
+                            message = "Cannot generate passphrase node key packets for $shareId",
                         )
                         null
                     },

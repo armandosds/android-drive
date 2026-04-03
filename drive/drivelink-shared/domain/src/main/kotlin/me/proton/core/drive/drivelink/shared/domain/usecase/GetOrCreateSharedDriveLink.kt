@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.emitAll
 import me.proton.core.domain.arch.DataResult
 import me.proton.core.drive.base.domain.extension.asSuccess
 import me.proton.core.drive.base.domain.extension.transformSuccess
+import me.proton.core.drive.base.domain.usecase.ReportError
 import me.proton.core.drive.drivelink.domain.entity.DriveLink
 import me.proton.core.drive.drivelink.shared.domain.entity.SharedDriveLink
 import me.proton.core.drive.share.crypto.domain.usecase.GetOrCreateShare
@@ -37,8 +38,9 @@ class GetOrCreateSharedDriveLink @Inject constructor(
     private val getOrCreateShare: GetOrCreateShare,
     private val getOrCreateShareUrl: GetOrCreateShareUrl,
     getPublicUrl: GetPublicUrl,
-    getCustomUrlPassword: GetCustomUrlPassword
-) : BaseSharedDriveLink(getPublicUrl, getCustomUrlPassword) {
+    getCustomUrlPassword: GetCustomUrlPassword,
+    reportError: ReportError,
+) : BaseSharedDriveLink(getPublicUrl, getCustomUrlPassword, reportError) {
     operator fun invoke(driveLink: DriveLink): Flow<DataResult<SharedDriveLink>> =
         getOrCreateShare(driveLink.volumeId, driveLink.id)
             .distinctUntilChanged()

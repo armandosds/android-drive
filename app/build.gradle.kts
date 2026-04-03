@@ -218,7 +218,7 @@ android {
             setAssetLinksResValue(environment)
         }
         create("alpha") {
-            versionCode = (versionCodeFromGitCommitCount * 10) + 1
+            versionCode = (versionCodeFromGitCommitCount * 10) + 3
             versionNameSuffix = "-alpha ($gitCommitCount)"
             androidLocales(Config.incubatingResourceConfigurations)
         }
@@ -227,7 +227,7 @@ android {
             versionNameSuffix = "-beta ($gitCommitCount)"
         }
         create("prod") {
-            versionCode = (versionCodeFromGitCommitCount * 10) + 3
+            versionCode = (versionCodeFromGitCommitCount * 10) + 1
         }
     }
 

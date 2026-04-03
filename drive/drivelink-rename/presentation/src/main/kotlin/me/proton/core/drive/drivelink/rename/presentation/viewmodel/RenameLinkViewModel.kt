@@ -32,7 +32,6 @@ import me.proton.core.drive.base.domain.extension.ellipsizeMiddle
 import me.proton.core.drive.base.domain.extension.filterSuccessOrError
 import me.proton.core.drive.base.domain.extension.toResult
 import me.proton.core.drive.base.domain.log.LogTag
-import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.usecase.BroadcastMessages
 import me.proton.core.drive.drivelink.crypto.domain.usecase.GetDecryptedDriveLink
 import me.proton.core.drive.drivelink.domain.entity.DriveLink
@@ -96,7 +95,7 @@ class RenameLinkViewModel @Inject constructor(
         }
         renameBlock()
             .onFailure { error ->
-                error.log(LogTag.RENAME, "Cannot rename link: ${linkId.id.logId()}")
+                error.log(LogTag.RENAME, "Cannot rename link: ${linkId.id}")
                 error.handle()
             }
             .onSuccess {

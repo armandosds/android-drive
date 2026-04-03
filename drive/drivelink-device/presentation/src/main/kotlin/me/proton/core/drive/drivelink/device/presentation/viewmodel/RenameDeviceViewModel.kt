@@ -31,7 +31,6 @@ import me.proton.core.drive.base.data.extension.log
 import me.proton.core.drive.base.domain.extension.filterSuccessOrError
 import me.proton.core.drive.base.domain.extension.toResult
 import me.proton.core.drive.base.domain.log.LogTag
-import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.usecase.BroadcastMessages
 import me.proton.core.drive.base.presentation.extension.require
 import me.proton.core.drive.device.domain.entity.Device
@@ -74,7 +73,7 @@ class RenameDeviceViewModel @Inject constructor(
             name,
         )
             .onFailure { error ->
-                error.log(LogTag.RENAME, "Cannot rename device: ${deviceId.id.logId()}")
+                error.log(LogTag.RENAME, "Cannot rename device: ${deviceId.id}")
                 error.handle()
             }
             .onSuccess {

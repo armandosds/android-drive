@@ -194,8 +194,6 @@
   <string name="error_share_locked">Freigabe ist gesperrt.</string>
   <string name="error_main_share_not_found">Das freigegebene Hauptverzeichnis konnte nicht gefunden werden.</string>
   <string name="error_share_not_found">Freigabe nicht gefunden.</string>
-  <string name="error_creating_photo_share_not_allowed">Die Fotosicherung ist vorübergehend deaktiviert.</string>
-  <string name="error_creating_share_not_allowed">Das Erstellen von Freigaben ist vorübergehend deaktiviert.</string>
   <string name="error_camera_permission">Eine Erlaubnis für das Verwenden der Kamera ist erforderlich.</string>
   <string name="operation_open_document">Dokumente öffnen kann</string>
   <string name="operation_create_document">Dokumente erstellen kann</string>

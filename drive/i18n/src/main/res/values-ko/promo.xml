@@ -28,7 +28,7 @@
   <!-- tag(q1campaign) -->
   <string name="promo_claim_offer_button">혜택 신청하기</string>
   <!-- tag(q1campaign) -->
-  <string name="promo_spring_sale_drawer_title">봄맞이 세일</string>
+  <string name="promo_spring_sale_drawer_title">봄 세일</string>
   <!-- tag(q1campaign)
         Variable %1$s is price per month
         Example:

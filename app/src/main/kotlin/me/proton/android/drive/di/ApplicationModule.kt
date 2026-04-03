@@ -21,6 +21,7 @@ package me.proton.android.drive.di
 import android.app.ActivityManager
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.pm.ShortcutManager
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.WorkManager
 import com.google.android.play.core.review.ReviewManager
@@ -32,6 +33,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dagger.multibindings.ElementsIntoSet
+import dagger.multibindings.IntoSet
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import me.proton.android.drive.BuildConfig
@@ -71,8 +73,10 @@ import me.proton.core.drive.base.domain.repository.ClientUidRepository
 import me.proton.core.drive.base.domain.usecase.DeviceInfo
 import me.proton.core.drive.base.domain.usecase.DriveUrlBuilder
 import me.proton.core.drive.documentsprovider.domain.usecase.GetDocumentsProviderRoots
+import me.proton.core.drive.folder.create.domain.provider.OpenFolderActionProvider
 import me.proton.core.drive.key.domain.handler.PublicKeyEventHandler
 import me.proton.core.drive.log.domain.handler.LogEventHandler
+import me.proton.core.drive.messagequeue.domain.ActionProvider
 import me.proton.core.drive.notification.data.provider.NotificationBuilderProvider
 import me.proton.core.drive.worker.data.usecase.TransferDataNotifier
 import me.proton.drive.android.settings.data.datastore.AppUiSettingsDataStore
@@ -196,6 +200,12 @@ object ApplicationModule {
     @Provides
     @Singleton
     fun provideReviewManager(@ApplicationContext context: Context): ReviewManager = ReviewManagerFactory.create(context)
+
+    @Provides
+    @Singleton
+    fun provideShortcutManager(
+        @ApplicationContext context: Context
+    ): ShortcutManager = context.getSystemService(ShortcutManager::class.java)
 }
 
 @Module
@@ -239,4 +249,8 @@ abstract class ApplicationBindsModule {
     @Binds
     @Singleton
     abstract fun bindsAppProtonPhotosClientProvider(impl: AppProtonPhotosClientProvider): ProtonPhotosClientProvider
+
+    @Binds
+    @IntoSet
+    abstract fun bindsOpenFolderActionProvider(impl: OpenFolderActionProvider): ActionProvider
 }

@@ -21,6 +21,7 @@ package me.proton.android.drive.ui.viewmodel
 import android.content.Context
 import android.net.Uri
 import androidx.annotation.StringRes
+import androidx.core.net.toUri
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -43,7 +44,6 @@ import me.proton.android.drive.extension.getDefaultMessage
 import me.proton.android.drive.extension.log
 import me.proton.android.drive.ui.options.Option
 import me.proton.android.drive.ui.options.filter
-import me.proton.android.drive.ui.options.filterProtonDocs
 import me.proton.android.drive.ui.options.filterProtonSheets
 import me.proton.android.drive.usecase.CreateNewDocument
 import me.proton.android.drive.usecase.GetUriForFile
@@ -51,6 +51,7 @@ import me.proton.android.drive.usecase.NotifyActivityNotFound
 import me.proton.core.compose.component.bottomsheet.RunAction
 import me.proton.core.domain.arch.mapSuccessValueOrNull
 import me.proton.core.drive.base.data.datastore.GetUserDataStore
+import me.proton.core.drive.base.data.entity.LoggerLevel
 import me.proton.core.drive.base.domain.extension.combine
 import me.proton.core.drive.base.domain.extension.mapWithPrevious
 import me.proton.core.drive.base.domain.log.LogTag.VIEW_MODEL
@@ -79,15 +80,12 @@ import me.proton.core.drive.linkupload.domain.entity.UploadFileLink
 import me.proton.core.drive.messagequeue.domain.entity.BroadcastMessage
 import me.proton.core.drive.share.domain.entity.ShareId
 import me.proton.core.drive.upload.domain.exception.NotEnoughSpaceException
-import me.proton.core.util.kotlin.CoreLogger
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 import me.proton.core.drive.i18n.R as I18N
-import androidx.core.net.toUri
-import me.proton.core.drive.base.data.entity.LoggerLevel
 
 @HiltViewModel
 class ParentFolderOptionsViewModel @Inject constructor(
@@ -124,8 +122,6 @@ class ParentFolderOptionsViewModel @Inject constructor(
             new
         }
         .stateIn(viewModelScope, Eagerly, null)
-    private val docsKillSwitch = getFeatureFlagFlow(FeatureFlagId.driveDocsDisabled(userId))
-        .stateIn(viewModelScope, Eagerly, FeatureFlag(FeatureFlagId.driveDocsDisabled(userId), NOT_FOUND))
     private val sheetsKillSwitch = getFeatureFlagFlow(FeatureFlagId.docsSheetsDisabled(userId))
         .stateIn(viewModelScope, Eagerly, FeatureFlag(FeatureFlagId.docsSheetsDisabled(userId), NOT_FOUND))
     private val sheetsFeatureFlag = getFeatureFlagFlow(FeatureFlagId.docsSheetsEnabled(userId))
@@ -151,17 +147,15 @@ class ParentFolderOptionsViewModel @Inject constructor(
         dismiss: () -> Unit,
     ): Flow<List<FileOptionEntry<DriveLink.Folder>>> = combine(
         driveLink.filterNotNull(),
-        docsKillSwitch,
         sheetsKillSwitch,
         sheetsFeatureFlag,
         createSheetOnMobileFeatureFlag,
         uploadFolderFeatureFlag,
         scanDocumentNotificationDotViewModel.notificationDotRequested,
         isScannerAvailable(userId)
-    ) { folder, protonDocsKillSwitch, _, _, _, uploadFolder, scanDocumentNotificationDotRequested, isScannerAvailable ->
+    ) { folder, _, _, _, uploadFolder, scanDocumentNotificationDotRequested, isScannerAvailable ->
         options
             .filter(folder)
-            .filterProtonDocs(protonDocsKillSwitch)
             .filterProtonSheets(isProtonSheetsEnabled)
             .filterUploadFolder(uploadFolder.on)
             .filterScanDocument(isScannerAvailable)

@@ -43,7 +43,7 @@ class GetContentDigest @Inject constructor(
     operator fun invoke(
         xAttr: XAttr,
     ): Result<String> = coRunCatching {
-        val digests = requireNotNull(xAttr.common.digests) { "XAttr does not contain digests" }
+        val digests = requireNotNull(xAttr.common?.digests) { "XAttr does not contain digests" }
         requireNotNull(digests[configurationProvider.contentDigestAlgorithm]) {
             "Digests does not contain content digest algorithm ${configurationProvider.contentDigestAlgorithm}"
         }

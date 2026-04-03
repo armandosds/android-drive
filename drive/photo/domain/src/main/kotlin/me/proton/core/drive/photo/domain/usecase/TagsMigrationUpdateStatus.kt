@@ -43,7 +43,7 @@ class TagsMigrationUpdateStatus @Inject constructor(
             volumeId = volumeId,
             fileId = fileId,
         ).getOrThrow()
-        checkNotNull(file) { "Cannot find tags migration file: ${fileId.id.logId()}" }
+        checkNotNull(file) { "Cannot find tags migration file: ${fileId.id}" }
         val finished = getTagsMigrationStatistics(fileId.userId, volumeId).first().isFinished
         updateStatus(
             userId = fileId.userId,

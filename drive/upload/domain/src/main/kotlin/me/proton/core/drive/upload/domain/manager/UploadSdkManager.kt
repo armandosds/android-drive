@@ -22,9 +22,12 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import me.proton.core.drive.base.domain.log.LogTag.UploadTag.logTag
 import me.proton.core.drive.base.domain.provider.ProtonDriveClientProvider
+import me.proton.core.drive.base.domain.provider.ProtonPhotosClientProvider
 import me.proton.core.drive.linkupload.domain.entity.UploadFileLink
+import me.proton.core.drive.upload.domain.exception.UploadNotFoundException
 import me.proton.core.util.kotlin.CoreLogger
 import me.proton.drive.sdk.ProtonDriveClient
+import me.proton.drive.sdk.ProtonPhotosClient
 import me.proton.drive.sdk.UploadController
 import me.proton.drive.sdk.Uploader
 import java.util.concurrent.ConcurrentHashMap
@@ -34,6 +37,7 @@ import javax.inject.Singleton
 @Singleton
 class UploadSdkManager @Inject constructor(
     private val protonDriveClientProvider: ProtonDriveClientProvider,
+    private val protonPhotosClientProvider: ProtonPhotosClientProvider,
 ) {
 
     private data class UploadState(
@@ -48,11 +52,31 @@ class UploadSdkManager @Inject constructor(
         with(uploadFileLink.state()) {
             mutex.withLock {
                 if (uploader == null) {
-                    CoreLogger.d(uploadFileLink.id.logTag(), "Creating uploader")
+                    CoreLogger.d(uploadFileLink.id.logTag(), "Creating file uploader")
                     val driveClient = protonDriveClientProvider
                         .getOrCreate(uploadFileLink.userId)
                         .getOrThrow()
                     uploader = block(driveClient)
+                }
+            }
+        }
+    }
+
+    suspend fun enqueuePhoto(
+        uploadFileLink: UploadFileLink,
+        block: suspend (ProtonPhotosClient) -> Uploader
+    ) {
+        with(uploadFileLink.state()) {
+            mutex.withLock {
+                if (uploader == null) {
+                    CoreLogger.i(
+                        tag = uploadFileLink.id.logTag(),
+                        message = "Creating photos uploader",
+                    )
+                    val photosClient = protonPhotosClientProvider
+                        .getOrCreate(uploadFileLink.userId)
+                        .getOrThrow()
+                    uploader = block(photosClient)
                 }
             }
         }
@@ -64,7 +88,7 @@ class UploadSdkManager @Inject constructor(
     ): UploadController = with(uploadFileLink.state()) {
         mutex.withLock {
             val uploader = uploader
-                ?: error("Upload was not enqueued or cancelled for ${uploadFileLink.id}")
+                ?: throw UploadNotFoundException("Upload was not enqueued or cancelled for ${uploadFileLink.id}")
 
             controller ?: block(uploader).also { controller = it }
         }

@@ -30,5 +30,4 @@ sealed class ShareException : DriveException() {
         val volumeId: VolumeId? = null,
         val shareType: Share.Type,
     ) : ShareException()
-    data class CreatingShareNotAllowed(val userId: UserId, val shareType: Share.Type) : ShareException()
 }

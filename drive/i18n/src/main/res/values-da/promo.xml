@@ -28,7 +28,7 @@
   <!-- tag(q1campaign) -->
   <string name="promo_claim_offer_button">Få tilbud</string>
   <!-- tag(q1campaign) -->
-  <string name="promo_spring_sale_drawer_title">Forårsudsalg</string>
+  <string name="promo_spring_sale_drawer_title">Forårssalg</string>
   <!-- tag(q1campaign)
         Variable %1$s is price per month
         Example:

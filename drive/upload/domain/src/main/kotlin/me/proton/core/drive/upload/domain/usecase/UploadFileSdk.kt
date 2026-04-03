@@ -44,10 +44,10 @@ import me.proton.core.drive.linkupload.domain.usecase.UpdateUploadState
 import me.proton.core.drive.share.domain.entity.Share
 import me.proton.core.drive.share.domain.usecase.GetShare
 import me.proton.core.drive.thumbnail.domain.usecase.CreateThumbnail
+import me.proton.core.drive.upload.domain.exception.UploadNotFoundException
 import me.proton.core.drive.upload.domain.extension.injectMessageDigests
 import me.proton.core.drive.upload.domain.manager.UploadSdkManager
 import me.proton.core.drive.upload.domain.resolver.UriResolver
-import me.proton.drive.sdk.UploadController
 import okio.FileNotFoundException
 import java.io.InputStream
 import java.nio.channels.Channels
@@ -72,10 +72,8 @@ class UploadFileSdk @Inject constructor(
         block: suspend (Bytes) -> Unit,
     ) = coRunCatching {
         coroutineScope {
-            var controller: UploadController? = null
             try {
-
-                controller = uploadSdkManager.controller(uploadFileLink) { uploader ->
+                val controller = uploadSdkManager.controller(uploadFileLink) { uploader ->
                     val (inputStream, messageDigests) = uploadFileLink.getInputStream(uriString)
                     uploader.uploadFromStream(
                         coroutineScope = this,
@@ -90,9 +88,7 @@ class UploadFileSdk @Inject constructor(
                     .filterNotNull()
                     .onEach { progressUpdate -> block(progressUpdate.bytesCompleted.bytes) }
                     .launchIn(this)
-                if (controller.isPaused()) {
-                    controller.resume(this)
-                }
+                controller.tryResume(this)
                 updateUploadState(uploadFileLink.id, UploadState.UPLOADING_BLOCKS).getOrThrow()
                 val result = try {
                     controller.awaitCompletion()
@@ -103,14 +99,12 @@ class UploadFileSdk @Inject constructor(
                     uploadSdkManager.close(uploadFileLink)
                     result
                 }
+            } catch (error: UploadNotFoundException) {
+                updateUploadState(uploadFileLink.id, UploadState.UNPROCESSED)
+                throw error
             } finally {
                 if (!isActive) {
                     withContext(NonCancellable) {
-                        controller?.let {
-                            if (!controller.isPaused()) {
-                                controller.pause()
-                            }
-                        }
                         updateUploadState(uploadFileLink.id, UploadState.IDLE)
                     }
                 }

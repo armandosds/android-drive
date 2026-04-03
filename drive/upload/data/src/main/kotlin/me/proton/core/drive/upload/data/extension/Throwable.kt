@@ -32,6 +32,7 @@ import me.proton.core.drive.cryptobase.domain.exception.VerificationException
 import me.proton.core.drive.observability.domain.metrics.UploadErrorsTotal
 import me.proton.core.drive.upload.domain.exception.InconsistencyException
 import me.proton.core.drive.upload.domain.exception.NotEnoughSpaceException
+import me.proton.core.drive.upload.domain.exception.UploadNotFoundException
 import me.proton.core.network.domain.ApiException
 import me.proton.core.network.domain.hasProtonErrorCode
 import me.proton.core.network.domain.isHttpError
@@ -52,6 +53,7 @@ internal fun Throwable.log(tag: String, message: String? = null): Throwable = th
         is VerifierException -> this.log(tag, message.orEmpty())
         is InconsistencyException -> this.log(tag, message.orEmpty())
         is NotEnoughSpaceException -> this.log(tag, message.orEmpty())
+        is UploadNotFoundException -> this.log(tag, message.orEmpty())
         else -> this.baseLog(tag, message)
     }
 }

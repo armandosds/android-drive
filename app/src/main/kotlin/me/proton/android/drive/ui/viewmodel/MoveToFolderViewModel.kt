@@ -40,6 +40,8 @@ import me.proton.android.drive.ui.navigation.Screen
 import me.proton.android.drive.ui.viewevent.MoveToFolderViewEvent
 import me.proton.android.drive.ui.viewstate.MoveFileViewState
 import me.proton.core.domain.arch.mapSuccessValueOrNull
+import me.proton.android.drive.ui.handler.FolderCreatedHandler
+import me.proton.android.drive.ui.handler.FolderCreatedHandlerDelegate
 import me.proton.core.drive.base.domain.log.LogTag
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.presentation.common.Action
@@ -79,7 +81,13 @@ class MoveToFolderViewModel @Inject constructor(
     private val decryptDriveLinks: DecryptDriveLinks,
     savedStateHandle: SavedStateHandle,
     configurationProvider: ConfigurationProvider,
-) : HostFilesViewModel(appContext, getDriveLink, getPagedDriveLinks, savedStateHandle, configurationProvider) {
+    private val folderCreatedHandlerDelegate: FolderCreatedHandlerDelegate,
+) : HostFilesViewModel(appContext, getDriveLink, getPagedDriveLinks, savedStateHandle, configurationProvider),
+    FolderCreatedHandler by folderCreatedHandlerDelegate {
+
+    val folderCreatedFlow: Flow<FolderId> = folderCreatedHandlerDelegate.folderCreatedFlow
+
+    fun consumeFolderCreated() = folderCreatedHandlerDelegate.consume()
     private val shareId = savedStateHandle.get<String?>(Screen.Move.SHARE_ID)?.let { id ->
         ShareId(userId, id)
     }

@@ -194,8 +194,6 @@
   <string name="error_share_locked">Le partage est verrouillé.</string>
   <string name="error_main_share_not_found">Le répertoire principal n\'a pas été trouvé.</string>
   <string name="error_share_not_found">Le partage est introuvable.</string>
-  <string name="error_creating_photo_share_not_allowed">La sauvegarde des photos est temporairement désactivée.</string>
-  <string name="error_creating_share_not_allowed">La création des partages est temporairement désactivée.</string>
   <string name="error_camera_permission">L\'autorisation d\'accès à la caméra est nécessaire.</string>
   <string name="operation_open_document">ouvrir un document</string>
   <string name="operation_create_document">créer un document</string>

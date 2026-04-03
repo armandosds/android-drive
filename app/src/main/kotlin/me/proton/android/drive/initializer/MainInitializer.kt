@@ -65,6 +65,7 @@ class MainInitializer : Initializer<Unit> {
         FirstAppUsageInitializer::class.java,
         UploadInitializer::class.java,
         DownloadInitializer::class.java,
+        ShortcutInitializer::class.java,
         WebViewInitializer::class.java,
     )
 

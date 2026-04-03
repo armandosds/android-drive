@@ -83,6 +83,4 @@ interface UiSettingsRepository {
      * Retrieves setting if any overlay screen has been shown to the user
      */
     suspend fun hasShownOverlay(): Boolean
-
-
 }

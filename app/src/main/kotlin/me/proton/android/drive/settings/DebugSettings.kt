@@ -154,6 +154,7 @@ class DebugSettings(
     override val preferSdkForUpload: Boolean = true
     override val preferSdkForDownload: Boolean = true
     override val preferSdkForThumbnail: Boolean = true
+    override val preferSdkForNodeOperation: Boolean = true
 
     fun reset(coroutineScope: CoroutineScope) {
         coroutineScope.launch {

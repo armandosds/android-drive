@@ -117,7 +117,9 @@ class EnableBackupForBucketsDialogViewModel @Inject constructor(
         }
 
         override val onSave: () -> Unit = {
-            runAction(::save)
+            runAction {
+                save()
+            }
         }
 
         override val onDismiss: () -> Unit = {
@@ -125,41 +127,43 @@ class EnableBackupForBucketsDialogViewModel @Inject constructor(
         }
     }
 
-    private suspend fun save() {
-        coRunCatching {
-            val selectedIds = selectedBucketIds.value
-            val folderId = photosDriveLink.toResult().getOrThrow().id
-            enablePhotosBackup(folderId) { bucket ->
-                bucket.bucketId in selectedIds
-            }.getOrThrow()
-        }.onSuccess { backupState ->
-            when (backupState) {
-                is PhotoBackupState.Enabled -> {
-                    val folderNames = backupState.folderNames
-                    val folderCount = folderNames.size
-                    broadcastMessages(
-                        userId = userId,
-                        message = appContext.resources.getQuantityString(
-                            I18N.plurals.photos_message_folders_setup,
-                            folderCount
+    private fun save() {
+        viewModelScope.launch {
+            coRunCatching {
+                val selectedIds = selectedBucketIds.value
+                val folderId = photosDriveLink.toResult().getOrThrow().id
+                enablePhotosBackup(folderId) { bucket ->
+                    bucket.bucketId in selectedIds
+                }.getOrThrow()
+            }.onSuccess { backupState ->
+                when (backupState) {
+                    is PhotoBackupState.Enabled -> {
+                        val folderNames = backupState.folderNames
+                        val folderCount = folderNames.size
+                        broadcastMessages(
+                            userId = userId,
+                            message = appContext.resources.getQuantityString(
+                                I18N.plurals.photos_message_folders_setup,
+                                folderCount
+                            )
+                                .format(folderNames.joinToString(", "), folderCount),
+                            type = BroadcastMessage.Type.INFO,
                         )
-                            .format(folderNames.joinToString(", "), folderCount),
-                        type = BroadcastMessage.Type.INFO,
-                    )
-                }
+                    }
 
-                else -> CoreLogger.w(BACKUP, "Failed to enable backup $backupState")
+                    else -> CoreLogger.w(BACKUP, "Failed to enable backup $backupState")
+                }
+            }.onFailure { error ->
+                error.log(BACKUP, "Failed to setup photos backup")
+                broadcastMessages(
+                    userId = userId,
+                    message = error.getDefaultMessage(
+                        context = appContext,
+                        useExceptionMessage = configurationProvider.useExceptionMessage,
+                    ),
+                    type = BroadcastMessage.Type.ERROR,
+                )
             }
-        }.onFailure { error ->
-            error.log(BACKUP, "Failed to setup photos backup")
-            broadcastMessages(
-                userId = userId,
-                message = error.getDefaultMessage(
-                    context = appContext,
-                    useExceptionMessage = configurationProvider.useExceptionMessage,
-                ),
-                type = BroadcastMessage.Type.ERROR,
-            )
         }
     }
 

@@ -78,6 +78,7 @@
   <string name="common_add_to_albums_action">Adicionar aos álbuns</string>
   <string name="common_tag_photo_action">Analisar a foto para identificar etiquetas</string>
   <string name="common_save_as_action">Save as</string>
+  <string name="common_open_action">Open</string>
   <!-- endregion -->
   <!-- region Common file types -->
   <string name="common_type_audio">Áudio</string>

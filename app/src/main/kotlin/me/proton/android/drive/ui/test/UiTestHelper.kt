@@ -22,10 +22,12 @@ import androidx.annotation.RestrictTo
 import androidx.datastore.preferences.core.edit
 import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.base.data.datastore.GetUserDataStore
+import me.proton.core.drive.base.data.datastore.GetUserDataStore.Keys.springSalePromo2026LastShown
 import me.proton.core.drive.base.data.datastore.GetUserDataStore.Keys.subscriptionLastUpdate
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.drive.android.settings.data.datastore.AppUiSettingsDataStore
 import me.proton.drive.android.settings.domain.entity.WhatsNewKey
+import java.util.Date
 import javax.inject.Inject
 
 @RestrictTo(RestrictTo.Scope.TESTS)
@@ -55,6 +57,12 @@ class UiTestHelper @Inject constructor(
     suspend fun doNotShowDriveLitePromoAfterLogin(userId: UserId) {
         getUserDataStore(userId).edit { preferences ->
             preferences[subscriptionLastUpdate("drivelite2024")] = 1L
+        }
+    }
+
+    suspend fun doNotShowSpringSalePromo2026(userId: UserId) {
+        getUserDataStore(userId).edit { preferences ->
+            preferences[springSalePromo2026LastShown] = Date().time
         }
     }
 }

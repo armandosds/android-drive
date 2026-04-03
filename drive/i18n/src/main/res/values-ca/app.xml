@@ -194,8 +194,6 @@
   <string name="error_share_locked">La compartició està bloquejada.</string>
   <string name="error_main_share_not_found">No s\'ha trobat la carpeta principal.</string>
   <string name="error_share_not_found">No s\'ha trobat la compartició.</string>
-  <string name="error_creating_photo_share_not_allowed">La còpia de seguretat de fotos està desactivada temporalment.</string>
-  <string name="error_creating_share_not_allowed">S\'ha desactivat temporalment la creació d\'elements compartits.</string>
   <string name="error_camera_permission">Cal permís d\'accés a la càmera.</string>
   <string name="operation_open_document">obrir un document</string>
   <string name="operation_create_document">crear un document</string>

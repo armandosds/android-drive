@@ -46,12 +46,20 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import me.proton.core.compose.flow.rememberFlowWithLifecycle
 import me.proton.core.compose.theme.ProtonDimens.ExtraSmallSpacing
 import me.proton.core.drive.base.domain.entity.Percentage
 import me.proton.core.drive.base.presentation.component.TopAppBar
+import me.proton.core.drive.base.presentation.effect.ListEffect
+import me.proton.core.drive.base.presentation.extension.onContent
+import me.proton.core.drive.base.presentation.extension.onEmpty
+import me.proton.core.drive.base.presentation.extension.onError
+import me.proton.core.drive.base.presentation.extension.onLoading
+import me.proton.core.drive.base.presentation.state.ListContentState
 import me.proton.core.drive.drivelink.domain.entity.DriveLink
 import me.proton.core.drive.files.presentation.component.files.FilesGridContent
 import me.proton.core.drive.files.presentation.component.files.FilesGridItem
@@ -67,12 +75,7 @@ import me.proton.core.drive.files.presentation.event.FilesViewEvent
 import me.proton.core.drive.files.presentation.extension.LayoutType
 import me.proton.core.drive.files.presentation.extension.driveLinkSemantics
 import me.proton.core.drive.files.presentation.state.FilesViewState
-import me.proton.core.drive.base.presentation.state.ListContentState
-import me.proton.core.drive.base.presentation.effect.ListEffect
-import me.proton.core.drive.base.presentation.extension.onContent
-import me.proton.core.drive.base.presentation.extension.onEmpty
-import me.proton.core.drive.base.presentation.extension.onError
-import me.proton.core.drive.base.presentation.extension.onLoading
+import me.proton.core.drive.link.domain.entity.LinkId
 import me.proton.core.drive.linkupload.domain.entity.UploadFileLink
 import me.proton.core.drive.linkupload.presentation.compose.FilesUploadingListItem
 import me.proton.core.drive.sorting.presentation.state.toSortingViewState
@@ -89,6 +92,9 @@ fun Files(
     getTransferProgress: (DriveLink) -> Flow<Percentage>? = { null },
     uploadingFileLinks: Flow<List<UploadFileLink>> = emptyFlow(),
     showTopAppBar: Boolean = true,
+    scrollToId: LinkId? = null,
+    onScrollCompleted: () -> Unit = {},
+    highlightedId: LinkId? = null,
     tabs: @Composable ColumnScope.() -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {},
 ) {
@@ -105,9 +111,9 @@ fun Files(
             tabs()
         }
         if (viewState.isGrid) {
-            lazyColumnItems.DisplayAsGrid(viewState, viewEvent, uploadFileLinkList, getTransferProgress)
+            lazyColumnItems.DisplayAsGrid(viewState, viewEvent, uploadFileLinkList, getTransferProgress, scrollToId, onScrollCompleted, highlightedId)
         } else {
-            lazyColumnItems.DisplayAsList(viewState, viewEvent, uploadFileLinkList, getTransferProgress)
+            lazyColumnItems.DisplayAsList(viewState, viewEvent, uploadFileLinkList, getTransferProgress, scrollToId, onScrollCompleted, highlightedId)
         }
     }
 }
@@ -198,12 +204,23 @@ private fun LazyColumnItems.DisplayAsGrid(
     viewEvent: FilesViewEvent,
     uploadFileLinkList: List<UploadFileLink>,
     getTransferProgress: (DriveLink) -> Flow<Percentage>?,
+    scrollToId: LinkId? = null,
+    onScrollCompleted: () -> Unit = {},
+    highlightedId: LinkId? = null,
 ) {
     val selectedDriveLinks by rememberFlowWithLifecycle(flow = viewState.selected)
         .collectAsState(initial = emptySet())
     BoxWithConstraints {
         val itemsPerRow = floor(maxWidth / GridItemWidth).roundToInt().coerceAtLeast(1)
         val lazyListState = this@DisplayAsGrid.rememberLazyListState()
+        ScrollToEffect(
+            scrollToId = scrollToId,
+            lazyListState = lazyListState,
+            viewState = viewState,
+            uploadFileLinkList = uploadFileLinkList,
+            onScrollCompleted = onScrollCompleted,
+            toLazyListIndex = { itemIndex -> itemIndex / itemsPerRow },
+        )
         ListContent(
             viewState = viewState,
             viewEvent = viewEvent,
@@ -225,9 +242,10 @@ private fun LazyColumnItems.DisplayAsGrid(
                     transferProgressFlow = remember(driveLink.downloadState) { getTransferProgress(driveLink) },
                     modifier = Modifier
                         .weight(1F)
-                        .driveLinkSemantics(driveLink, LayoutType.Grid),
+                        .driveLinkSemantics(driveLink, LayoutType.Grid, driveLink.id == highlightedId),
                     isSelected = selected,
                     inMultiselect = selected || selectedDriveLinks.isNotEmpty(),
+                    isHighlighted = driveLink.id == highlightedId,
                     onRenderThumbnail = viewEvent.onRenderThumbnail,
                 )
             }
@@ -241,10 +259,21 @@ private fun LazyColumnItems.DisplayAsList(
     viewEvent: FilesViewEvent,
     uploadFileLinkList: List<UploadFileLink>,
     getTransferProgress: (DriveLink) -> Flow<Percentage>?,
+    scrollToId: LinkId? = null,
+    onScrollCompleted: () -> Unit = {},
+    highlightedId: LinkId? = null,
 ) {
     val selectedDriveLinks by rememberFlowWithLifecycle(flow = viewState.selected)
         .collectAsState(initial = emptySet())
     val lazyListState = this@DisplayAsList.rememberLazyListState()
+    ScrollToEffect(
+        scrollToId = scrollToId,
+        lazyListState = lazyListState,
+        viewState = viewState,
+        uploadFileLinkList = uploadFileLinkList,
+        onScrollCompleted = onScrollCompleted,
+        toLazyListIndex = { itemIndex -> itemIndex },
+    )
     ListContent(viewState, viewEvent, uploadFileLinkList, lazyListState) {
         FilesListContent(this@DisplayAsList) { driveLink: DriveLink ->
             val selected = selectedDriveLinks.contains(driveLink.id)
@@ -260,10 +289,39 @@ private fun LazyColumnItems.DisplayAsList(
                 transferProgressFlow = remember(driveLink.downloadState) { getTransferProgress(driveLink) },
                 isSelected = selected,
                 inMultiselect = selected || selectedDriveLinks.isNotEmpty(),
-                modifier = Modifier.driveLinkSemantics(driveLink, LayoutType.List),
+                isHighlighted = driveLink.id == highlightedId,
+                modifier = Modifier.driveLinkSemantics(driveLink, LayoutType.List, driveLink.id == highlightedId),
                 onRenderThumbnail = viewEvent.onRenderThumbnail,
             )
         }
+    }
+}
+
+@Composable
+private fun LazyColumnItems.ScrollToEffect(
+    scrollToId: LinkId?,
+    lazyListState: LazyListState,
+    viewState: FilesViewState,
+    uploadFileLinkList: List<UploadFileLink>,
+    onScrollCompleted: () -> Unit,
+    toLazyListIndex: (itemIndex: Int) -> Int,
+) {
+    LaunchedEffect(scrollToId) {
+        scrollToId ?: return@LaunchedEffect
+        snapshotFlow {
+            when (this@ScrollToEffect) {
+                is LazyColumnItems.PagingItems -> value.itemSnapshotList.items
+                is LazyColumnItems.ListItems -> value
+            }.indexOfFirst { driveLink -> driveLink.id == scrollToId }
+        }
+            .filter { itemIndex -> itemIndex >= 0 }
+            .first()
+            .let { itemIndex ->
+                val uploadOffset = uploadFileLinkList.size
+                val headerOffset = if (viewState.showHeader && viewState.listContentState is ListContentState.Content) 1 else 0
+                lazyListState.animateScrollToItem(toLazyListIndex(itemIndex) + uploadOffset + headerOffset)
+                onScrollCompleted()
+            }
     }
 }
 

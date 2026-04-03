@@ -194,8 +194,6 @@
   <string name="error_share_locked">Paylaşım kilitli.</string>
   <string name="error_main_share_not_found">Temel paylaşım bulunamadı.</string>
   <string name="error_share_not_found">Paylaşım bulunamadı.</string>
-  <string name="error_creating_photo_share_not_allowed">Fotoğraf yedekleme özelliği geçici olarak kullanılamıyor.</string>
-  <string name="error_creating_share_not_allowed">Paylaşım oluşturma özelliği geçici olarak kullanılamıyor.</string>
   <string name="error_camera_permission">Kameraya erişme izni gerekli.</string>
   <string name="operation_open_document">bir belge aç</string>
   <string name="operation_create_document">bir belge oluştur</string>

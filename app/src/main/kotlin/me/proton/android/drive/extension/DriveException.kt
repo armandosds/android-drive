@@ -39,10 +39,6 @@ fun DriveException.getDefaultMessage(context: Context): String = when (val excep
         Share.Type.MAIN -> context.getString(I18N.string.error_main_share_not_found)
         else -> context.getString(I18N.string.error_share_not_found)
     }
-    is ShareException.CreatingShareNotAllowed -> when (exception.shareType) {
-        Share.Type.PHOTO -> context.getString(I18N.string.error_creating_photo_share_not_allowed)
-        else -> context.getString(I18N.string.error_creating_share_not_allowed)
-    }
     is LockException -> exception.lockGetDefaultMessage(context)
     is LinksResultException -> exception.linkGetDefaultMessage(context)
     else -> error("Default message for exception is missing")

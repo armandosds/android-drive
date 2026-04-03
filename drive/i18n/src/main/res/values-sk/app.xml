@@ -204,8 +204,6 @@
   <string name="error_share_locked">Zdieľanie je uzamknuté.</string>
   <string name="error_main_share_not_found">Hlavné zdieľanie nebolo nájdené.</string>
   <string name="error_share_not_found">Zdieľanie nebolo nájdené.</string>
-  <string name="error_creating_photo_share_not_allowed">Zálohovanie fotografií je dočasne zakázané.</string>
-  <string name="error_creating_share_not_allowed">Zdieľanie je dočasne zakázané.</string>
   <string name="error_camera_permission">Je potrebné povolenie na používanie fotoaparátu.</string>
   <string name="operation_open_document">otvoriť dokument</string>
   <string name="operation_create_document">vytvoriť dokument</string>

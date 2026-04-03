@@ -51,10 +51,10 @@
             "Backing up items from 3 folders: Camera, Raw, Screenshots"
     -->
   <plurals name="photos_message_folders_setup">
-    <item quantity="one">Backing up items from %2$d folder: %1$s</item>
-    <item quantity="two">Backing up items from %2$d folders: %1$s</item>
-    <item quantity="few">Backing up items from %2$d folders: %1$s</item>
-    <item quantity="other">Backing up items from %2$d folders: %1$s</item>
+    <item quantity="one">Varnostno kopiranje predmetov iz %2$d mape: %1$s</item>
+    <item quantity="two">Varnostno kopiranje predmetov iz %2$d map: %1$s</item>
+    <item quantity="few">Varnostno kopiranje predmetov iz %2$d map: %1$s</item>
+    <item quantity="other">Varnostno kopiranje predmetov iz %2$d map: %1$s</item>
   </plurals>
   <!--
         Variable %1$s is a folder name
@@ -64,7 +64,7 @@
   <string name="photos_error_no_folders">Ni mape %1$s za varnostno kopiranje</string>
   <string name="photos_error_backup_disabled">Varnostno kopiranje je onemogočeno.</string>
   <string name="photos_error_backup_disabled_action">Vklopi</string>
-  <string name="photos_error_backup_missing_folder">Default camera folder not found</string>
+  <string name="photos_error_backup_missing_folder">Privzeta mapa za fotografije ni bila najdena</string>
   <string name="photos_error_backup_failed">Varnostna kopija ni uspela.</string>
   <string name="photos_error_backup_temporarily_disabled">Varnostno kopiranje je onemogočeno.</string>
   <string name="photos_error_missing_permissions">Manjkajoča dovoljenja</string>
@@ -153,11 +153,11 @@
   <string name="photos_panoramas_empty_description">Vaše panoramske fotografije bodo prikazane tukaj</string>
   <string name="photos_raws_empty_title">Brez RAW</string>
   <string name="photos_raws_empty_description">Vaše fotografije RAW bodo prikazane tukaj</string>
-  <string name="photos_share_migration_in_progress_title">Setting up Albums and Filters</string>
+  <string name="photos_share_migration_in_progress_title">Nastavljanje albumov in filtrov</string>
   <string name="photos_share_migration_in_progress_description">Če imate veliko knjižnico fotografij, lahko traja nekaj časa. Lahko zaprete aplikacijo. Delali bomo v ozadju.</string>
   <string name="photos_share_migration_needed_banner_title">Potrebna je selitev podatkov</string>
   <string name="photos_share_migration_needed_banner_description">Po selitvi lahko uporabljate nove funkcije, kot so filtri in foto album.</string>
-  <string name="photos_tags_migration_title">Tags migration</string>
+  <string name="photos_tags_migration_title">Selitev oznak</string>
   <!--
         Variable %1$s is a quantity (formatted) of photos migrates
         Example:
@@ -165,10 +165,10 @@
            Finished, 12 345 files were migrated.
     -->
   <plurals name="photos_tags_migration_finished">
-    <item quantity="one">Finished, %1$s file was migrated.</item>
-    <item quantity="two">Finished, %1$s files were migrated.</item>
-    <item quantity="few">Finished, %1$s files were migrated.</item>
-    <item quantity="other">Finished, %1$s files were migrated.</item>
+    <item quantity="one">Končano. Prenesena je bila %1$s datoteka.</item>
+    <item quantity="two">Končano. Preneseni sta bili %1$s datoteki.</item>
+    <item quantity="few">Končano. Prenesene so bile %1$s datoteke.</item>
+    <item quantity="other">Končano. Prenesenih je bilo %1$s datotek.</item>
   </plurals>
   <!--
         Variable %1$s is a quantity (formatted) of photos to migrate
@@ -178,11 +178,11 @@
            Ongoing, migrating 12 345 files, 123 waiting for download.
     -->
   <plurals name="photos_tags_migration_ongoing">
-    <item quantity="one">Ongoing, migrating %1$s file, %2$s waiting for download.</item>
-    <item quantity="two">Ongoing, migrating %1$s files, %2$s waiting for download.</item>
-    <item quantity="few">Ongoing, migrating %1$s files, %2$s waiting for download.</item>
-    <item quantity="other">Ongoing, migrating %1$s files, %2$s waiting for download.</item>
+    <item quantity="one">V teku. Prenašanje %1$s datoteke, %2$s v čakalni vrsti.</item>
+    <item quantity="two">V teku. Prenašanje %1$s datotek, %2$s v čakalni vrsti.</item>
+    <item quantity="few">V teku. Prenašanje %1$s datotek, %2$s v čakalni vrsti.</item>
+    <item quantity="other">V teku. Prenašanje %1$s datotek, %2$s v čakalni vrsti.</item>
   </plurals>
-  <string name="photos_folder_selection_title">Backup photos from</string>
-  <string name="photos_folder_selection_description">Select folders to back up and their photos will appear in the Photos tab.</string>
+  <string name="photos_folder_selection_title">Varnostne kopije fotografij iz</string>
+  <string name="photos_folder_selection_description">Izberite mape za varnostno kopiranje in njihove fotografije se bodo prikazale v zavihku Fotografije.</string>
 </resources>

@@ -114,7 +114,7 @@ class GetFile @Inject constructor(
         removeDownloadState(verifiedDriveLink.link)
         CoreLogger.d(LogTag.GET_FILE, "File ${driveLink.id.id.logId()} is not downloaded yet, let's download it!")
         if (!retryable && !isConnectedToNetwork()) {
-            CoreLogger.w(LogTag.GET_FILE, "Download ${driveLink.id.id.logId()} failed as it is not retryable and there is no network connection")
+            CoreLogger.w(LogTag.GET_FILE, "Download ${driveLink.id.id} failed as it is not retryable and there is no network connection")
             return@flow emit(State.Error.NoConnection)
         }
         download(driveLink, retryable)
@@ -124,7 +124,7 @@ class GetFile @Inject constructor(
             if (e is CancellationException) {
                 throw e
             }
-            CoreLogger.w(LogTag.GET_FILE, e, "There was an error while downloading ${driveLink.id.id.logId()}")
+            CoreLogger.w(LogTag.GET_FILE, e, "There was an error while downloading ${driveLink.id.id}")
             return@flow emit(State.Error.Downloading(e))
         }
         CoreLogger.i(LogTag.GET_FILE, "File ${driveLink.id.id.logId()} is downloaded!")
@@ -228,7 +228,7 @@ class GetFile @Inject constructor(
         if (fileSize == null) {
             CoreLogger.w(
                 LogTag.GET_FILE,
-                "Cannot found real size for ${this.id.id.logId()}"
+                "Cannot found real size for ${this.id.id}"
             )
             return@coRunCatching file.length() != 0L
         }
@@ -236,7 +236,7 @@ class GetFile @Inject constructor(
         if (delta != 0L) {
             CoreLogger.w(
                 LogTag.GET_FILE,
-                "Unexpected size of existing file for ${this.id.id.logId()}, delta=${delta}"
+                "Unexpected size of existing file for ${this.id.id}, delta=${delta}"
             )
             file.delete()
             false

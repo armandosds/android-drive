@@ -47,8 +47,8 @@
   <string name="folder_option_take_a_photo">ახალი სურათის გადაღება</string>
   <string name="folder_option_create_document">დოკუმენტის შექმნა</string>
   <string name="folder_option_create_spreadsheet">ელექტრონული ცხრილის შექმნა</string>
-  <string name="folder_option_import_folder">Upload a folder</string>
-  <string name="folder_option_scan_document">Scan document</string>
+  <string name="folder_option_import_folder">საქაღალდის ატვირთვა</string>
+  <string name="folder_option_scan_document">დოკუმენტის სკანირება</string>
   <string name="settings_theme_system_default">სისტემის ნაგულისხმები</string>
   <string name="settings_theme_dark">ბნელი</string>
   <string name="settings_theme_light">ღია</string>
@@ -194,13 +194,11 @@
   <string name="error_share_locked">ზიარი დაბლოკილია.</string>
   <string name="error_main_share_not_found">მთავარი გაზიარებული ვერ ვიპოვე</string>
   <string name="error_share_not_found">ზიარი ვერ ვიპოვე.</string>
-  <string name="error_creating_photo_share_not_allowed">სურათების მარქაფი დროებით გამორთულია.</string>
-  <string name="error_creating_share_not_allowed">გაზიარებულის შექმნა დროებით გათიშულია.</string>
   <string name="error_camera_permission">საჭიროა კამერის ნებართვა.</string>
   <string name="operation_open_document">დოკუმენტის გახსნა</string>
   <string name="operation_create_document">დოკუმენტის შექმნა</string>
   <string name="operation_take_picture">სურათის გადაღება</string>
-  <string name="operation_scan_document">scan a document</string>
+  <string name="operation_scan_document">დოკუმენტის დასკანერება</string>
   <!-- region Get more free storage -->
   <!--
         Variable %1$s is a quantity (formatted) of max free storage

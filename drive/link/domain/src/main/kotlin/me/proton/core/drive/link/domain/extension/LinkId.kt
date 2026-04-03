@@ -19,6 +19,8 @@ package me.proton.core.drive.link.domain.extension
 
 import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.link.domain.entity.LinkId
+import me.proton.core.drive.volume.domain.entity.VolumeId
+import me.proton.drive.sdk.Uid
 
 val LinkId.userId: UserId get() = shareId.userId
 
@@ -28,3 +30,5 @@ fun LinkId?.equalsAsLinkId(other: LinkId?): Boolean =
     } else {
         shareId == other?.shareId && id == other.id
     }
+
+fun LinkId.nodeUid(volumeId: VolumeId) = Uid.makeNodeUid(volumeId.id, id)

@@ -21,12 +21,14 @@ import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.announce.event.domain.entity.Event
 import me.proton.core.drive.announce.event.domain.handler.EventHandler
 import me.proton.core.drive.base.domain.log.LogTag.ANNOUNCE_EVENT
+import me.proton.core.drive.base.domain.usecase.ReportError
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.util.kotlin.CoreLogger
 import javax.inject.Inject
 
 class AnnounceEvent @Inject constructor(
     private val eventHandlers: @JvmSuppressWildcards Set<EventHandler>,
+    private val reportError: ReportError,
 ) {
     suspend operator fun invoke(
         userId: UserId,
@@ -36,10 +38,10 @@ class AnnounceEvent @Inject constructor(
             coRunCatching {
                 handler.onEvent(userId, event)
             }.onFailure { error ->
-                CoreLogger.e(
-                    ANNOUNCE_EVENT,
-                    error,
-                    "Error during broadcast of ${event.id} to $handler"
+                reportError(
+                    tag = ANNOUNCE_EVENT,
+                    error = error,
+                    message = "Error during broadcast of ${event.id} to $handler"
                 )
             }
         }
@@ -53,10 +55,10 @@ class AnnounceEvent @Inject constructor(
             coRunCatching {
                 handler.onEvents(userId, events)
             }.onFailure { error ->
-                CoreLogger.e(
-                    ANNOUNCE_EVENT,
-                    error,
-                    "Error during broadcast of events to $handler"
+                reportError(
+                    tag = ANNOUNCE_EVENT,
+                    error = error,
+                    message = "Error during broadcast of events to $handler"
                 )
             }
         }
@@ -69,10 +71,10 @@ class AnnounceEvent @Inject constructor(
             coRunCatching {
                 handler.onEvent(event)
             }.onFailure { error ->
-                CoreLogger.e(
-                    ANNOUNCE_EVENT,
-                    error,
-                    "Error during broadcast of ${event.id} to $handler"
+                reportError(
+                    tag = ANNOUNCE_EVENT,
+                    error = error,
+                    message = "Error during broadcast of ${event.id} to $handler"
                 )
             }
         }

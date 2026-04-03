@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2023 Proton AG.
+ * Copyright (c) 2026 Proton AG.
  * This file is part of Proton Core.
  *
  * Proton Core is free software: you can redistribute it and/or modify
@@ -15,25 +15,29 @@
  * You should have received a copy of the GNU General Public License
  * along with Proton Core.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 package me.proton.core.drive.drivelink.rename.domain.usecase
 
 import me.proton.core.drive.base.domain.extension.toResult
 import me.proton.core.drive.base.domain.util.coRunCatching
-import me.proton.core.drive.crypto.domain.usecase.link.CreateRenameInfo
-import me.proton.core.drive.eventmanager.base.domain.usecase.UpdateEventAction
 import me.proton.core.drive.link.domain.entity.FolderId
+import me.proton.core.drive.link.domain.usecase.UseSdkForNodeOperation
 import me.proton.core.drive.link.domain.entity.Link
 import me.proton.core.drive.link.domain.entity.LinkId
-import me.proton.core.drive.link.domain.repository.LinkRepository
+import me.proton.core.drive.link.domain.extension.nodeUid
+import me.proton.core.drive.link.domain.extension.userId
 import me.proton.core.drive.link.domain.usecase.GetLink
 import me.proton.core.drive.link.domain.usecase.ValidateLinkName
+import me.proton.core.drive.share.domain.usecase.GetShare
+import me.proton.drive.sdk.Uid
 import javax.inject.Inject
 
 class RenameLink @Inject constructor(
-    private val linkRepository: LinkRepository,
-    private val createRenameInfo: CreateRenameInfo,
+    private val renameLinkLegacy: RenameLinkLegacy,
+    private val renameLinkSdk: RenameLinkSdk,
+    private val useSdkForNodeOperation: UseSdkForNodeOperation,
     private val getLink: GetLink,
-    private val updateEventAction: UpdateEventAction,
+    private val getShare: GetShare,
     private val validateLinkName: ValidateLinkName,
 ) {
     suspend operator fun invoke(
@@ -41,12 +45,18 @@ class RenameLink @Inject constructor(
         link: Link,
         linkName: String,
     ): Result<Unit> = coRunCatching {
-        updateEventAction(
-            shareId = link.id.shareId,
-        ) {
-            linkRepository.renameLink(
-                linkId = link.id,
-                renameInfo = createRenameInfo(parentFolder, link, linkName, link.mimeType).getOrThrow()
+        if (useSdkForNodeOperation(link.id).getOrElse { false }) {
+            val share = getShare(link.id.shareId).toResult().getOrThrow()
+            renameLinkSdk(
+                userId = link.userId,
+                nodeUid = link.nodeUid(share.volumeId),
+                linkName = linkName,
+            ).getOrThrow()
+        } else {
+            renameLinkLegacy(
+                parentFolder = parentFolder,
+                link = link,
+                linkName = linkName,
             ).getOrThrow()
         }
     }
@@ -57,12 +67,19 @@ class RenameLink @Inject constructor(
         nameValidator: (String) -> String = { validateLinkName(folderName).getOrThrow() },
     ): Result<Unit> = coRunCatching {
         require(rootFolder.parentId == null) { "Use this method only for renaming a root folder" }
-        updateEventAction(
-            shareId = rootFolder.id.shareId,
-        ) {
-            linkRepository.renameLink(
-                linkId = rootFolder.id,
-                renameInfo = createRenameInfo(rootFolder, folderName, nameValidator).getOrThrow()
+
+        if (useSdkForNodeOperation(rootFolder.id).getOrElse { false }) {
+            val share = getShare(rootFolder.id.shareId).toResult().getOrThrow()
+            renameLinkSdk(
+                userId = rootFolder.userId,
+                nodeUid = rootFolder.nodeUid(share.volumeId),
+                linkName = folderName,
+            ).getOrThrow()
+        } else {
+            renameLinkLegacy(
+                rootFolder = rootFolder,
+                folderName = folderName,
+                nameValidator = nameValidator,
             ).getOrThrow()
         }
     }
@@ -71,11 +88,24 @@ class RenameLink @Inject constructor(
         linkId: LinkId,
         linkName: String,
     ): Result<Unit> = coRunCatching {
-        val link = getLink(linkId).toResult().getOrThrow()
-        val parentId = requireNotNull(link.parentId) { "Parent must not be null" }
-        when (val parent = getLink(parentId).toResult().getOrThrow()) {
-            is Link.Folder -> invoke(parent, link, linkName).getOrThrow()
-            else -> error("Album should not be renamed through this endpoint")
+        if (useSdkForNodeOperation(linkId).getOrElse { false }) {
+            val share = getShare(linkId.shareId).toResult().getOrThrow()
+            renameLinkSdk(
+                userId = linkId.userId,
+                nodeUid = linkId.nodeUid(share.volumeId),
+                linkName = linkName,
+            ).getOrThrow()
+        } else {
+            val link = getLink(linkId).toResult().getOrThrow()
+            val parentId = requireNotNull(link.parentId) { "Parent must not be null" }
+            when (val parent = getLink(parentId).toResult().getOrThrow()) {
+                is Link.Folder -> renameLinkLegacy(
+                    parentFolder = parent,
+                    link = link,
+                    linkName = linkName,
+                ).getOrThrow()
+                else -> error("Album should not be renamed through this endpoint")
+            }
         }
     }
 

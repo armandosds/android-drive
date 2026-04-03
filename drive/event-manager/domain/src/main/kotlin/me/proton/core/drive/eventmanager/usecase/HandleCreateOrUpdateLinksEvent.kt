@@ -22,7 +22,6 @@ import me.proton.core.drive.base.domain.extension.flowOf
 import me.proton.core.drive.base.domain.extension.nullIfNotFound
 import me.proton.core.drive.base.domain.extension.toResult
 import me.proton.core.drive.base.domain.log.LogTag.EVENTS
-import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.drivelink.offline.domain.usecase.UpdateOfflineContent
 import me.proton.core.drive.eventmanager.entity.LinkEventVO
 import me.proton.core.drive.link.domain.entity.FolderId
@@ -83,7 +82,7 @@ class HandleCreateOrUpdateLinksEvent @Inject constructor(
                 }
             },
             onFailure = { error ->
-                CoreLogger.w(EVENTS, error, "Cannot get link ${link.id.id.logId()}")
+                CoreLogger.w(EVENTS, error, "Cannot get link ${link.id.id}")
                 true
             }
         )

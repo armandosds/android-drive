@@ -34,7 +34,6 @@ import me.proton.core.drive.base.data.workmanager.addTags
 import me.proton.core.drive.base.domain.api.ProtonApiCode.NOT_EXISTS
 import me.proton.core.drive.base.domain.extension.onProtonHttpException
 import me.proton.core.drive.base.domain.log.LogTag.TRASH
-import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.usecase.BroadcastMessages
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.eventmanager.base.domain.usecase.UpdateEventAction
@@ -107,7 +106,7 @@ class TrashFileNodesWorker @AssistedInject constructor(
             coRunCatching {
                 linkRepository.fetchLink(linkId)
             }.onFailure { error ->
-                error.log(TRASH, "Cannot get link ${linkId.id.logId()}")
+                error.log(TRASH, "Cannot get link ${linkId.id}")
                 error.onProtonHttpException { protonData ->
                     if (protonData.code == NOT_EXISTS) {
                         handleOnDeleteEvent(listOf(linkId), stopOnFailure = true)

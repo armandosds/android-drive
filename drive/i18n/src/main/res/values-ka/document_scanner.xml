@@ -17,9 +17,9 @@
   ~ along with Proton Core.  If not, see <https://www.gnu.org/licenses/>.
   -->
 <resources>
-  <string name="scan_document_name_title">Name your scan</string>
+  <string name="scan_document_name_title">დაარქვით სახელი დასკანერებულ ფაილს</string>
   <string name="scan_document_name_output_format_pdf_title">PDF</string>
-  <string name="scan_document_name_output_format_pdf_description">All pages are saved into single document</string>
+  <string name="scan_document_name_output_format_pdf_description">ყველა გვერდი შეინახება ერთ დოკუმენტად</string>
   <string name="scan_document_name_output_format_jpeg_title">JPEG</string>
-  <string name="scan_document_name_output_format_jpeg_description">Every page is saved as separate image</string>
+  <string name="scan_document_name_output_format_jpeg_description">თითოეული გვერდი ინახება ცალკე სურათად</string>
 </resources>

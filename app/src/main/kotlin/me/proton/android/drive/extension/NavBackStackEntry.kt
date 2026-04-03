@@ -20,8 +20,26 @@ package me.proton.android.drive.extension
 
 import android.os.Build
 import android.os.Bundle
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavBackStackEntry
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import me.proton.android.drive.ui.handler.FolderCreatedHandler
+import me.proton.android.drive.ui.viewmodel.FilesViewModel
+import me.proton.android.drive.ui.viewmodel.MoveToFolderViewModel
+import me.proton.android.drive.ui.viewmodel.UploadToViewModel
 import java.io.Serializable
+
+@OptIn(ExperimentalCoroutinesApi::class)
+val NavBackStackEntry.folderCreatedHandler: FolderCreatedHandler?
+    get() = listOf(
+        FilesViewModel::class.java,
+        MoveToFolderViewModel::class.java,
+        UploadToViewModel::class.java,
+    ).firstNotNullOfOrNull { vmClass ->
+        runCatching {
+            ViewModelProvider(this, defaultViewModelProviderFactory)[vmClass] as? FolderCreatedHandler
+        }.getOrNull()
+    }
 
 fun NavBackStackEntry.requireArguments() = requireNotNull(arguments) { "arguments bundle is null" }
 

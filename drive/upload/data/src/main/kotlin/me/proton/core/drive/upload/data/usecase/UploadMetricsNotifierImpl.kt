@@ -54,8 +54,8 @@ class UploadMetricsNotifierImpl @Inject constructor(
         excludedErrorTypes: Set<UploadErrorsTotal.Type>,
     ) {
         val uploadedBySdk = useSdkForUpload(uploadFileLink.parentLinkId)
-            .getOrDefault(false)
-        if (uploadedBySdk) {
+            .getOrNull(uploadFileLink.logTag(), "Cannot check sdk usage")
+        if (uploadedBySdk == true) {
             CoreLogger.d(
                 tag = uploadFileLink.logTag(),
                 message = "Skipping upload metric notifier for file uploaded by SDK",

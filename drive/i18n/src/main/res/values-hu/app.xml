@@ -194,8 +194,6 @@
   <string name="error_share_locked">A megosztás zárolva.</string>
   <string name="error_main_share_not_found">A fő megosztás nem található.</string>
   <string name="error_share_not_found">Megosztás nem található.</string>
-  <string name="error_creating_photo_share_not_allowed">A fényképek biztonsági mentése ideiglenesen le van tiltva.</string>
-  <string name="error_creating_share_not_allowed">A megosztás létrehozása ideiglenesen le van tiltva.</string>
   <string name="error_camera_permission">Kamera engedély szükséges.</string>
   <string name="operation_open_document">dokumentum megnyitása</string>
   <string name="operation_create_document">dokumentum létrehozása</string>

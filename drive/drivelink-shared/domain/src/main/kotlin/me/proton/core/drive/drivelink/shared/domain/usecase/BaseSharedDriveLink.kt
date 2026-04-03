@@ -23,6 +23,7 @@ import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.base.domain.entity.CryptoProperty
 import me.proton.core.drive.base.domain.entity.toTimestampMs
 import me.proton.core.drive.base.domain.log.LogTag
+import me.proton.core.drive.base.domain.usecase.ReportError
 import me.proton.core.drive.drivelink.shared.domain.entity.SharedDriveLink
 import me.proton.core.drive.shareurl.base.domain.entity.ShareUrl
 import me.proton.core.drive.shareurl.base.domain.extension.userId
@@ -34,6 +35,7 @@ import java.util.Date
 abstract class BaseSharedDriveLink(
     private val getPublicUrl: GetPublicUrl,
     private val getCustomUrlPassword: GetCustomUrlPassword,
+    private val reportError: ReportError,
 ) {
 
     suspend fun ShareUrl.toSharedDriveLink() = SharedDriveLink(
@@ -64,7 +66,11 @@ abstract class BaseSharedDriveLink(
                 )
             },
             onFailure = { error ->
-                CoreLogger.e(LogTag.SHARE, error, "Cannot get public url")
+                reportError(
+                    tag = LogTag.SHARE,
+                    error = error,
+                    message = "Cannot get public url",
+                )
                 CryptoProperty.Encrypted(shareUrl.publicUrl)
             }
         )

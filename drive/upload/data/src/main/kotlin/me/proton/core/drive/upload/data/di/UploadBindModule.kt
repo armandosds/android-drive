@@ -27,10 +27,12 @@ import me.proton.core.drive.upload.data.manager.UploadErrorManagerImpl
 import me.proton.core.drive.upload.data.provider.FileProviderImpl
 import me.proton.core.drive.upload.data.resolver.AggregatedUriResolver
 import me.proton.core.drive.upload.data.usecase.UploadMetricsNotifierImpl
+import me.proton.core.drive.upload.data.usecase.XAttrPhotoAdditionalMetadata
 import me.proton.core.drive.upload.domain.handler.UploadErrorHandler
 import me.proton.core.drive.upload.domain.manager.UploadErrorManager
 import me.proton.core.drive.upload.domain.provider.FileProvider
 import me.proton.core.drive.upload.domain.resolver.UriResolver
+import me.proton.core.drive.upload.domain.usecase.PhotoAdditionalMetadata
 import me.proton.core.drive.upload.domain.usecase.UploadMetricsNotifier
 import javax.inject.Singleton
 
@@ -57,4 +59,8 @@ interface UploadBindModule {
     @Binds
     @Singleton
     fun bindsUploadMetricsNotifierImpl(impl: UploadMetricsNotifierImpl): UploadMetricsNotifier
+
+    @Binds
+    @Singleton
+    fun bindsXAttrPhotoAdditionalMetadata(impl: XAttrPhotoAdditionalMetadata): PhotoAdditionalMetadata
 }

@@ -194,8 +194,6 @@
   <string name="error_share_locked">Delen is vergrendeld.</string>
   <string name="error_main_share_not_found">Hoofdmap is niet gevonden.</string>
   <string name="error_share_not_found">Delen niet gevonden.</string>
-  <string name="error_creating_photo_share_not_allowed">Fotoback-up is tijdelijk uitgeschakeld.</string>
-  <string name="error_creating_share_not_allowed">Delen aanmaken is tijdelijk onbeschikbaar.</string>
   <string name="error_camera_permission">Toegang tot de camera is vereist.</string>
   <string name="operation_open_document">een document openen</string>
   <string name="operation_create_document">een document maken</string>

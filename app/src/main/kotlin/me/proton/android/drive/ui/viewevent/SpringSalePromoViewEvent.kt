@@ -22,4 +22,5 @@ interface SpringSalePromoViewEvent {
     val onClose: () -> Unit get() = {}
     val onGetDeal: () -> Unit get() = {}
     val onPromoShown: () -> Unit get() = {}
+    val onToggleOffer: () -> Unit get() = {}
 }

@@ -35,6 +35,7 @@ import me.proton.core.drive.base.domain.log.LogTag.VIEW_MODEL
 import me.proton.core.drive.base.domain.usecase.BroadcastMessages
 import me.proton.core.drive.base.presentation.extension.require
 import me.proton.core.drive.base.presentation.viewmodel.UserViewModel
+import me.proton.core.drive.folder.create.domain.entity.OpenFolderExtra
 import me.proton.core.drive.folder.create.domain.usecase.CreateFolder
 import me.proton.core.drive.link.domain.entity.FolderId
 import me.proton.core.drive.link.domain.entity.InvalidLinkName.Empty
@@ -77,8 +78,10 @@ class CreateFolderViewModel @Inject constructor(
             inProgress = inProgress
         )
     }
-    val viewEvent = object : CreateFolderViewEvent {
-        override val onCreateFolder = { createFolder() }
+    fun viewEvent(
+        onFolderCreated: (FolderId) -> Unit = {},
+    ): CreateFolderViewEvent = object : CreateFolderViewEvent {
+        override val onCreateFolder = { createFolder(onFolderCreated) }
         override val onNameChanged = { name: String -> onNameChanged(name) }
     }
     val createFolderEffect: Flow<CreateFolderEffect> = _effect.asSharedFlow()
@@ -89,13 +92,13 @@ class CreateFolderViewModel @Inject constructor(
         error.tryEmit(null)
     }
 
-    private fun createFolder() {
+    private fun createFolder(onFolderCreated: (FolderId) -> Unit) {
         viewModelScope.launch {
-            createFolder(name.value)
+            createFolder(name.value, onFolderCreated)
         }
     }
 
-    private suspend fun createFolder(folderName: String) {
+    private suspend fun createFolder(folderName: String, onFolderCreated: (FolderId) -> Unit) {
         inProgress.emit(true)
         createFolder(
             parentFolderId = parentFolderId,
@@ -104,13 +107,18 @@ class CreateFolderViewModel @Inject constructor(
             .onFailure { error ->
                 error.handle()
             }
-            .onSuccess { (name, _) ->
+            .onSuccess { (name, folderId) ->
+                onFolderCreated(folderId)
                 _effect.emit(CreateFolderEffect.Dismiss)
                 broadcastMessages(
                     userId = userId,
                     message = context.getString(
                         I18N.string.folder_create_successful,
                         name.ellipsizeMiddle(MAX_DISPLAY_FOLDER_NAME_LENGTH)
+                    ),
+                    extra = OpenFolderExtra(
+                        folderId = folderId,
+                        name = name,
                     )
                 )
             }

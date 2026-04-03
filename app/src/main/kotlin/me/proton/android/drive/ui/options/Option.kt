@@ -656,13 +656,6 @@ fun Iterable<Option>.filterPermissions(
     }
 }
 
-fun Iterable<Option>.filterProtonDocs(killSwitch: FeatureFlag) = filter { option ->
-    when (option) {
-        Option.CreateDocument -> killSwitch.off
-        else -> true
-    }
-}
-
 fun Iterable<Option>.filterProtonSheets(isEnabled: Boolean) = filter { option ->
     when (option) {
         Option.CreateSpreadsheet -> isEnabled
@@ -672,10 +665,9 @@ fun Iterable<Option>.filterProtonSheets(isEnabled: Boolean) = filter { option ->
 
 fun Iterable<Option>.filterAlbums(
     isEnabled: Boolean,
-    killSwitch: FeatureFlag,
     albumId: AlbumId? = null,
 ) = filter { option ->
-    val featureEnabled = isEnabled && killSwitch.off
+    val featureEnabled = isEnabled
     when (option) {
         Option.TagPhotoFile -> featureEnabled && albumId == null
         Option.AddToAlbums -> featureEnabled && albumId == null
@@ -690,9 +682,8 @@ fun Iterable<Option>.filterAlbums(
 
 fun Iterable<Option>.filterPhotoFavorite(
     isEnabled: Boolean,
-    killSwitch: FeatureFlag,
 ) = filter { option ->
-    val featureEnabled = isEnabled && killSwitch.off
+    val featureEnabled = isEnabled
     when (option) {
         Option.FavoriteToggle -> featureEnabled
         else -> true

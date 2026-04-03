@@ -60,7 +60,7 @@ val DriveLink.isSharedWithUsers: Boolean
     get() = (shareInvitationCount ?: 0) > 0 || (shareMemberCount ?: 0) > 0
 
 val DriveLink.isShareMember: Boolean
-    get() = shareUser?.permissions?.isAdmin == false
+    get() = sharePermissions?.isOwner == false
 
 val DriveLink.isShareReadOnly: Boolean get() = sharePermissions?.let { sharePermissions ->
     sharePermissions.canRead && !sharePermissions.canWrite

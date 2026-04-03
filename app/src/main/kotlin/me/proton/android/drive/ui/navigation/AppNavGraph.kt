@@ -56,6 +56,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import me.proton.android.drive.extension.ensureNavGraphSet
+import me.proton.android.drive.extension.folderCreatedHandler
 import me.proton.android.drive.extension.get
 import me.proton.android.drive.extension.isCurrentDestination
 import me.proton.android.drive.extension.log
@@ -106,8 +107,6 @@ import me.proton.android.drive.ui.screen.AppAccessScreen
 import me.proton.android.drive.ui.screen.BackupIssuesScreen
 import me.proton.android.drive.ui.screen.CreateNewAlbumScreen
 import me.proton.android.drive.ui.screen.DefaultHomeTabScreen
-import me.proton.android.drive.ui.screen.SpringSalePromoScreen
-import me.proton.android.drive.ui.screen.SubscriptionPromoScreen
 import me.proton.android.drive.ui.screen.FileInfoScreen
 import me.proton.android.drive.ui.screen.GetMoreFreeStorageScreen
 import me.proton.android.drive.ui.screen.HomeScreen
@@ -121,8 +120,11 @@ import me.proton.android.drive.ui.screen.PickerAlbumScreen
 import me.proton.android.drive.ui.screen.PickerPhotosScreen
 import me.proton.android.drive.ui.screen.PreviewScreen
 import me.proton.android.drive.ui.screen.ScanDocumentNameScreen
+import me.proton.android.drive.ui.screen.ScanDocumentScreen
 import me.proton.android.drive.ui.screen.SettingsScreen
 import me.proton.android.drive.ui.screen.SigningOutScreen
+import me.proton.android.drive.ui.screen.SpringSalePromoScreen
+import me.proton.android.drive.ui.screen.SubscriptionPromoScreen
 import me.proton.android.drive.ui.screen.TrashScreen
 import me.proton.android.drive.ui.screen.UploadToScreen
 import me.proton.android.drive.ui.screen.UserInvitationScreen
@@ -365,7 +367,7 @@ fun AppNavGraph(
         addFileInfo(navController)
         addMoveToFolder(navController)
         addRenameDialog(navController)
-        addCreateFolderDialog(navController)
+        addCreateFolderDialog(navController, homeNavController)
         addStorageFull(navController, deepLinkBaseUrl)
         addSendFile(navController)
         addManageAccess(navController)
@@ -406,6 +408,7 @@ fun AppNavGraph(
         addConfirmLeaveAlbumDialog(navController)
         addShareMultiplePhotosOptions(navController)
         addAddToAlbumsOptions(navController)
+        addScanDocument(navController)
         addScanDocumentName(navController)
     }
 }
@@ -421,12 +424,31 @@ fun NavGraphBuilder.addLauncher(
         navArgument(Screen.Launcher.REDIRECTION) {
             type = NavType.StringType
             nullable = true
+            defaultValue = null
+        },
+        navArgument(Screen.Launcher.ACTION) {
+            type = NavType.StringType
+            nullable = true
+            defaultValue = null
+        },
+        navArgument(Screen.Launcher.SHARE_ID) {
+            type = NavType.StringType
+            nullable = true
+            defaultValue = null
+        },
+        navArgument(Screen.Launcher.FOLDER_ID) {
+            type = NavType.StringType
+            nullable = true
+            defaultValue = null
         },
     ),
     deepLinks = listOf(
         navDeepLink { uriPattern = Screen.Launcher.deepLink(deepLinkBaseUrl) }
     )
 ) { navBackStackEntry ->
+    val action = navBackStackEntry.get<String>(Screen.Launcher.ACTION)
+    val shareId = navBackStackEntry.get<String>(Screen.Launcher.SHARE_ID)
+    val folderId = navBackStackEntry.get<String>(Screen.Launcher.FOLDER_ID)
     val redirection = navBackStackEntry.get<String>(Screen.Launcher.REDIRECTION)
     LauncherScreen(
         foregroundState = navController.isCurrentDestination(route = Screen.Launcher.route),
@@ -434,6 +456,13 @@ fun NavGraphBuilder.addLauncher(
             navController.runFromRoute(route = Screen.Launcher.route) {
                 navController.navigate(Screen.Home(userId, redirection)) {
                     popUpTo(Screen.Launcher.route) { inclusive = true }
+                }
+                if (action == Screen.Launcher.ACTION_SCAN_DOCUMENT) {
+                    if (shareId != null && folderId != null) {
+                        navController.navigate(Screen.ScanDocument(userId, FolderId(ShareId(userId, shareId), folderId)))
+                    } else {
+                        CoreLogger.w(DriveLogTag.UI, "Scan document action received but shareId=$shareId folderId=$folderId")
+                    }
                 }
             }
         },
@@ -1592,7 +1621,10 @@ fun NavGraphBuilder.addRenameDialog(navController: NavHostController) = dialog(
 }
 
 @ExperimentalCoroutinesApi
-fun NavGraphBuilder.addCreateFolderDialog(navController: NavHostController) = dialog(
+fun NavGraphBuilder.addCreateFolderDialog(
+    navController: NavHostController,
+    homeNavController: NavHostController,
+) = dialog(
     route = Screen.Files.Dialogs.CreateFolder.route,
     arguments = listOf(
         navArgument(Screen.Files.USER_ID) { type = NavType.StringType },
@@ -1601,6 +1633,11 @@ fun NavGraphBuilder.addCreateFolderDialog(navController: NavHostController) = di
     ),
 ) {
     CreateFolder(
+        onFolderCreated = { folderId ->
+            (navController.previousBackStackEntry?.folderCreatedHandler
+                ?: homeNavController.currentBackStackEntry?.folderCreatedHandler)
+                ?.onFolderCreated(folderId)
+        },
         onDismiss = {
             navController.popBackStack(
                 route = Screen.Files.Dialogs.CreateFolder.route,
@@ -2578,12 +2615,43 @@ fun NavGraphBuilder.addAddToAlbumsOptions(
 }
 
 @ExperimentalAnimationApi
-fun NavGraphBuilder.addScanDocumentName(navController: NavHostController) = composable(
-    route = Screen.ScanDocumentName.route,
-    enterTransition = defaultEnterSlideTransition { true },
+fun NavGraphBuilder.addScanDocument(navController: NavHostController) = composable(
+    route = Screen.ScanDocument.route,
+    enterTransition = { EnterTransition.None },
     exitTransition = { ExitTransition.None },
     popEnterTransition = { EnterTransition.None },
-    popExitTransition = defaultPopExitSlideTransition { true },
+    popExitTransition = { ExitTransition.None },
+    arguments = listOf(
+        navArgument(Screen.ScanDocument.USER_ID) { type = NavType.StringType },
+        navArgument(Screen.ScanDocument.SHARE_ID) { type = NavType.StringType },
+        navArgument(Screen.ScanDocument.FOLDER_ID) { type = NavType.StringType },
+    ),
+) { navBackStackEntry ->
+    ScanDocumentScreen(
+        navigateToScanDocumentName = { folderId, scanResultId, basename ->
+            navController.navigate(
+                Screen.ScanDocumentName(folderId, scanResultId, basename)
+            ) {
+                popUpTo(Screen.ScanDocument.route) { inclusive = true }
+            }
+        },
+        lifecycle = navBackStackEntry.lifecycle,
+        navigateBack = {
+            navController.popBackStack(
+                route = Screen.ScanDocument.route,
+                inclusive = true,
+            )
+        },
+    )
+}
+
+@ExperimentalAnimationApi
+fun NavGraphBuilder.addScanDocumentName(navController: NavHostController) = composable(
+    route = Screen.ScanDocumentName.route,
+    enterTransition = { EnterTransition.None },
+    exitTransition = { ExitTransition.None },
+    popEnterTransition = { EnterTransition.None },
+    popExitTransition = { ExitTransition.None },
     arguments = listOf(
         navArgument(Screen.ScanDocumentName.USER_ID) { type = NavType.StringType },
         navArgument(Screen.ScanDocumentName.SHARE_ID) { type = NavType.StringType },

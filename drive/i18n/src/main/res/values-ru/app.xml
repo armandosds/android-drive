@@ -204,8 +204,6 @@
   <string name="error_share_locked">Общий доступ заблокирован.</string>
   <string name="error_main_share_not_found">Основной ресурс не найден.</string>
   <string name="error_share_not_found">Ссылка общего доступа не найдена.</string>
-  <string name="error_creating_photo_share_not_allowed">Резервное копирование фотографий временно отключено.</string>
-  <string name="error_creating_share_not_allowed">Создание общего доступа временно отключено.</string>
   <string name="error_camera_permission">Требуется разрешение на доступ к камере.</string>
   <string name="operation_open_document">открыть документ</string>
   <string name="operation_create_document">создать документ</string>

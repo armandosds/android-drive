@@ -51,6 +51,8 @@ import me.proton.android.drive.document.scanner.domain.usecase.IsScannerAvailabl
 import me.proton.android.drive.ui.common.onClick
 import me.proton.android.drive.ui.effect.HomeEffect
 import me.proton.android.drive.ui.effect.HomeTabViewModel
+import me.proton.android.drive.ui.handler.FolderCreatedHandler
+import me.proton.android.drive.ui.handler.FolderCreatedHandlerDelegate
 import me.proton.android.drive.ui.navigation.Screen
 import me.proton.android.drive.usecase.GetSubscriptionAction
 import me.proton.android.drive.usecase.OnFilesDriveLinkError
@@ -88,6 +90,7 @@ import me.proton.core.drive.feature.flag.domain.usecase.IsSpringSalePromoEnabled
 import me.proton.core.drive.files.domain.usecase.ToFirstItemMetricsNotifier
 import me.proton.core.drive.files.presentation.event.FilesViewEvent
 import me.proton.core.drive.files.presentation.state.FilesViewState
+import me.proton.core.drive.folder.create.domain.provider.OpenFolderActionProvider
 import me.proton.core.drive.link.domain.entity.FileId
 import me.proton.core.drive.link.domain.entity.FolderId
 import me.proton.core.drive.link.domain.entity.LinkId
@@ -146,14 +149,22 @@ class FilesViewModel @Inject constructor(
     private val toFirstItemMetricsNotifier: ToFirstItemMetricsNotifier,
     private val isScannerAvailable: IsScannerAvailable,
     private val isSpringSalePromoEnabled: IsSpringSalePromoEnabled,
+    private val openFolderActionProvider: OpenFolderActionProvider,
+    private val folderCreatedHandlerDelegate: FolderCreatedHandlerDelegate,
 ) : SelectionViewModel(savedStateHandle, selectLinks, deselectLinks, selectAll, getSelectedDriveLinks),
     HomeTabViewModel,
-    NotificationDotViewModel by NotificationDotViewModel(shouldUpgradeStorage) {
+    NotificationDotViewModel by NotificationDotViewModel(shouldUpgradeStorage),
+    FolderCreatedHandler by folderCreatedHandlerDelegate {
+
+    val folderCreatedFlow: Flow<FolderId> = folderCreatedHandlerDelegate.folderCreatedFlow
+
+    fun consumeFolderCreated() = folderCreatedHandlerDelegate.consume()
 
     private val shareId = savedStateHandle.get<String>(Screen.Files.SHARE_ID)
     private val folderId = savedStateHandle.get<String>(Screen.Files.FOLDER_ID)?.let { folderId ->
         shareId?.let { FolderId(ShareId(userId, shareId), folderId) }
     }
+    private var token: Any? = null
     private val retryTrigger = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
     val driveLink: StateFlow<DriveLink.Folder?> = retryTrigger.transformLatest {
         emitAll(
@@ -168,7 +179,7 @@ class FilesViewModel @Inject constructor(
                         }
                         .onFailure { error ->
                             onFilesDriveLinkError(userId, previous, error, listContentState)
-                            error.log(VIEW_MODEL, "Cannot get drive link for ${folderId?.id?.logId()}")
+                            error.log(VIEW_MODEL, "Cannot get drive link for ${folderId?.id}")
                             toFirstItemMetricsNotifier.reset()
                         }
                     return@mapWithPrevious null
@@ -445,6 +456,16 @@ class FilesViewModel @Inject constructor(
         }
     }.also { viewEvent ->
         this.viewEvent = viewEvent
+        this.token = openFolderActionProvider.register {
+            folderId: FolderId, name: String? -> navigateToFiles(folderId, name)
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        token?.let {
+            openFolderActionProvider.unregister(it)
+        }
     }
 
     fun getDownloadProgressFlow(link: DriveLink): Flow<Percentage>? =

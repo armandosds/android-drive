@@ -129,8 +129,8 @@ fun DriveLink.toAdvancedItems(
     val xAttr = cryptoXAttr.value?.toXAttr()?.getOrNull() ?: return emptyList()
     val common = xAttr.common
 
-    val sha1 = common.digests?.get("SHA1") ?: common.digests?.get("sha1")
-    val clearTextSize = common.size
+    val sha1 = common?.digests?.get("SHA1") ?: common?.digests?.get("sha1")
+    val clearTextSize = common?.size
 
     val contentAuthorNormalized = contentAuthor?.takeUnless { it.isBlank() }
     val keyAuthor = link.signatureEmail.takeUnless { it.isBlank() }

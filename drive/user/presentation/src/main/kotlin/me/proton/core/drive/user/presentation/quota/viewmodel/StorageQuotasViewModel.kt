@@ -31,6 +31,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import me.proton.core.drive.base.domain.log.LogTag.VIEW_MODEL
+import me.proton.core.drive.base.domain.usecase.ReportError
 import me.proton.core.drive.base.presentation.viewmodel.UserViewModel
 import me.proton.core.drive.user.domain.entity.QuotaLevel
 import me.proton.core.drive.user.domain.usecase.CancelQuotaMessage
@@ -51,6 +52,7 @@ class StorageQuotasViewModel @Inject constructor(
     hasCanceledQuotaMessages: HasCanceledQuotaMessages,
     savedStateHandle: SavedStateHandle,
     private val cancelQuotaMessage: CancelQuotaMessage,
+    private val reportError: ReportError,
 ) : ViewModel(), UserViewModel by UserViewModel(savedStateHandle) {
 
     val viewState: Flow<QuotaViewState?> = getQuotaLevel(userId).flatMapLatest { level ->
@@ -79,7 +81,11 @@ class StorageQuotasViewModel @Inject constructor(
                 QuotaViewState.Level.ERROR -> QuotaLevel.ERROR
             }
             cancelQuotaMessage(userId, quotaLevel).onFailure { error ->
-                CoreLogger.e(VIEW_MODEL, error, "Cannot cancel storage banner: $level")
+                reportError(
+                    tag = VIEW_MODEL,
+                    error = error,
+                    message = "Cannot cancel storage banner: $level",
+                )
             }
         }
     }

@@ -41,7 +41,7 @@
   <string name="common_all">Vse</string>
   <string name="common_unknown">Neznano</string>
   <string name="common_month">Mesec</string>
-  <string name="common_year">Year</string>
+  <string name="common_year">Leto</string>
   <!-- endregion -->
   <!-- region Common actions -->
   <string name="common_ok_action">V redu</string>
@@ -76,8 +76,9 @@
   <string name="common_start_action">Začetek</string>
   <string name="common_save_all_action">Shrani vse</string>
   <string name="common_add_to_albums_action">Dodaj v albume</string>
-  <string name="common_tag_photo_action">Scan photo for tags</string>
-  <string name="common_save_as_action">Save as</string>
+  <string name="common_tag_photo_action">Analiziraj fotografijo za morebitne oznake</string>
+  <string name="common_save_as_action">Shrani kot</string>
+  <string name="common_open_action">Odpri</string>
   <!-- endregion -->
   <!-- region Common file types -->
   <string name="common_type_audio">Zvok</string>
@@ -90,7 +91,7 @@
   <string name="common_type_pdf">PDF dokument</string>
   <string name="common_type_ppt">Predstavitev</string>
   <string name="common_type_proton_doc">Dokument Proton</string>
-  <string name="common_type_proton_sheet">Proton spreadsheet</string>
+  <string name="common_type_proton_sheet">Proton preglednica</string>
   <string name="common_type_text">Besedilo</string>
   <string name="common_type_trustedkey">Zaupanja vreden ključ</string>
   <string name="common_type_unknown">Dvojiško</string>
@@ -139,13 +140,13 @@
             "Security error occurred: password required or incorrect password"
     -->
   <string name="common_error_security_with_message">Prišlo je do varnostne napake: %1$s</string>
-  <string name="common_error_sdk">SDK error occurred</string>
+  <string name="common_error_sdk">Prišlo je do napake SDK</string>
   <!--
         Variable %1$s is the non-null message from SDK exception
         Example:
             "SDK error occurred:  file or folder with that name already exists"
     -->
-  <string name="common_error_sdk_with_message">SDK error occurred: %1$s</string>
+  <string name="common_error_sdk_with_message">Prišlo je do napake SDK: %1$s</string>
   <!-- endregion -->
   <!--
         Variable %1$s is a percentage

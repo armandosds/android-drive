@@ -19,10 +19,10 @@
 package me.proton.android.drive.ui.screen
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -47,6 +47,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ButtonColors
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.RadioButton
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
@@ -55,6 +56,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -97,8 +99,13 @@ fun SpringSalePromoScreen(
             navigateBack = navigateBack,
         )
     }
-    Crossfade(viewState) { state ->
-        if (state != null) {
+    val hasState = viewState != null
+    Crossfade(hasState) { stateAvailable ->
+        if (stateAvailable) {
+            val state = viewState!!
+            LaunchedEffect(Unit) {
+                viewEvent.onPromoShown()
+            }
             if (isLandscape) {
                 SpringSalePromoScreenLandscape(
                     viewState = state,
@@ -122,9 +129,6 @@ fun SpringSalePromoScreen(
     viewEvent: SpringSalePromoViewEvent,
     modifier: Modifier = Modifier,
 ) {
-    LaunchedEffect(Unit) {
-        viewEvent.onPromoShown()
-    }
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -168,10 +172,14 @@ fun SpringSalePromoScreen(
         ) {
             Offer(
                 period = viewState.period,
+                oneMonthPeriod = viewState.oneMonthPeriod,
                 monthlyPrice = viewState.monthlyPrice,
                 monthlyPricePeriod = viewState.monthlyPricePeriod,
                 yearlyPrice = viewState.yearlyPrice,
                 yearlyPricePeriod = viewState.yearlyPricePeriod,
+                oneMonthPrice = viewState.oneMonthPrice,
+                selected = viewState.selected,
+                onToggleOffer = viewEvent.onToggleOffer,
             )
             GetDealButton(
                 title = stringResource(viewState.getDealButtonResId),
@@ -252,11 +260,15 @@ fun SpringSalePromoScreenLandscape(
             ClaimOffer(
                 title = stringResource(viewState.getDealButtonResId),
                 period = viewState.period,
+                oneMonthPeriod = viewState.oneMonthPeriod,
                 monthlyPrice = viewState.monthlyPrice,
                 monthlyPricePeriod = viewState.monthlyPricePeriod,
                 yearlyPrice = viewState.yearlyPrice,
                 yearlyPricePeriod = viewState.yearlyPricePeriod,
+                oneMonthPrice = viewState.oneMonthPrice,
+                selected = viewState.selected,
                 onClick = viewEvent.onGetDeal,
+                onToggleOffer = viewEvent.onToggleOffer,
             )
             AutoRenewText(
                 autoRenewPrice = viewState.autoRenewPrice,
@@ -318,62 +330,133 @@ private fun TopAppBar(
 @Composable
 private fun Offer(
     period: String,
+    oneMonthPeriod: String,
     monthlyPrice: String,
     monthlyPricePeriod: String,
     yearlyPrice: String,
     yearlyPricePeriod: String,
+    oneMonthPrice: String,
+    selected: SpringSalePromoViewState.PlanPeriod,
     modifier: Modifier = Modifier,
+    onToggleOffer: () -> Unit,
 ) {
     val minHeight = if (isLandscape) 48.dp else 68.dp
     val color = if (ProtonTheme.colors.isDark) Color.White else driveCustomBlue
+    val offerColor = driveCustomYellow
+    val deselectedColor = ProtonTheme.colors.backgroundSecondary
     val bgColorAlpha = if (ProtonTheme.colors.isDark) 0.1f else 0.4f
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .heightIn(min = minHeight)
-            .border(
-                width = 2.dp,
-                color = color,
-                shape = RoundedCornerShape(16.dp)
-            )
-            .background(
-                color = Color.White.copy(alpha = bgColorAlpha),
-                shape = RoundedCornerShape(16.dp)
-            )
-            .padding(horizontal = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(ProtonDimens.SmallSpacing)
     ) {
-        Text(
-            text = period,
-            style = ProtonTheme.typography.body1Medium.copy(color = color),
-            modifier = modifier.weight(1f)
-        )
-        Column(
-            modifier = Modifier,
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.End,
+        val isYearlySelected = selected == SpringSalePromoViewState.PlanPeriod.YEARLY
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = minHeight)
+                .border(
+                    width = 2.dp,
+                    color = if (isYearlySelected) offerColor else deselectedColor,
+                    shape = RoundedCornerShape(16.dp)
+                )
+                .background(
+                    color = Color.White.copy(alpha = bgColorAlpha),
+                    shape = RoundedCornerShape(16.dp)
+                )
+                .clip(RoundedCornerShape(16.dp))
+                .clickable(
+                    enabled = !isYearlySelected,
+                    onClick = onToggleOffer,
+                )
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row {
-                Text(
-                    text = yearlyPrice,
-                    style = ProtonTheme.typography.body1Bold.copy(color = color)
-                )
-                Text(
-                    text = yearlyPricePeriod,
-                    style = ProtonTheme.typography.body1Medium.copy(color = color.copy(alpha = 0.7f)),
-                    modifier = Modifier.padding(start = 4.dp)
-                )
+            RadioButton(
+                selected = isYearlySelected,
+                onClick =  { if (!isYearlySelected) onToggleOffer() },
+            )
+            Text(
+                text = period,
+                style = ProtonTheme.typography.body1Medium.copy(color = color),
+                modifier = modifier.weight(1f)
+            )
+            Column(
+                modifier = Modifier,
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.End,
+            ) {
+                Row {
+                    Text(
+                        text = yearlyPrice,
+                        style = ProtonTheme.typography.body1Bold.copy(color = color)
+                    )
+                    Text(
+                        text = yearlyPricePeriod,
+                        style = ProtonTheme.typography.body1Medium.copy(color = color.copy(alpha = 0.7f)),
+                        modifier = Modifier.padding(start = 4.dp)
+                    )
+                }
+                Row(modifier = Modifier.padding(top = ProtonDimens.ExtraSmallSpacing)) {
+                    Text(
+                        text = monthlyPrice,
+                        style = ProtonTheme.typography.body2Medium.copy(color = color.copy(alpha = 0.7f))
+                    )
+                    Text(
+                        text = monthlyPricePeriod,
+                        style = ProtonTheme.typography.body2Medium.copy(color = color.copy(alpha = 0.7f)),
+                        modifier = Modifier.padding(start = 4.dp)
+                    )
+                }
             }
-            Row(modifier = Modifier.padding(top = ProtonDimens.ExtraSmallSpacing)) {
-                Text(
-                    text = monthlyPrice,
-                    style = ProtonTheme.typography.body2Medium.copy(color = color.copy(alpha = 0.7f))
+        }
+        val isMonthlySelected = selected == SpringSalePromoViewState.PlanPeriod.MONTHLY
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = minHeight)
+                .border(
+                    width = 2.dp,
+                    color = if (isMonthlySelected) color else deselectedColor,
+                    shape = RoundedCornerShape(16.dp)
                 )
-                Text(
-                    text = monthlyPricePeriod,
-                    style = ProtonTheme.typography.body2Medium.copy(color = color.copy(alpha = 0.7f)),
-                    modifier = Modifier.padding(start = 4.dp)
+                .background(
+                    color = Color.White.copy(alpha = bgColorAlpha),
+                    shape = RoundedCornerShape(16.dp)
                 )
+                .clip(RoundedCornerShape(16.dp))
+                .clickable(
+                    enabled = !isMonthlySelected,
+                    onClick = onToggleOffer,
+                )
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            RadioButton(
+                selected = isMonthlySelected,
+                onClick =  { if (!isMonthlySelected) onToggleOffer() },
+            )
+            Text(
+                text = oneMonthPeriod,
+                style = ProtonTheme.typography.body1Medium.copy(color = color),
+                modifier = modifier.weight(1f)
+            )
+            Box(
+                modifier = Modifier,
+                contentAlignment = Alignment.CenterEnd,
+            ) {
+                Row(
+                    modifier = Modifier
+                ) {
+                    Text(
+                        text = oneMonthPrice,
+                        style = ProtonTheme.typography.body2Medium.copy(color = color.copy(alpha = 0.7f))
+                    )
+                    Text(
+                        text = monthlyPricePeriod,
+                        style = ProtonTheme.typography.body2Medium.copy(color = color.copy(alpha = 0.7f)),
+                        modifier = Modifier.padding(start = 4.dp)
+                    )
+                }
             }
         }
     }
@@ -415,14 +498,20 @@ fun GetDealButton(
 fun ClaimOffer(
     title: String,
     period: String,
+    oneMonthPeriod: String,
     monthlyPrice: String,
     monthlyPricePeriod: String,
     yearlyPrice: String,
     yearlyPricePeriod: String,
+    oneMonthPrice: String,
+    selected: SpringSalePromoViewState.PlanPeriod,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
+    onToggleOffer: () -> Unit,
 ) {
     val color = if (ProtonTheme.colors.isDark) Color.White else driveCustomBlue
+    val offerColor = driveCustomYellow
+    val deselectedColor = ProtonTheme.colors.backgroundSecondary
     val bgColorAlpha = if (ProtonTheme.colors.isDark) 0.1f else 0.4f
     Row(
         modifier = modifier
@@ -432,14 +521,61 @@ fun ClaimOffer(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
     ) {
+        val isMonthlySelected = selected == SpringSalePromoViewState.PlanPeriod.MONTHLY
+        Row(
+            modifier = Modifier
+                .zIndex(0f)
+                .offset(x = 48.dp)
+                .background(
+                    color = Color.White.copy(alpha = bgColorAlpha),
+                    shape = RoundedCornerShape(100.dp)
+                )
+                .border(
+                    width = 2.dp,
+                    color = if (isMonthlySelected) color else deselectedColor,
+                    shape = RoundedCornerShape(100.dp)
+                )
+                .clip(RoundedCornerShape(100.dp))
+                .clickable(
+                    enabled = !isMonthlySelected,
+                    onClick = onToggleOffer,
+                )
+                .padding(start = 16.dp, end = 56.dp)
+                .heightIn(min = 56.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = oneMonthPeriod,
+                style = ProtonTheme.typography.body1Medium.copy(color = color),
+            )
+            Box(
+                modifier = Modifier.padding(start = ProtonDimens.DefaultSpacing),
+                contentAlignment = Alignment.CenterEnd,
+            ) {
+                Row(
+                    modifier = Modifier
+                ) {
+                    Text(
+                        text = oneMonthPrice,
+                        style = ProtonTheme.typography.body2Medium.copy(color = color.copy(alpha = 0.7f))
+                    )
+                    Text(
+                        text = monthlyPricePeriod,
+                        style = ProtonTheme.typography.body2Medium.copy(color = color.copy(alpha = 0.7f)),
+                        modifier = Modifier.padding(start = 4.dp)
+                    )
+                }
+            }
+        }
         GetDealButton(
             title = title,
             modifier = Modifier
                 .zIndex(1f)
-                .widthIn(min = 300.dp)
+                .widthIn(min = 200.dp)
                 .fillMaxHeight(),
             onClick = onClick,
         )
+        val isYearlySelected = selected == SpringSalePromoViewState.PlanPeriod.YEARLY
         Row(
             modifier = Modifier
                 .zIndex(0f)
@@ -450,8 +586,13 @@ fun ClaimOffer(
                 )
                 .border(
                     width = 2.dp,
-                    color = color,
+                    color = if (isYearlySelected) offerColor else deselectedColor,
                     shape = RoundedCornerShape(100.dp)
+                )
+                .clip(RoundedCornerShape(100.dp))
+                .clickable(
+                    enabled = !isYearlySelected,
+                    onClick = onToggleOffer,
                 )
                 .padding(start = 56.dp, end = 16.dp)
                 .heightIn(min = 56.dp),
@@ -575,3 +716,4 @@ private fun CardItem(
 }
 
 private val driveCustomBlue = Color(0xFF372580)
+private val driveCustomYellow = Color(0xFFFCD060)

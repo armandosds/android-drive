@@ -18,13 +18,9 @@
 
 package me.proton.core.drive.drivelink.shared.domain.extension
 
-import me.proton.core.drive.base.domain.entity.Permissions
 import me.proton.core.drive.drivelink.domain.entity.DriveLink
 import me.proton.core.drive.link.domain.entity.SharingDetails
 
-
 val DriveLink.sharingDetails: SharingDetails? get() = link.sharingDetails
-
-val DriveLink.permissions: Permissions get() = link.permissions
 
 val DriveLink.passphrase: String get() = link.passphrase

@@ -25,20 +25,18 @@ sealed class FeatureFlagId(open val userId: UserId, open val id: String) {
     data class Unleash(override val userId: UserId, override val id: String) : FeatureFlagId(userId, id)
     data class Legacy(override val userId: UserId, override val id: String) : FeatureFlagId(userId, id)
 
+    @Suppress("TooManyFunctions")
     companion object {
         const val DRIVE_PHOTOS_UPLOAD_DISABLED = "DrivePhotosUploadDisabled"
         const val DRIVE_SHARING_DEVELOPMENT = "DriveSharingDevelopment"
         const val DRIVE_SHARING_DISABLED = "DriveSharingDisabled"
-        const val DRIVE_SHARING_EDITING_DISABLED = "DriveSharingEditingDisabled"
         const val DRIVE_SHARING_EXTERNAL_INVITATIONS_DISABLED = "DriveSharingExternalInvitationsDisabled"
-        const val DRIVE_DOCS_DISABLED = "DriveDocsDisabled"
         const val DRIVE_ANDROID_WHATS_NEW = "DriveAndroidWhatsNew"
         const val DRIVE_ANDROID_USER_LOG_DISABLED = "DriveAndroidUserLogDisabled"
         const val DRIVE_PUBLIC_SHARE_EDIT_MODE = "DrivePublicShareEditMode"
         const val DRIVE_PUBLIC_SHARE_EDIT_MODE_DISABLED = "DrivePublicShareEditModeDisabled"
         const val DRIVE_DYNAMIC_ENTITLEMENT_CONFIGURATION = "DriveDynamicEntitlementConfiguration"
         const val RATING_ANDROID_DRIVE = "RatingAndroidDrive"
-        const val DRIVE_ALBUMS_DISABLED = "DriveAlbumsDisabled"
         const val DRIVE_THUMBNAIL_WEBP = "DriveThumbnailWebP"
         const val DRIVE_PLUS_PLAN_INTRO = "DrivePlusPlanIntro"
         const val DRIVE_ONE_DOLLAR_PLAN_UPSELL = "DriveOneDollarPlanUpsell"
@@ -53,6 +51,7 @@ sealed class FeatureFlagId(open val userId: UserId, open val id: String) {
         const val DRIVE_ANDROID_SDK_DOWNLOAD_PHOTO = "DriveAndroidSDKDownloadPhoto"
         const val DRIVE_ANDROID_SDK_THUMBNAIL_MAIN = "DriveAndroidSDKThumbnailMain"
         const val DRIVE_ANDROID_SDK_THUMBNAIL_PHOTO = "DriveAndroidSDKThumbnailPhoto"
+        const val DRIVE_ANDROID_SDK_NODE_OPERATION = "DriveAndroidSDKNodeOperation"
         const val DRIVE_ANDROID_UPLOAD_FOLDER = "DriveAndroidUploadFolder"
         const val DRIVE_ANDROID_PHOTO_LISTING_WITH_FILE_PROPERTIES = "DriveAndroidPhotoListingWithFileProperties"
         const val DRIVE_ANDROID_DOCUMENT_SCANNER = "DriveAndroidDocumentScanner"
@@ -66,16 +65,13 @@ sealed class FeatureFlagId(open val userId: UserId, open val id: String) {
         fun drivePhotosUploadDisabled(userId: UserId) = Unleash(userId, DRIVE_PHOTOS_UPLOAD_DISABLED)
         fun driveSharingDevelopment(userId: UserId) = Unleash(userId, DRIVE_SHARING_DEVELOPMENT)
         fun driveSharingDisabled(userId: UserId) = Unleash(userId, DRIVE_SHARING_DISABLED)
-        fun driveSharingEditingDisabled(userId: UserId) = Unleash(userId, DRIVE_SHARING_EDITING_DISABLED)
         fun driveSharingExternalInvitationsDisabled(userId: UserId) = Unleash(userId, DRIVE_SHARING_EXTERNAL_INVITATIONS_DISABLED)
-        fun driveDocsDisabled(userId: UserId) = Unleash(userId, DRIVE_DOCS_DISABLED)
         fun driveAndroidWhatsNew(userId: UserId) = Unleash(userId, DRIVE_ANDROID_WHATS_NEW)
         fun driveAndroidUserLogDisabled(userId: UserId) = Unleash(userId, DRIVE_ANDROID_USER_LOG_DISABLED)
         fun drivePublicShareEditMode(userId: UserId) = Unleash(userId, DRIVE_PUBLIC_SHARE_EDIT_MODE)
         fun drivePublicShareEditModeDisabled(userId: UserId) = Unleash(userId, DRIVE_PUBLIC_SHARE_EDIT_MODE_DISABLED)
         fun driveDynamicEntitlementConfiguration(userId: UserId) = Unleash(userId, DRIVE_DYNAMIC_ENTITLEMENT_CONFIGURATION)
         fun ratingAndroidDrive(userId: UserId) = Legacy(userId, RATING_ANDROID_DRIVE)
-        fun driveAlbumsDisabled(userId: UserId) = Unleash(userId, DRIVE_ALBUMS_DISABLED)
         fun driveThumbnailWebP(userId: UserId) = Unleash(userId, DRIVE_THUMBNAIL_WEBP)
         fun drivePlusPlanIntro(userId: UserId) = Unleash(userId, DRIVE_PLUS_PLAN_INTRO)
         fun driveOneDollarPlanUpsell(userId: UserId) = Unleash(userId, DRIVE_ONE_DOLLAR_PLAN_UPSELL)
@@ -90,6 +86,7 @@ sealed class FeatureFlagId(open val userId: UserId, open val id: String) {
         fun driveAndroidSDKDownloadPhoto(userId: UserId) = Unleash(userId, DRIVE_ANDROID_SDK_DOWNLOAD_PHOTO)
         fun driveAndroidSDKThumbnailMain(userId: UserId) = Unleash(userId, DRIVE_ANDROID_SDK_THUMBNAIL_MAIN)
         fun driveAndroidSDKThumbnailPhoto(userId: UserId) = Unleash(userId, DRIVE_ANDROID_SDK_THUMBNAIL_PHOTO)
+        fun driveAndroidSDKNodeOperation(userId: UserId) = Unleash(userId, DRIVE_ANDROID_SDK_NODE_OPERATION)
         fun driveAndroidUploadFolder(userId: UserId) = Unleash(userId, DRIVE_ANDROID_UPLOAD_FOLDER)
         fun driveAndroidPhotoListingWithFileProperties(userId: UserId) = Unleash(userId, DRIVE_ANDROID_PHOTO_LISTING_WITH_FILE_PROPERTIES)
         fun driveAndroidDocumentScanner(userId: UserId) = Unleash(userId, DRIVE_ANDROID_DOCUMENT_SCANNER)

@@ -18,15 +18,12 @@
 
 package me.proton.core.drive.drivelink.download.domain.usecase
 
-import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.withContext
 import me.proton.android.drive.verifier.domain.exception.ContentDigestVerifierException
 import me.proton.core.drive.base.domain.entity.Percentage
 import me.proton.core.drive.base.domain.extension.bytes
@@ -34,14 +31,14 @@ import me.proton.core.drive.base.domain.extension.getOrNull
 import me.proton.core.drive.base.domain.extension.toPercentage
 import me.proton.core.drive.base.domain.extension.toResult
 import me.proton.core.drive.base.domain.log.LogTag.DOWNLOAD
-import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.usecase.GetDownloadStagingTempFolder
+import me.proton.core.drive.base.domain.usecase.ReportError
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.drivelink.crypto.domain.usecase.IntegrityMetricsNotifier
 import me.proton.core.drive.drivelink.domain.extension.decryptedFileName
-import me.proton.core.drive.drivelink.domain.extension.isPhoto
 import me.proton.core.drive.drivelink.domain.usecase.GetDriveLink
+import me.proton.core.drive.drivelink.domain.usecase.GetVolumeType
 import me.proton.core.drive.drivelink.download.domain.manager.DownloadSdkManager
 import me.proton.core.drive.link.domain.entity.FileId
 import me.proton.core.drive.link.domain.extension.userId
@@ -50,6 +47,7 @@ import me.proton.core.drive.linkdownload.domain.usecase.RemoveSignatureVerificat
 import me.proton.core.drive.linkdownload.domain.usecase.SetDownloadState
 import me.proton.core.drive.linkdownload.domain.usecase.SetSignatureVerificationFailed
 import me.proton.core.drive.thumbnail.domain.usecase.GetThumbnailPermanentFile
+import me.proton.core.drive.volume.domain.entity.Volume
 import me.proton.core.drive.volume.domain.entity.VolumeId
 import me.proton.core.util.kotlin.CoreLogger
 import me.proton.drive.sdk.DownloadController
@@ -69,12 +67,14 @@ class DownloadFileSdk @Inject constructor(
     private val getThumbnailPermanentFile: GetThumbnailPermanentFile,
     private val moveFileIfExists: MoveFileIfExists,
     private val getDriveLink: GetDriveLink,
+    private val getVolumeType: GetVolumeType,
     private val getDownloadStagingTempFolder: GetDownloadStagingTempFolder,
     private val setSignatureVerificationFailed: SetSignatureVerificationFailed,
     private val removeSignatureVerificationFailed: RemoveSignatureVerificationFailed,
     private val verifyDownloadedFile: VerifyDownloadedFile,
     private val integrityMetricsNotifier: IntegrityMetricsNotifier,
     private val configurationProvider: ConfigurationProvider,
+    private val reportError: ReportError,
 ) {
 
     suspend operator fun invoke(
@@ -89,6 +89,7 @@ class DownloadFileSdk @Inject constructor(
             setDownloadState(fileId, DownloadState.Downloading)
             file = moveFileIfExists(fileId).getOrThrow()
             val driveLink = getDriveLink(fileId).toResult().getOrThrow()
+            val volumeType = getVolumeType(driveLink).getOrThrow()
             getThumbnailPermanentFile(volumeId, driveLink.link, revisionId).getOrThrow()
             if (file.exists()) {
                 CoreLogger.d(DOWNLOAD, "File already downloaded")
@@ -104,9 +105,8 @@ class DownloadFileSdk @Inject constructor(
                 driveLink.decryptedFileName,
             )
             coroutineScope {
-                var controller: DownloadController? = null
-                try {
-                    if (driveLink.isPhoto) {
+                when (volumeType) {
+                    Volume.Type.PHOTO -> {
                         downloadSdkManager.enqueuePhoto(
                             volumeId = driveLink.volumeId,
                             fileId = fileId,
@@ -120,7 +120,9 @@ class DownloadFileSdk @Inject constructor(
                                 timeout = configurationProvider.sdkQueueTimeout,
                             )
                         }
-                    } else {
+                    }
+
+                    Volume.Type.REGULAR -> {
                         downloadSdkManager.enqueueFile(
                             volumeId = volumeId,
                             fileId = fileId,
@@ -137,58 +139,48 @@ class DownloadFileSdk @Inject constructor(
                         }
                     }
 
-                    controller = downloadSdkManager.controller(
-                        volumeId = driveLink.volumeId,
-                        fileId = fileId,
-                        revisionId = revisionId,
-                    ) { downloader ->
-                        downloader.downloadToStream(
-                            coroutineScope = this,
-                            channel = tmpFile.outputStream().channel
+                    else -> error("Cannot download link for volume type: $volumeType")
+                }
+
+                val controller = downloadSdkManager.controller(
+                    volumeId = driveLink.volumeId,
+                    fileId = fileId,
+                    revisionId = revisionId,
+                ) { downloader ->
+                    downloader.downloadToStream(
+                        coroutineScope = this,
+                        channel = tmpFile.outputStream().channel
+                    )
+                }
+                val job = controller.progressFlow
+                    .filterNotNull()
+                    .map { progressUpdate -> progressUpdate.toPercentage() }
+                    .onEach(progress::tryEmit)
+                    .launchIn(this)
+                controller.tryResume(this)
+                try {
+                    removeSignatureVerificationFailed(fileId).getOrNull(
+                        tag = DOWNLOAD,
+                        message = "Failed to remove that signature verification failed"
+                    )
+                    controller.awaitCompletion()
+                } catch (e: ProtonDriveSdkException) {
+                    val error = e.error
+                    if (controller.isNotVerified(error)) {
+                        CoreLogger.w(
+                            DOWNLOAD,
+                            e,
+                            "File downloaded but not verified, continuing"
                         )
-                    }
-                    val job = controller.progressFlow
-                        .filterNotNull()
-                        .map { progressUpdate -> progressUpdate.toPercentage() }
-                        .onEach(progress::tryEmit)
-                        .launchIn(this)
-                    if (controller.isPaused()) {
-                        controller.resume(this)
-                    }
-                    try {
-                        removeSignatureVerificationFailed(fileId).getOrNull(
+                        setSignatureVerificationFailed(fileId).getOrNull(
                             tag = DOWNLOAD,
-                            message = "Failed to remove that signature verification failed"
+                            message = "Failed to set that signature verification failed"
                         )
-                        controller.awaitCompletion()
-                    } catch (e: ProtonDriveSdkException) {
-                        val error = e.error
-                        if (controller.isNotVerified(error)) {
-                            CoreLogger.w(
-                                DOWNLOAD,
-                                e,
-                                "File downloaded but not verified, continuing"
-                            )
-                            setSignatureVerificationFailed(fileId).getOrNull(
-                                tag = DOWNLOAD,
-                                message = "Failed to set that signature verification failed"
-                            )
-                        } else {
-                            throw e
-                        }
-                    } finally {
-                        job.cancel()
+                    } else {
+                        throw e
                     }
                 } finally {
-                    if (!isActive) {
-                        withContext(NonCancellable) {
-                            controller?.let {
-                                if (!controller.isPaused()) {
-                                    controller.pause()
-                                }
-                            }
-                        }
-                    }
+                    job.cancel()
                 }
             }
 
@@ -231,7 +223,11 @@ class DownloadFileSdk @Inject constructor(
             }
             setDownloadState(fileId, DownloadState.Ready)
         }.onFailure { error ->
-            CoreLogger.e(DOWNLOAD, error, "Cannot download ${fileId.id.logId()} (sdk)")
+            reportError(
+                tag = DOWNLOAD,
+                error = error,
+                message = "Cannot download ${fileId.id} (sdk)",
+            )
             setDownloadState(fileId, DownloadState.Error)
         }
     }

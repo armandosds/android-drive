@@ -41,7 +41,7 @@
   <string name="common_all">전체</string>
   <string name="common_unknown">알 수 없음</string>
   <string name="common_month">월간</string>
-  <string name="common_year">Year</string>
+  <string name="common_year">연간</string>
   <!-- endregion -->
   <!-- region Common actions -->
   <string name="common_ok_action">확인</string>
@@ -77,7 +77,8 @@
   <string name="common_save_all_action">모두 저장</string>
   <string name="common_add_to_albums_action">앨범으로 추가</string>
   <string name="common_tag_photo_action">사진 태그 검색</string>
-  <string name="common_save_as_action">Save as</string>
+  <string name="common_save_as_action">다른 이름으로 저장</string>
+  <string name="common_open_action">열기</string>
   <!-- endregion -->
   <!-- region Common file types -->
   <string name="common_type_audio">오디오</string>

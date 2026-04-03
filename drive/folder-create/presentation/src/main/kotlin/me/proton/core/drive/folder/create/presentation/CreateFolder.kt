@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -36,9 +37,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import me.proton.core.drive.link.domain.entity.FolderId
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
@@ -54,8 +57,10 @@ import me.proton.core.drive.i18n.R as I18N
 @Composable
 fun CreateFolder(
     onDismiss: () -> Unit,
+    onFolderCreated: (FolderId) -> Unit = {},
 ) {
     val viewModel = hiltViewModel<CreateFolderViewModel>()
+    val viewEvent = remember(viewModel) { viewModel.viewEvent(onFolderCreated) }
     val viewState by rememberFlowWithLifecycle(flow = viewModel.viewState)
         .collectAsState(initial = viewModel.initialViewState)
     LaunchedEffect(viewModel, LocalContext.current) {
@@ -73,9 +78,9 @@ fun CreateFolder(
         selection = viewState.selection,
         showProgress = viewState.inProgress,
         inputError = viewState.error,
-        onCreateFolder = viewModel.viewEvent.onCreateFolder,
+        onCreateFolder = viewEvent.onCreateFolder,
         onDismiss = onDismiss,
-        onValueChanged = viewModel.viewEvent.onNameChanged,
+        onValueChanged = viewEvent.onNameChanged,
         modifier = Modifier
             .testTag(CreateFolderComponentTestTag.screen),
     )
@@ -169,6 +174,9 @@ fun CreateFolderContent(
                     state = textFieldValue
                 }
             },
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.Sentences,
+            ),
             modifier = Modifier
                 .testTag(CreateFolderComponentTestTag.folderNameTextField),
         )

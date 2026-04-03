@@ -25,6 +25,7 @@ android {
 
 driveModule(
     hilt = true,
+    i18n = true,
 ) {
     implementation(project(":drive:crypto:domain"))
     implementation(project(":drive:event-manager:base:domain"))

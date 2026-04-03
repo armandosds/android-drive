@@ -17,9 +17,9 @@
   ~ along with Proton Core.  If not, see <https://www.gnu.org/licenses/>.
   -->
 <resources>
-  <string name="scan_document_name_title">Name your scan</string>
+  <string name="scan_document_name_title">스캔 이름 지정</string>
   <string name="scan_document_name_output_format_pdf_title">PDF</string>
-  <string name="scan_document_name_output_format_pdf_description">All pages are saved into single document</string>
+  <string name="scan_document_name_output_format_pdf_description">모든 페이지가 단일 문서로 저장됩니다.</string>
   <string name="scan_document_name_output_format_jpeg_title">JPEG</string>
-  <string name="scan_document_name_output_format_jpeg_description">Every page is saved as separate image</string>
+  <string name="scan_document_name_output_format_jpeg_description">각 페이지가 별도 이미지로 저장됩니다.</string>
 </resources>

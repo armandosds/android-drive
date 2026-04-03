@@ -204,8 +204,6 @@
   <string name="error_share_locked">Udostępniony obiekt jest zablokowany.</string>
   <string name="error_main_share_not_found">Główny udostępniony obiekt nie został znaleziony.</string>
   <string name="error_share_not_found">Udostępniony obiekt nie został znaleziony.</string>
-  <string name="error_creating_photo_share_not_allowed">Tworzenie kopii zapasowej zdjęć jest tymczasowo wyłączone.</string>
-  <string name="error_creating_share_not_allowed">Udostępnianie jest tymczasowo wyłączone.</string>
   <string name="error_camera_permission">Uprawnienie do aparatu jest wymagane.</string>
   <string name="operation_open_document">otwarcia dokumentu</string>
   <string name="operation_create_document">utworzenia dokumentu</string>

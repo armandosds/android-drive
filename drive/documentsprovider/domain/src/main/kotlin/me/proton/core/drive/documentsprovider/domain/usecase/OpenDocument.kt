@@ -29,6 +29,7 @@ import kotlinx.coroutines.sync.withLock
 import me.proton.core.drive.base.domain.log.LogTag
 import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.usecase.GetCacheFolder
+import me.proton.core.drive.base.domain.usecase.ReportError
 import me.proton.core.drive.documentsprovider.domain.entity.DocumentId
 import me.proton.core.drive.drivelink.download.domain.extension.throwable
 import me.proton.core.drive.drivelink.download.domain.usecase.GetFile
@@ -51,6 +52,7 @@ class OpenDocument @Inject constructor(
     private val getCacheFolder: GetCacheFolder,
     private val cancelUploadFile: CancelUploadFile,
     private val uploadFiles: UploadAlreadyCreatedFiles,
+    private val reportError: ReportError,
 ) {
 
     private val handlerThread = Handler(HandlerThread("OpenDocumentThread").apply {
@@ -123,7 +125,11 @@ class OpenDocument @Inject constructor(
         }
         if (state !is GetFile.State.Ready) {
             state.throwable?.let{ error ->
-                CoreLogger.e(LogTag.DOCUMENTS_PROVIDER, error, "Document could not be opened")
+                reportError(
+                    tag = LogTag.DOCUMENTS_PROVIDER,
+                    error = error,
+                    message = "Document could not be opened",
+                )
             }
             throw FileNotFoundException("Document could not be opened")
         }

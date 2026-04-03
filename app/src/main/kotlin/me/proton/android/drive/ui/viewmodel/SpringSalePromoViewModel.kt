@@ -25,12 +25,17 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import me.proton.android.drive.extension.log
 import me.proton.android.drive.ui.viewevent.SpringSalePromoViewEvent
 import me.proton.android.drive.ui.viewstate.SpringSalePromoViewState
 import me.proton.android.drive.usecase.notification.MarkSpringSalePromoAsShown
+import me.proton.core.drive.base.domain.extension.flowOf
 import me.proton.core.drive.base.domain.log.LogTag.VIEW_MODEL
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.base.presentation.common.Action
@@ -56,6 +61,14 @@ class SpringSalePromoViewModel @Inject constructor(
     private val markSpringSalePromoAsShown: MarkSpringSalePromoAsShown,
 ) : ViewModel(), UserViewModel by UserViewModel(savedStateHandle) {
     private var viewEvent: SpringSalePromoViewEvent? = null
+    private val selectedPlan = MutableStateFlow(SpringSalePromoViewState.PlanPeriod.YEARLY)
+    private val plans = flowOf {
+        coRunCatching { getDynamicPlansAdjustedPrices(userId).plans }
+            .onFailure { error ->
+                error.log(VIEW_MODEL, "Failed to get dynamic plans")
+            }
+            .getOrNull()
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     private val storageImageResId: Int get() = getThemeDrawableId(
         light = BasePresentation.drawable.img_storage_light_32,
@@ -131,19 +144,21 @@ class SpringSalePromoViewModel @Inject constructor(
         getDealButtonResId = I18N.string.promo_claim_offer_button,
         monthlyPrice = "",
         yearlyPrice = "",
-        period = "12 ${appContext.getString(I18N.string.common_month).lowercase()}s",
+        oneMonthPrice = "",
+        period = "12 ${appContext.getString(I18N.string.common_month).lowercase()}",
+        oneMonthPeriod = "1 ${appContext.getString(I18N.string.common_month).lowercase()}",
         monthlyPricePeriod = "/${appContext.getString(I18N.string.common_month).lowercase()}",
         yearlyPricePeriod = "/${appContext.getString(I18N.string.common_year).lowercase()}",
         autoRenewPrice = "",
+        selected = selectedPlan.value,
     )
-    val viewState: Flow<SpringSalePromoViewState> = observeUserCurrency(userId).map { userCurrency ->
+    val viewState: Flow<SpringSalePromoViewState> = combine(
+        observeUserCurrency(userId),
+        plans.filterNotNull(),
+        selectedPlan,
+    ) { userCurrency, plans, selectedPlan ->
         val cycle = PlanCycle.YEARLY.value
-        val plans = coRunCatching { getDynamicPlansAdjustedPrices(userId).plans }
-            .onFailure { error ->
-                error.log(VIEW_MODEL, "Failed to get dynamic plans")
-            }
-            .getOrNull()
-        plans?.firstOrNull { plan -> plan.name == DRIVE_PLUS_1_TB }
+        plans.firstOrNull { plan -> plan.name == DRIVE_PLUS_1_TB }
             ?.let { plan ->
                 val availableCurrencies = plan.instances[cycle]?.price?.keys?.map { it.uppercase() } ?: emptyList()
                 val currency = if (availableCurrencies.contains(userCurrency.uppercase())) {
@@ -159,12 +174,24 @@ class SpringSalePromoViewModel @Inject constructor(
                     ?.let {
                         plan.instances[cycle]?.price[currency]?.current?.toDouble()?.formatCentsPriceDefaultLocale(currency)
                     } ?: ""
+                val oneMonthPrice = takeIf { currency.isNotEmpty() }
+                    ?.let {
+                        plan.instances[PlanCycle.MONTHLY.value]?.price[currency]?.current?.toDouble()?.formatCentsPriceDefaultLocale(currency)
+                    } ?: ""
+                val selectedCycle = when (selectedPlan) {
+                    SpringSalePromoViewState.PlanPeriod.YEARLY -> PlanCycle.YEARLY.value
+                    SpringSalePromoViewState.PlanPeriod.MONTHLY -> PlanCycle.MONTHLY.value
+                }
                 initialViewState.copy(
                     monthlyPrice = appContext.getString(I18N.string.promo_offer_per_month_details, monthlyPrice),
                     yearlyPrice = yearlyPrice,
-                    autoRenewPrice = composeAutoRenewText(plan.instances[cycle]?.price[currency], cycle) ?: ""
+                    oneMonthPrice = oneMonthPrice,
+                    selected = selectedPlan,
+                    autoRenewPrice = composeAutoRenewText(plan.instances[selectedCycle]?.price[currency], selectedCycle) ?: ""
                 )
-            } ?: initialViewState
+            } ?: initialViewState.copy(
+                selected = selectedPlan,
+            )
     }
 
     fun viewEvent(
@@ -176,6 +203,7 @@ class SpringSalePromoViewModel @Inject constructor(
             navigateToSubscription.invoke().also { navigateBack.invoke() }
         }
         override val onPromoShown = { onShown() }
+        override val onToggleOffer = { toggleSelectedPlan() }
     }.also { viewEvent ->
         this.viewEvent = viewEvent
     }
@@ -186,6 +214,13 @@ class SpringSalePromoViewModel @Inject constructor(
                 .onFailure { error ->
                     error.log(VIEW_MODEL, "Failed to mark spring sale promo as shown")
                 }
+        }
+    }
+
+    private fun toggleSelectedPlan() {
+        selectedPlan.value = when (selectedPlan.value) {
+            SpringSalePromoViewState.PlanPeriod.YEARLY -> SpringSalePromoViewState.PlanPeriod.MONTHLY
+            SpringSalePromoViewState.PlanPeriod.MONTHLY -> SpringSalePromoViewState.PlanPeriod.YEARLY
         }
     }
 

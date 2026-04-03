@@ -61,7 +61,7 @@
   <string name="photos_error_no_folders">백업할 %1$s 폴더가 없습니다.</string>
   <string name="photos_error_backup_disabled">백업이 비활성화 되었습니다.</string>
   <string name="photos_error_backup_disabled_action">켜기</string>
-  <string name="photos_error_backup_missing_folder">Default camera folder not found</string>
+  <string name="photos_error_backup_missing_folder">기본 카메라 폴더를 찾을 수 없습니다</string>
   <string name="photos_error_backup_failed">백업에 실패했습니다.</string>
   <string name="photos_error_backup_temporarily_disabled">백업을 일시적으로 사용할 수 없습니다.</string>
   <string name="photos_error_missing_permissions">권한 없음.</string>
@@ -168,6 +168,6 @@
   <plurals name="photos_tags_migration_ongoing">
     <item quantity="other">진행 중, %1$s개 파일 마이그레이션 중, %2$s개 파일 다운로드 대기 중.</item>
   </plurals>
-  <string name="photos_folder_selection_title">Backup photos from</string>
-  <string name="photos_folder_selection_description">Select folders to back up and their photos will appear in the Photos tab.</string>
+  <string name="photos_folder_selection_title">다음 위치에서 사진 백업:</string>
+  <string name="photos_folder_selection_description">사진 탭에 표시될 백업할 폴더를 선택하세요.</string>
 </resources>

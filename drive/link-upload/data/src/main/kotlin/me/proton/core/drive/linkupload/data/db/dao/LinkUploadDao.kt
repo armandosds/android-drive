@@ -194,6 +194,18 @@ abstract class LinkUploadDao : BaseDao<LinkUploadEntity>() {
     abstract fun getAllWithUriByPriority(userId: UserId, states: Set<UploadState>, count: Int): Flow<List<LinkUploadEntity>>
 
     @Query("""
+        SELECT * FROM LinkUploadEntity
+        WHERE
+            user_id = :userId AND
+            volume_id = :volumeId AND
+            uri IS NOT NULL AND uri != "" AND
+            state IN (:states)
+        ORDER BY priority ASC, id ASC
+        LIMIT :count
+    """)
+    abstract fun getAllWithUriByPriority(userId: UserId, volumeId: String, states: Set<UploadState>, count: Int): Flow<List<LinkUploadEntity>>
+
+    @Query("""
         SELECT COUNT(*) FROM (SELECT * FROM LinkUploadEntity WHERE user_id = :userId)
     """)
     abstract fun getCountFlow(userId: UserId): Flow<Int>
@@ -250,6 +262,33 @@ abstract class LinkUploadDao : BaseDao<LinkUploadEntity>() {
     """
     )
     abstract fun getUploadCount(userId: UserId, userPriority: Long): Flow<LinkUploadCountEntity>
+
+    @Transaction
+    @Query(
+        """
+        SELECT
+            COUNT(*) AS ${Column.TOTAL},
+            COUNT(CASE WHEN uri IS NOT NULL AND uri != "" THEN 1 ELSE NULL END) AS ${Column.TOTAL_WITH_URI},
+            COUNT(
+                CASE WHEN uri IS NOT NULL AND uri != "" AND priority > :userPriority THEN 1 ELSE NULL END
+            ) AS ${Column.TOTAL_WITH_URI_NON_USER_PRIORITY},
+            COUNT(
+                CASE WHEN uri IS NOT NULL AND uri != "" AND state = "UNPROCESSED"
+                    THEN 1
+                    ELSE NULL
+                END
+            ) AS ${Column.TOTAL_UNPROCESSED_WITH_URI},
+            COUNT(
+                CASE WHEN uri IS NOT NULL AND uri != "" AND state = "UNPROCESSED" AND priority > :userPriority
+                    THEN 1
+                    ELSE NULL
+                END
+            ) AS ${Column.TOTAL_UNPROCESSED_WITH_URI_NON_USER_PRIORITY},
+            COUNT(CASE WHEN should_announce_event = 1 THEN 1 ELSE NULL END) AS ${Column.TOTAL_WITH_ANNOUNCE}
+        FROM LinkUploadEntity WHERE user_id = :userId AND volume_id = :volumeId
+    """
+    )
+    abstract fun getUploadCount(userId: UserId, volumeId: String, userPriority: Long): Flow<LinkUploadCountEntity>
 
     @Query(
         """

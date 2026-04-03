@@ -35,17 +35,18 @@ class GetLastModified @Inject constructor(
         if (driveLink.cryptoXAttr !is CryptoProperty.Decrypted) return driveLink.lastModified
         val xAttrString = driveLink.cryptoXAttr.value ?: return driveLink.lastModified
         xAttrString.toXAttr().onSuccess { xAttr ->
-            return dateTimeFormatter.parseFromIso8601String(iso8601 = xAttr.common.modificationTime)
-                .getOrNull(
-                    LogTag.ENCRYPTION,
-                    "There was an error parsing modification time of drive link: ${driveLink.id.id.logId()}"
-                )
-                ?: driveLink.lastModified
+            return xAttr.common?.modificationTime?.let { modificationTime ->
+                dateTimeFormatter.parseFromIso8601String(iso8601 = modificationTime)
+                    .getOrNull(
+                        LogTag.ENCRYPTION,
+                        "There was an error parsing modification time of drive link: ${driveLink.id.id.logId()}"
+                    )
+            } ?: driveLink.lastModified
         }.onFailure { error ->
             CoreLogger.w(
                 LogTag.ENCRYPTION,
                 error,
-                "There was an error parsing xAttr of drive link: ${driveLink.id.id.logId()}"
+                "There was an error parsing xAttr of drive link: ${driveLink.id.id}"
             )
         }
         return driveLink.lastModified

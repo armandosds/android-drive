@@ -21,6 +21,7 @@ package me.proton.android.drive.sdk
 import me.proton.core.auth.domain.usecase.GetPrimaryUser
 import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.base.domain.log.LogTag.DRIVE_SDK
+import me.proton.core.drive.base.domain.usecase.ReportError
 import me.proton.core.drive.observability.data.extension.toType
 import me.proton.core.drive.observability.data.extension.toVolumeType
 import me.proton.core.drive.observability.domain.constraint.CountConstraint
@@ -45,6 +46,7 @@ class SdkDownloadMetricsNotifier @Inject constructor(
     private val minimumIntervalConstraint: MinimumIntervalConstraint,
     private val countConstraint: CountConstraint,
     private val getPrimaryUser: GetPrimaryUser,
+    private val reportError: ReportError,
 ){
 
     suspend operator fun invoke(downloadEvent: DownloadEvent) {
@@ -58,9 +60,9 @@ class SdkDownloadMetricsNotifier @Inject constructor(
         } else {
             val type = error.toType()
             if (type == DownloadErrorsTotal.Type.unknown) {
-                CoreLogger.e(
-                    DRIVE_SDK,
-                    "Unknown download error: $error\n${downloadEvent.originalError}",
+                reportError(
+                    tag = DRIVE_SDK,
+                    message = "Unknown download error: $error\n${downloadEvent.originalError}",
                 )
             }
             notifyDownloadErrorsTotalMetric(
@@ -71,10 +73,10 @@ class SdkDownloadMetricsNotifier @Inject constructor(
                 volumeType = volumeType,
             )
             notifyDownloadErrorsTransferSizeHistogramMetric(
-                downloadedSize = downloadEvent.downloadedSize
+                downloadedSize = downloadEvent.approximateDownloadedSize
             )
             notifyDownloadErrorsFileSizeHistogramMetric(
-                fileSize = downloadEvent.claimedFileSize
+                fileSize = downloadEvent.approximateClaimedFileSize
             )
         }
     }

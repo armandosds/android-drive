@@ -23,11 +23,24 @@ import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.linkupload.domain.entity.UploadFileLink
 import me.proton.core.drive.linkupload.domain.entity.UploadState
 import me.proton.core.drive.linkupload.domain.repository.LinkUploadRepository
+import me.proton.core.drive.volume.domain.entity.VolumeId
 import javax.inject.Inject
 
 class GetUploadFileLinksWithUriByPriority @Inject constructor(
     private val linkUploadRepository: LinkUploadRepository,
 ) {
-    suspend operator fun invoke(userId: UserId, states: Set<UploadState>, count: Int): Flow<List<UploadFileLink>> =
+    suspend operator fun invoke(
+        userId: UserId,
+        states: Set<UploadState>,
+        count: Int
+    ): Flow<List<UploadFileLink>> =
         linkUploadRepository.getUploadFileLinksWithUriByPriority(userId, states, count)
+
+    suspend operator fun invoke(
+        userId: UserId,
+        volumeId: VolumeId,
+        states: Set<UploadState>,
+        count: Int
+    ): Flow<List<UploadFileLink>> =
+        linkUploadRepository.getUploadFileLinksWithUriByPriority(userId, volumeId, states, count)
 }

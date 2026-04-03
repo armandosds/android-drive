@@ -40,8 +40,8 @@
   <string name="common_off">Nonaktif</string>
   <string name="common_all">Semua</string>
   <string name="common_unknown">Tidak diketahui</string>
-  <string name="common_month">Month</string>
-  <string name="common_year">Year</string>
+  <string name="common_month">Bulan</string>
+  <string name="common_year">Tahun</string>
   <!-- endregion -->
   <!-- region Common actions -->
   <string name="common_ok_action">OK</string>
@@ -77,7 +77,8 @@
   <string name="common_save_all_action">Simpan semua</string>
   <string name="common_add_to_albums_action">Tambah ke album</string>
   <string name="common_tag_photo_action">Pindai foto untuk tag</string>
-  <string name="common_save_as_action">Save as</string>
+  <string name="common_save_as_action">Simpan sebagai</string>
+  <string name="common_open_action">Buka</string>
   <!-- endregion -->
   <!-- region Common file types -->
   <string name="common_type_audio">Audio</string>
@@ -139,13 +140,13 @@
             "Security error occurred: password required or incorrect password"
     -->
   <string name="common_error_security_with_message">Terdapat kesalahan keamanan: %1$s</string>
-  <string name="common_error_sdk">SDK error occurred</string>
+  <string name="common_error_sdk">Terjadi kesalahan SDK</string>
   <!--
         Variable %1$s is the non-null message from SDK exception
         Example:
             "SDK error occurred:  file or folder with that name already exists"
     -->
-  <string name="common_error_sdk_with_message">SDK error occurred: %1$s</string>
+  <string name="common_error_sdk_with_message">Terjadi kesalahan SDK: %1$s</string>
   <!-- endregion -->
   <!--
         Variable %1$s is a percentage

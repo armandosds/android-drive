@@ -42,7 +42,6 @@ import me.proton.android.drive.ui.options.filterAlbums
 import me.proton.android.drive.ui.options.filterPermissions
 import me.proton.android.drive.ui.options.filterPhotoFavorite
 import me.proton.android.drive.ui.options.filterPhotoTag
-import me.proton.android.drive.ui.options.filterProtonDocs
 import me.proton.android.drive.ui.options.filterRoot
 import me.proton.android.drive.ui.options.filterShare
 import me.proton.android.drive.ui.options.filterShareMember
@@ -55,7 +54,6 @@ import me.proton.core.drive.base.domain.entity.Permissions
 import me.proton.core.drive.base.domain.extension.mapWithPrevious
 import me.proton.core.drive.base.domain.log.LogTag
 import me.proton.core.drive.base.domain.log.LogTag.VIEW_MODEL
-import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.usecase.BroadcastMessages
 import me.proton.core.drive.base.presentation.extension.require
@@ -70,8 +68,6 @@ import me.proton.core.drive.drivelink.photo.domain.usecase.UpdateAlbumCover
 import me.proton.core.drive.drivelink.trash.domain.usecase.ToggleTrashState
 import me.proton.core.drive.feature.flag.domain.entity.FeatureFlag
 import me.proton.core.drive.feature.flag.domain.entity.FeatureFlag.State.NOT_FOUND
-import me.proton.core.drive.feature.flag.domain.entity.FeatureFlagId.Companion.driveAlbumsDisabled
-import me.proton.core.drive.feature.flag.domain.entity.FeatureFlagId.Companion.driveDocsDisabled
 import me.proton.core.drive.feature.flag.domain.entity.FeatureFlagId.Companion.driveSharingDevelopment
 import me.proton.core.drive.feature.flag.domain.usecase.GetFeatureFlagFlow
 import me.proton.core.drive.files.presentation.entry.FileOptionEntry
@@ -143,12 +139,6 @@ class FileOrFolderOptionsViewModel @Inject constructor(
     private val sharingDevelopment = getFeatureFlagFlow(driveSharingDevelopment(userId))
         .stateIn(viewModelScope, Eagerly, FeatureFlag(driveSharingDevelopment(userId), NOT_FOUND))
 
-    private val docsKillSwitch = getFeatureFlagFlow(driveDocsDisabled(userId))
-        .stateIn(viewModelScope, Eagerly, FeatureFlag(driveDocsDisabled(userId), NOT_FOUND))
-
-    private val albumsKillSwitch = getFeatureFlagFlow(driveAlbumsDisabled(userId))
-        .stateIn(viewModelScope, Eagerly, FeatureFlag(driveAlbumsDisabled(userId), NOT_FOUND))
-
     private val photoVolume = getOldestActiveVolume(userId, Volume.Type.PHOTO)
         .mapSuccessValueOrNull()
         .stateIn(viewModelScope, Eagerly, null)
@@ -169,20 +159,17 @@ class FileOrFolderOptionsViewModel @Inject constructor(
     ): Flow<List<FileOptionEntry<T>>> = combine(
         this.driveLink.filterNotNull(),
         sharingDevelopment,
-        docsKillSwitch,
         hasPhotoVolume(userId),
-        albumsKillSwitch,
-    ) { driveLink, sharingDevelopment, protonDocsKillSwitch, hasPhotoVolume, albumsKillSwitch ->
+    ) { driveLink, sharingDevelopment, hasPhotoVolume ->
         options
             .filter(driveLink)
-            .filterAlbums(hasPhotoVolume, albumsKillSwitch, albumId)
+            .filterAlbums(hasPhotoVolume, albumId)
             .filterPhotoTag(configurationProvider.scanPhotoFileForTags)
-            .filterPhotoFavorite(hasPhotoVolume, albumsKillSwitch)
+            .filterPhotoFavorite(hasPhotoVolume)
             .filterRoot(driveLink, sharingDevelopment)
             .filterShare(false, albumId)
             .filterShareMember(driveLink.isShareMember)
             .filterPermissions(driveLink.sharePermissions ?: Permissions.owner)
-            .filterProtonDocs(protonDocsKillSwitch)
             .map { option ->
                 when (option) {
                     is Option.DeletePermanently -> option.build(runAction, navigateToDelete)
@@ -297,7 +284,7 @@ class FileOrFolderOptionsViewModel @Inject constructor(
 
     private suspend fun scanPhotoForTags(driveLink: DriveLink.File) {
         scanPhotoForTags(driveLink.volumeId, listOf(driveLink.link)).onFailure { error ->
-            error.log(VIEW_MODEL, "Failed to scan photo for tags ${driveLink.id.id.logId()}")
+            error.log(VIEW_MODEL, "Failed to scan photo for tags ${driveLink.id.id}")
         }
     }
 
@@ -346,7 +333,7 @@ class FileOrFolderOptionsViewModel @Inject constructor(
             albumId = requireNotNull(albumId),
             newCoverFileId = driveLink.id
         ).onFailure { error ->
-            error.log(LogTag.ALBUM, "Cannot update album cover: ${driveLink.id.id.logId()}")
+            error.log(LogTag.ALBUM, "Cannot update album cover: ${driveLink.id.id}")
             broadcastMessages(
                 userId = userId,
                 message = error.getDefaultMessage(
@@ -372,7 +359,7 @@ class FileOrFolderOptionsViewModel @Inject constructor(
             photoIds = listOf(fileId),
             albumId = requireNotNull(albumId) { "album id is required to save shared photo"},
         ).onFailure { error ->
-            error.log(LogTag.ALBUM, "Cannot copy photo to stream: ${fileId.id.logId()}")
+            error.log(LogTag.ALBUM, "Cannot copy photo to stream: ${fileId.id}")
             broadcastMessages(
                 userId = userId,
                 message = error.getDefaultMessage(

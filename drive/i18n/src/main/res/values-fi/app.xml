@@ -194,8 +194,6 @@
   <string name="error_share_locked">Jako on lukittu.</string>
   <string name="error_main_share_not_found">Ensisijaista jakoa ei löytynyt.</string>
   <string name="error_share_not_found">Jakoa ei löytynyt.</string>
-  <string name="error_creating_photo_share_not_allowed">Kuvien varmuuskopiointi on poistettu tilapäisesti käytöstä.</string>
-  <string name="error_creating_share_not_allowed">Jakojen luonti on poistettu tilapäisesti käytöstä.</string>
   <string name="error_camera_permission">Kameran käyttöoikeus tarvitaan.</string>
   <string name="operation_open_document">avata asiakirjan</string>
   <string name="operation_create_document">luoda asiakirjan</string>

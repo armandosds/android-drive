@@ -100,13 +100,13 @@ class TagsMigrationInitializer : Initializer<Unit> {
                             true -> startTagsMigration(userId, volumeId).onFailure { error ->
                                 error.log(
                                     PHOTO,
-                                    "Failed to start migration for volume: ${volumeId.id.logId()}"
+                                    "Failed to start migration for volume: ${volumeId.id}"
                                 )
                             }
                             false -> stopTagsMigration(userId, volumeId).onFailure { error ->
                                 error.log(
                                     PHOTO,
-                                    "Failed to stop migration for volume: ${volumeId.id.logId()}"
+                                    "Failed to stop migration for volume: ${volumeId.id}"
                                 )
                             }
 
@@ -137,7 +137,7 @@ class TagsMigrationInitializer : Initializer<Unit> {
                             }.onFailure { error ->
                                 error.log(
                                     PHOTO,
-                                    "Failed to start download file: ${fileId.id.logId()}"
+                                    "Failed to start download file: ${fileId.id}"
                                 )
                             }
                         }.launchIn(scope)
@@ -162,7 +162,7 @@ class TagsMigrationInitializer : Initializer<Unit> {
                             ).onFailure { error ->
                                 error.log(
                                     PHOTO,
-                                    "Failed to start tagging file: ${fileId.id.logId()}"
+                                    "Failed to start tagging file: ${fileId.id}"
                                 )
                             }
                         }.launchIn(scope)

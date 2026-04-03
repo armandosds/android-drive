@@ -39,8 +39,12 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -112,6 +116,7 @@ fun FilesListItem(
     isSelected: Boolean = false,
     inMultiselect: Boolean = false,
     isMoreOptionsEnabled: Boolean = true,
+    isHighlighted: Boolean = false,
     onRenderThumbnail: (DriveLink) -> Unit,
 ) {
     val transferProgress = transferProgressFlow?.let {
@@ -121,9 +126,11 @@ fun FilesListItem(
         (isMarkedAsOffline || isAnyAncestorMarkedAsOffline) && downloadState is DownloadState.Downloading
     }
     val haptic = LocalHapticFeedback.current
+    val highlightColor = rememberHighlightColor(isHighlighted)
     Box(
         modifier = modifier
             .fillMaxWidth()
+            .background(highlightColor)
             .background(color = if (isSelected) ProtonTheme.colors.backgroundSecondary else Color.Transparent)
             .combinedClickable(
                 enabled = onClick != null && isClickEnabled(link),
@@ -483,6 +490,19 @@ fun MoreOptions(
             tint = ProtonTheme.colors.interactionStrongNorm
         )
     }
+}
+
+@Composable
+fun rememberHighlightColor(isHighlighted: Boolean): Color {
+    val highlightAlpha = remember { Animatable(0f) }
+    val highlightColor = Color(0xFFF5A623)
+    LaunchedEffect(isHighlighted) {
+        if (isHighlighted) {
+            highlightAlpha.snapTo(0.2f)
+            highlightAlpha.animateTo(0f, tween(durationMillis = 1500))
+        }
+    }
+    return highlightColor.copy(alpha = highlightAlpha.value)
 }
 
 @Preview

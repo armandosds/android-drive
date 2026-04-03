@@ -42,6 +42,7 @@ import me.proton.android.drive.ui.viewmodel.ParentFolderOptionsViewModel
 import me.proton.android.drive.ui.viewmodel.PhotosPickerAndSelectionViewModel
 import me.proton.android.drive.ui.viewmodel.PickerPhotosViewModel
 import me.proton.android.drive.ui.viewmodel.ScanDocumentNameViewModel
+import me.proton.android.drive.ui.viewmodel.ScanDocumentViewModel
 import me.proton.android.drive.ui.viewmodel.ShareInvitationOptionsViewModel
 import me.proton.android.drive.ui.viewmodel.ShareMemberOptionsViewModel
 import me.proton.android.drive.ui.viewmodel.SubscriptionPromoViewModel
@@ -75,8 +76,12 @@ import me.proton.drive.android.settings.domain.entity.WhatsNewKey
 sealed class Screen(val route: String) {
     open fun deepLink(baseUrl: String): String? = "$baseUrl/$route"
 
-    data object Launcher : Screen("launcher?redirection={redirection}") {
+    data object Launcher : Screen("launcher?redirection={redirection}&action={action}&shareId={shareId}&folderId={folderId}") {
         const val REDIRECTION = "redirection"
+        const val ACTION = "action"
+        const val ACTION_SCAN_DOCUMENT = "scan_document"
+        const val SHARE_ID = "shareId"
+        const val FOLDER_ID = "folderId"
     }
 
     data object SigningOut : Screen("signingOut/{userId}") {
@@ -834,6 +839,17 @@ sealed class Screen(val route: String) {
 
         const val USER_ID = Screen.USER_ID
         const val RATIONALE_CONTEXT = NotificationPermissionRationaleViewModel.RATIONALE_CONTEXT
+    }
+
+    data object ScanDocument : Screen(
+        "scanDocument/{userId}/{shareId}/{folderId}"
+    ) {
+        operator fun invoke(userId: UserId, folderId: FolderId) =
+            "scanDocument/${userId.id}/${folderId.shareId.id}/${folderId.id}"
+
+        const val USER_ID = Screen.USER_ID
+        const val SHARE_ID = ScanDocumentViewModel.KEY_SHARE_ID
+        const val FOLDER_ID = ScanDocumentViewModel.KEY_FOLDER_ID
     }
 
     data object ScanDocumentName : Screen(

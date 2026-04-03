@@ -38,7 +38,6 @@ import me.proton.core.drive.base.data.extension.getDefaultMessage
 import me.proton.core.drive.base.data.extension.log
 import me.proton.core.drive.base.domain.entity.Permissions
 import me.proton.core.drive.base.domain.log.LogTag.SHARING
-import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.usecase.BroadcastMessages
 import me.proton.core.drive.base.presentation.extension.require
@@ -114,7 +113,7 @@ class ShareLinkPermissionsViewModel @Inject constructor(
         ).onFailure { error ->
             error.log(
                 SHARING,
-                "Cannot update permissions for ${sharedDriveLink.shareUrlId.id.logId()}"
+                "Cannot update permissions for ${sharedDriveLink.shareUrlId.id}"
             )
             broadcastMessages(
                 userId = userId,

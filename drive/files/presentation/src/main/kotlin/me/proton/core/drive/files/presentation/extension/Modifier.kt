@@ -26,7 +26,7 @@ import me.proton.core.drive.drivelink.domain.extension.hasShareLink
 import me.proton.core.drive.drivelink.domain.extension.isSharedWithUsers
 import me.proton.core.drive.linkdownload.domain.entity.DownloadState
 
-fun Modifier.driveLinkSemantics(link: DriveLink, linkLayoutType: LayoutType) =
+fun Modifier.driveLinkSemantics(link: DriveLink, linkLayoutType: LayoutType, isHighlighted: Boolean = false) =
     semantics(mergeDescendants = true) {
         this[DriveLinkSemanticsProperties.LinkName] = link.name
         this[DriveLinkSemanticsProperties.LayoutType] = linkLayoutType
@@ -36,6 +36,7 @@ fun Modifier.driveLinkSemantics(link: DriveLink, linkLayoutType: LayoutType) =
         this[DriveLinkSemanticsProperties.IsSharedByLink] = link.hasShareLink
         this[DriveLinkSemanticsProperties.IsSharedWithUsers] = link.isSharedWithUsers
         this[DriveLinkSemanticsProperties.IsFavorite] = link.isFavorite
+        this[DriveLinkSemanticsProperties.IsHighlighted] = isHighlighted
         this[DriveLinkSemanticsProperties.DownloadState] = when (link.downloadState) {
             is DownloadState.Downloaded,
             is DownloadState.Ready -> SemanticsDownloadState.Downloaded
@@ -53,6 +54,7 @@ object DriveLinkSemanticsProperties {
     val IsSharedByLink = SemanticsPropertyKey<Boolean>(name = "IsSharedByLink")
     val IsSharedWithUsers = SemanticsPropertyKey<Boolean>(name = "IsSharedWithUsers")
     val IsFavorite = SemanticsPropertyKey<Boolean>(name = "IsFavorite")
+    val IsHighlighted = SemanticsPropertyKey<Boolean>(name = "IsHighlighted")
     val DownloadState = SemanticsPropertyKey<SemanticsDownloadState>(name = "DownloadState")
 }
 

@@ -65,8 +65,12 @@ class VerifyContentDigest @Inject constructor(
     private fun verifyContentDigest(claimed: String, actual: String) {
         if (!claimed.equals(other = actual, ignoreCase = true)) {
             throw ContentDigestVerifierException.Mismatch(
-                message = "Claimed=$claimed, actual=$actual",
+                message = "Claimed=${claimed.take(MAX_DIGEST_CHARS)}, actual=${actual.take(MAX_DIGEST_CHARS)}",
             )
         }
+    }
+
+    companion object {
+        private const val MAX_DIGEST_CHARS = 4
     }
 }

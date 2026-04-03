@@ -47,8 +47,8 @@
   <string name="folder_option_take_a_photo">Posnemi novo fotografijo</string>
   <string name="folder_option_create_document">Ustvari dokument</string>
   <string name="folder_option_create_spreadsheet">Ustvari razpredelnico</string>
-  <string name="folder_option_import_folder">Upload a folder</string>
-  <string name="folder_option_scan_document">Scan document</string>
+  <string name="folder_option_import_folder">Naloži mapo</string>
+  <string name="folder_option_scan_document">Odčitaj dokument</string>
   <string name="settings_theme_system_default">Sistemsko privzeto</string>
   <string name="settings_theme_dark">Temna</string>
   <string name="settings_theme_light">Svetla</string>
@@ -204,13 +204,11 @@
   <string name="error_share_locked">Skupna raba je zaklenjena.</string>
   <string name="error_main_share_not_found">Glavne skupne rabe ne najde.</string>
   <string name="error_share_not_found">Skupna raba ni najdena.</string>
-  <string name="error_creating_photo_share_not_allowed">Varnostno kopiranje fotografij je začasno onemogočeno.</string>
-  <string name="error_creating_share_not_allowed">Ustvarjanje skupne rabe je začasno onemogočeno.</string>
   <string name="error_camera_permission">Potrebno je dovoljenje za kamero.</string>
   <string name="operation_open_document">odpri dokument</string>
   <string name="operation_create_document">ustvarite dokument.</string>
   <string name="operation_take_picture">posnemite fotografijo</string>
-  <string name="operation_scan_document">scan a document</string>
+  <string name="operation_scan_document">odčitaj dokument</string>
   <!-- region Get more free storage -->
   <!--
         Variable %1$s is a quantity (formatted) of max free storage

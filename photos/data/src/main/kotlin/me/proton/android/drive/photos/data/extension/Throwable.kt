@@ -19,19 +19,12 @@
 package me.proton.android.drive.photos.data.extension
 
 import android.content.Context
-import me.proton.core.drive.share.domain.exception.ShareException
 import me.proton.core.drive.base.data.extension.getDefaultMessage as baseGetDefaultMessage
-import me.proton.core.drive.i18n.R as I18N
 
 fun Throwable.getDefaultMessage(
     context: Context,
     useExceptionMessage: Boolean,
 ): String = when (this) {
-    is RuntimeException -> when (cause) {
-        is ShareException.CreatingShareNotAllowed -> context.getString(
-            I18N.string.error_creating_photo_share_not_allowed
-        )
-        else -> baseGetDefaultMessage(context, useExceptionMessage)
-    }
+    is RuntimeException -> baseGetDefaultMessage(context, useExceptionMessage)
     else -> baseGetDefaultMessage(context, useExceptionMessage)
 }

@@ -19,6 +19,8 @@
 package me.proton.core.drive.link.domain.extension
 
 import me.proton.core.drive.link.domain.entity.Link
+import me.proton.core.drive.volume.domain.entity.VolumeId
+import me.proton.drive.sdk.Uid
 
 val Link.File.isPhoto : Boolean get() = photoCaptureTime != null
 
@@ -30,3 +32,5 @@ val Link.isSharedByLinkOrWithUsers: Boolean
 
 val Link.nameKey: String
     get() = parentId?.id?.let { parentId -> "name.$parentId.$hash"} ?: "name.${id.id}.$hash"
+
+fun Link.nodeUid(volumeId: VolumeId) = id.nodeUid(volumeId)

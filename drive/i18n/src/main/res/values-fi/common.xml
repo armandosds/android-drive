@@ -78,6 +78,7 @@
   <string name="common_add_to_albums_action">Lisää albumeihin</string>
   <string name="common_tag_photo_action">Skannaa kuva tunnisteita varten</string>
   <string name="common_save_as_action">Tallenna nimellä</string>
+  <string name="common_open_action">Avaa</string>
   <!-- endregion -->
   <!-- region Common file types -->
   <string name="common_type_audio">Ääni</string>

@@ -194,8 +194,6 @@
   <string name="error_share_locked">A partilha está bloqueada.</string>
   <string name="error_main_share_not_found">A pasta principal não foi encontrada.</string>
   <string name="error_share_not_found">A partilha não foi encontrada.</string>
-  <string name="error_creating_photo_share_not_allowed">A cópia de segurança das fotos está temporariamente desativada.</string>
-  <string name="error_creating_share_not_allowed">A criação de partilha está temporariamente desativada.</string>
   <string name="error_camera_permission">É necessária a autorização de acesso à câmara.</string>
   <string name="operation_open_document">abrir um documento</string>
   <string name="operation_create_document">criar um documento</string>

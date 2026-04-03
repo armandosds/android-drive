@@ -92,10 +92,10 @@ sealed class Event {
     data class Backup(
         val folderId: FolderId,
         val state: BackupState,
-        val total: Int,
-        val preparing: Int,
-        val pending: Int,
-        val failed: Int,
+        val total: Int = 0,
+        val preparing: Int = 0,
+        val pending: Int = 0,
+        val failed: Int = 0,
     ) : Event() {
         override val id: String = "$EVENT_ID_PREFIX${this.javaClass.simpleName.uppercase()}"
         override val occurredAt: TimestampMs = TimestampMs()

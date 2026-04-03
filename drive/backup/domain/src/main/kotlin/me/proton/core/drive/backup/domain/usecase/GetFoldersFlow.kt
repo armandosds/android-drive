@@ -24,6 +24,7 @@ import me.proton.core.domain.entity.UserId
 import me.proton.core.drive.backup.domain.repository.BackupFolderRepository
 import me.proton.core.drive.base.domain.log.LogTag
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
+import me.proton.core.drive.base.domain.usecase.ReportError
 import me.proton.core.drive.link.domain.entity.FolderId
 import me.proton.core.util.kotlin.CoreLogger
 import javax.inject.Inject
@@ -31,6 +32,7 @@ import javax.inject.Inject
 class GetFoldersFlow @Inject constructor(
     private val repository: BackupFolderRepository,
     private val configurationProvider: ConfigurationProvider,
+    private val reportError: ReportError,
 ) {
     operator fun invoke(userId: UserId) = flow {
         val count = configurationProvider.dbPageSize
@@ -41,9 +43,9 @@ class GetFoldersFlow @Inject constructor(
             if (backupFolders.size == count) {
                 val folderCount = repository.getCount(userId)
                 if (folderCount > count) {
-                    CoreLogger.e(
-                        LogTag.BACKUP,
-                        IllegalStateException("Cannot get all backup folders: $folderCount (limit: $count)"),
+                    reportError(
+                        tag = LogTag.BACKUP,
+                        error = IllegalStateException("Cannot get all backup folders: $folderCount (limit: $count)"),
                     )
                 }
             }
@@ -59,9 +61,9 @@ class GetFoldersFlow @Inject constructor(
             if (backupFolders.size == count) {
                 val folderCount = repository.getCount(folderId)
                 if (folderCount > count) {
-                    CoreLogger.e(
-                        LogTag.BACKUP,
-                        IllegalStateException("Cannot get all backup folders: $folderCount (limit: $count)"),
+                    reportError(
+                        tag = LogTag.BACKUP,
+                        error = IllegalStateException("Cannot get all backup folders: $folderCount (limit: $count)"),
                     )
                 }
             }

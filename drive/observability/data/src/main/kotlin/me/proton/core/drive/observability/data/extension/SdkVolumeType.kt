@@ -23,6 +23,7 @@ import me.proton.drive.sdk.telemetry.VolumeType as SdkVolumeType
 
 fun SdkVolumeType.toVolumeType(): VolumeType = when (this) {
     SdkVolumeType.UNRECOGNIZED -> VolumeType.unknown
+    SdkVolumeType.UNKNOWN -> VolumeType.unknown
     SdkVolumeType.OWN_VOLUME -> VolumeType.own_volume
     SdkVolumeType.SHARED -> VolumeType.shared
     SdkVolumeType.SHARED_PUBLIC -> VolumeType.shared_public

@@ -188,9 +188,9 @@ class AlbumViewModel @Inject constructor(
                             return@mapWithPrevious driveLink
                         }
                         .onFailure { error ->
-                            CoreLogger.w(VIEW_MODEL, "Cannot get drive link for ${albumId.id.logId()}")
+                            CoreLogger.w(VIEW_MODEL, "Cannot get drive link for ${albumId.id}")
                             error.cause?.let { cause ->
-                                CoreLogger.w(VIEW_MODEL, cause, "Cannot get drive link for ${albumId.id.logId()}")
+                                CoreLogger.w(VIEW_MODEL, cause, "Cannot get drive link for ${albumId.id}")
                                 if (cause is NoSuchElementException) {
                                     viewEvent?.onBackPressed?.invoke()
                                     return@onFailure
@@ -412,7 +412,7 @@ class AlbumViewModel @Inject constructor(
         viewModelScope.launch {
             saveAllLoading.value = true
             addPhotosToStream(albumId).onFailure { error ->
-                error.log(LogTag.ALBUM, "Cannot copy photo to stream: ${albumId.id.logId()}")
+                error.log(LogTag.ALBUM, "Cannot copy photo to stream: ${albumId.id}")
                 broadcastMessages(
                     userId = userId,
                     message = error.getDefaultMessage(

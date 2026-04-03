@@ -78,6 +78,7 @@
   <string name="common_add_to_albums_action">Voeg toe aan albums</string>
   <string name="common_tag_photo_action">Foto scannen op tags</string>
   <string name="common_save_as_action">Opslaan als</string>
+  <string name="common_open_action">Openen</string>
   <!-- endregion -->
   <!-- region Common file types -->
   <string name="common_type_audio">Audio</string>

@@ -37,6 +37,7 @@ object LogTag {
     const val BACKUP = "$DEFAULT.backup"
     const val ALBUM = "$DEFAULT.album"
     const val PHOTO = "$DEFAULT.photo"
+    const val VOLUME = "$DEFAULT.volume"
     const val TELEMETRY = "$DEFAULT.telemetry"
     const val UPLOAD = "$DEFAULT.upload"
     const val UPLOAD_BULK = "$UPLOAD.bulk"
@@ -63,5 +64,5 @@ object LogTag {
     }
 }
 
-fun String.logId(): String = this.take(8)
+fun String.logId(): String = this.takeLast(8)
 fun Int.toBase36(): String = this.toUInt().toString(Character.MAX_RADIX)

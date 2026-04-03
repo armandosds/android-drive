@@ -38,6 +38,7 @@ import me.proton.core.drive.base.domain.extension.toResult
 import me.proton.core.drive.base.domain.log.LogTag
 import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
+import me.proton.core.drive.base.domain.usecase.ReportError
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.cryptobase.domain.exception.FileVerificationException
 import me.proton.core.drive.drivelink.crypto.domain.usecase.IntegrityMetricsNotifier
@@ -73,6 +74,7 @@ class DownloadFileLegacy @Inject constructor(
     private val removeSignatureVerificationFailed: RemoveSignatureVerificationFailed,
     private val verifyDownloadedFile: VerifyDownloadedFile,
     private val integrityMetricsNotifier: IntegrityMetricsNotifier,
+    private val reportError: ReportError,
 ) {
 
     suspend operator fun invoke(
@@ -157,7 +159,11 @@ class DownloadFileLegacy @Inject constructor(
                 deleteDownloadedBlocks(driveLink).getOrThrow()
             }
             .onFailure { error ->
-                CoreLogger.e(LogTag.DOWNLOAD, error,"There was an error decrypting file ${driveLink.id.id.logId()}")
+                reportError(
+                    tag = LogTag.DOWNLOAD,
+                    error = error,
+                    message = "There was an error decrypting file ${driveLink.id.id}",
+                )
             }.getOrThrow()
         if (verifyDownloadedFile.isAllowed(userId = driveLink.userId)) {
             verifyDownloadedFile(
@@ -192,7 +198,7 @@ class DownloadFileLegacy @Inject constructor(
                 .getOrThrow()
         }
     }.onFailure { error ->
-        CoreLogger.w(LogTag.DOWNLOAD, error, "Cannot download file ${fileId.id.logId()} (legacy)")
+        reportError(LogTag.DOWNLOAD, error, "Cannot download file ${fileId.id} (legacy)")
         setDownloadState(fileId, DownloadState.Error)
     }.onSuccess {
         setDownloadState(fileId, DownloadState.Ready)

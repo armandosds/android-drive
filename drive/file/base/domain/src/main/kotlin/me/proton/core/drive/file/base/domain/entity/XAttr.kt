@@ -23,7 +23,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class XAttr(
     @SerialName("Common")
-    val common: Common,
+    val common: Common? = null,
     @SerialName("Media")
     val media: Media? = null,
     @SerialName("Location")

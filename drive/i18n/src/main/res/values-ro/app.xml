@@ -199,8 +199,6 @@
   <string name="error_share_locked">Partajarea este blocată.</string>
   <string name="error_main_share_not_found">Partajarea principală nu se poate găsi.</string>
   <string name="error_share_not_found">Partajarea nu a fost găsită.</string>
-  <string name="error_creating_photo_share_not_allowed">Conservarea fotografiilor este momentan dezactivată.</string>
-  <string name="error_creating_share_not_allowed">Crearea partajărilor este momentan dezactivată.</string>
   <string name="error_camera_permission">Este necesară permisiunea pentru cameră.</string>
   <string name="operation_open_document">deschidă un document</string>
   <string name="operation_create_document">creeze un document</string>

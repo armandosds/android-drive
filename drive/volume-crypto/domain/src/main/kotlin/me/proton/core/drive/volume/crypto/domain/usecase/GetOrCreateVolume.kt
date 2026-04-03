@@ -20,18 +20,28 @@ package me.proton.core.drive.volume.crypto.domain.usecase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.transform
 import me.proton.core.domain.arch.DataResult
 import me.proton.core.domain.entity.UserId
+import me.proton.core.drive.base.domain.api.ProtonApiCode
 import me.proton.core.drive.base.domain.extension.asSuccessOrNullAsError
 import me.proton.core.drive.base.domain.extension.transformSuccess
+import me.proton.core.drive.base.domain.log.LogTag
 import me.proton.core.drive.volume.domain.entity.Volume
 import me.proton.core.drive.volume.domain.entity.isActive
 import me.proton.core.drive.volume.domain.repository.VolumeRepository
+import me.proton.core.drive.volume.domain.usecase.GetOldestActiveVolume
 import me.proton.core.drive.volume.domain.usecase.GetVolumes
+import me.proton.core.network.domain.hasProtonErrorCode
+import me.proton.core.util.kotlin.CoreLogger
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class GetOrCreateVolume @Inject constructor(
     private val getVolumes: GetVolumes,
+    private val getOldestActiveVolume: GetOldestActiveVolume,
     private val createVolume: CreateVolume,
     private val volumeRepository: VolumeRepository,
 ) {
@@ -44,7 +54,9 @@ class GetOrCreateVolume @Inject constructor(
                 }
             }
             if (activeVolumes.isEmpty()) {
-                emitAll(createVolume(userId, type))
+                emitAll(
+                    createOrGetVolume(userId, type)
+                )
             } else {
                 emit(activeVolumes
                     .minByOrNull { volume -> volume.createTime.value }
@@ -52,4 +64,22 @@ class GetOrCreateVolume @Inject constructor(
                 )
             }
         }
+
+    @ExperimentalCoroutinesApi
+    private fun createOrGetVolume(
+        userId: UserId,
+        type: Volume.Type
+    ): Flow<DataResult<Volume>> = createVolume(userId, type).transform { dataResult ->
+        val cause = (dataResult as? DataResult.Error)?.cause
+        if (cause?.hasProtonErrorCode(ProtonApiCode.ALREADY_EXISTS) == true) {
+            CoreLogger.w(
+                LogTag.VOLUME,
+                cause,
+                "Volume already exists, fetching volumes",
+            )
+            emitAll(getOldestActiveVolume(userId, type, refresh = flowOf(true)))
+        } else {
+            emit(dataResult)
+        }
+    }
 }

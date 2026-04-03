@@ -36,6 +36,7 @@ import me.proton.core.drive.linkupload.domain.entity.UploadDigests
 import me.proton.core.drive.linkupload.domain.entity.UploadFileLink
 import me.proton.core.drive.linkupload.domain.entity.UploadState
 import me.proton.core.drive.share.domain.entity.ShareId
+import me.proton.core.drive.volume.domain.entity.VolumeId
 import kotlin.time.Duration
 
 interface LinkUploadRepository {
@@ -87,7 +88,16 @@ interface LinkUploadRepository {
         count: Int,
     ): Flow<List<UploadFileLink>>
 
+    suspend fun getUploadFileLinksWithUriByPriority(
+        userId: UserId,
+        volumeId: VolumeId,
+        states: Set<UploadState>,
+        count: Int,
+    ): Flow<List<UploadFileLink>>
+
     fun getUploadFileLinksCount(userId: UserId): Flow<UploadCount>
+
+    fun getUploadFileLinksCount(userId: UserId, volumeId: VolumeId): Flow<UploadCount>
 
     suspend fun getUploadFileLinksSize(userId: UserId, uploadStates: Set<UploadState>): Bytes
 

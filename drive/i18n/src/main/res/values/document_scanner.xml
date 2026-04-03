@@ -23,4 +23,6 @@
     <string name="scan_document_name_output_format_pdf_description">All pages are saved into single document</string>
     <string name="scan_document_name_output_format_jpeg_title">JPEG</string>
     <string name="scan_document_name_output_format_jpeg_description">Every page is saved as separate image</string>
+    <string name="scan_document_shortcut_short_label" translatable="false">@string/folder_option_scan_document</string>
+    <string name="scan_document_shortcut_long_label" translatable="false">@string/scan_document_shortcut_short_label</string>
 </resources>

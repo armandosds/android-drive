@@ -27,6 +27,7 @@ import me.proton.core.drive.backup.domain.entity.BackupFileState
 import me.proton.core.drive.backup.domain.repository.BackupFileRepository
 import me.proton.core.drive.base.domain.log.LogTag.BACKUP
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
+import me.proton.core.drive.base.domain.usecase.ReportError
 import me.proton.core.drive.link.domain.entity.FolderId
 import me.proton.core.util.kotlin.CoreLogger
 import javax.inject.Inject
@@ -34,6 +35,7 @@ import javax.inject.Inject
 class GetAllFailedFiles @Inject constructor(
     private val configurationProvider: ConfigurationProvider,
     private val repository: BackupFileRepository,
+    private val reportError: ReportError,
 ) {
     operator fun invoke(folderId: FolderId): Flow<List<BackupFile>> = flow {
         val count = configurationProvider.dbPageSize
@@ -46,9 +48,9 @@ class GetAllFailedFiles @Inject constructor(
             if (backupFiles.size == count) {
                 val countByState = repository.getCountByState(folderId, BackupFileState.FAILED)
                 if (countByState > count) {
-                    CoreLogger.e(
-                        BACKUP,
-                        IllegalStateException("Cannot get all failed backup files: $countByState (limit: $count)"),
+                    reportError(
+                        tag = BACKUP,
+                        error = IllegalStateException("Cannot get all failed backup files: $countByState (limit: $count)"),
                     )
                 }
             }

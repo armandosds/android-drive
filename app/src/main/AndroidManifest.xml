@@ -70,8 +70,6 @@
                 <category android:name="android.intent.category.OPENABLE" />
                 <data android:mimeType="*/*" />
             </intent-filter>
-            <meta-data android:name="android.app.shortcuts"
-                android:resource="@xml/shortcuts" />
         </activity>
 
         <activity
@@ -150,6 +148,10 @@
                 tools:node="remove" /><!-- Initialized by MainInitializer -->
             <meta-data
                 android:name="me.proton.android.drive.initializer.AccountRemovedHandlerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" /><!-- Initialized by MainInitializer -->
+            <meta-data
+                android:name="me.proton.android.drive.initializer.ShortcutInitializer"
                 android:value="androidx.startup"
                 tools:node="remove" /><!-- Initialized by MainInitializer -->
             <meta-data

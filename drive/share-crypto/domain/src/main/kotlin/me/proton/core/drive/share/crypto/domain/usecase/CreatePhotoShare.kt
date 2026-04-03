@@ -32,17 +32,9 @@ import me.proton.core.drive.base.domain.extension.toResult
 import me.proton.core.drive.base.domain.extension.transformSuccess
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.crypto.domain.usecase.photo.CreatePhotoInfo
-import me.proton.core.drive.feature.flag.domain.entity.FeatureFlagId.Companion.driveAlbumsDisabled
-import me.proton.core.drive.feature.flag.domain.entity.FeatureFlagId.Companion.drivePhotosUploadDisabled
-import me.proton.core.drive.feature.flag.domain.extension.off
-import me.proton.core.drive.feature.flag.domain.extension.onDisabledOrNotFound
-import me.proton.core.drive.feature.flag.domain.extension.onEnabled
-import me.proton.core.drive.feature.flag.domain.usecase.GetFeatureFlag
-import me.proton.core.drive.feature.flag.domain.usecase.WithFeatureFlag
 import me.proton.core.drive.photo.domain.repository.PhotoRepository
 import me.proton.core.drive.share.domain.entity.Share
 import me.proton.core.drive.share.domain.entity.ShareId
-import me.proton.core.drive.share.domain.exception.ShareException
 import me.proton.core.drive.share.domain.usecase.GetAddressId
 import me.proton.core.drive.share.domain.usecase.GetShare
 import me.proton.core.drive.share.domain.usecase.GetShares
@@ -62,47 +54,23 @@ class CreatePhotoShare @Inject constructor(
     private val getShare: GetShare,
     private val getShares: GetShares,
     private val getPhotoShare: GetPhotoShare,
-    private val withFeatureFlag: WithFeatureFlag,
     private val getAddressId: GetAddressId,
     private val getOrCreateVolume: GetOrCreateVolume,
-    private val getFeatureFlag: GetFeatureFlag,
 ) {
     operator fun invoke(userId: UserId): Flow<DataResult<Share>> =
         getOrCreateMainShare(userId)
             .distinctUntilChanged()
-            .transformSuccess { result ->
-                if (isPhotoVolumeCreationAllowed(userId)) {
-                    emitAll(
-                        getOrCreatePhotoShare(userId)
-                    )
-                } else {
-                    emitAll(
-                        invoke(
-                            userId = userId,
-                            volumeId = result.value.volumeId,
-                        )
-                    )
-                }
+            .transformSuccess {
+                emitAll(
+                    getOrCreatePhotoShare(userId)
+                )
             }
 
     operator fun invoke(userId: UserId, volumeId: VolumeId): Flow<DataResult<Share>> = flow {
         try {
-            withFeatureFlag(drivePhotosUploadDisabled(userId)) { featureFlag ->
-                featureFlag
-                    .onDisabledOrNotFound {
-                        val addressId = getAddressId(userId, volumeId).getOrThrow()
-                        val photoShareId = createPhotoShare(userId, volumeId, addressId)
-                        emitAll(getShare(photoShareId))
-                    }
-                    .onEnabled {
-                        emit(
-                            DataResult.Error.Local(
-                                message = "Disabled by DisableDrivePhotosUpload feature flag",
-                                cause = ShareException.CreatingShareNotAllowed(userId, Share.Type.PHOTO),
-                            )
-                        )
-                    }
-            }
+            val addressId = getAddressId(userId, volumeId).getOrThrow()
+            val photoShareId = createPhotoShare(userId, volumeId, addressId)
+            emitAll(getShare(photoShareId))
         } catch (e: ApiException) {
             emit(e.toDataResult())
         } catch (e: Exception) {
@@ -137,9 +105,4 @@ class CreatePhotoShare @Inject constructor(
         .transformSuccess { result ->
             emitAll(getShare(ShareId(userId, result.value.shareId)))
         }
-
-    private suspend fun isPhotoVolumeCreationAllowed(userId: UserId): Boolean =
-        getFeatureFlag(
-            featureFlagId = driveAlbumsDisabled(userId),
-        ).off
 }

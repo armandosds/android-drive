@@ -22,8 +22,10 @@ import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import kotlinx.coroutines.flow.firstOrNull
 import me.proton.core.drive.base.data.entity.WorkInfoStopReason
+import me.proton.core.drive.base.domain.extension.getOrNull
 import me.proton.core.drive.base.domain.extension.toResult
 import me.proton.core.drive.base.domain.log.LogTag
+import me.proton.core.drive.base.domain.log.LogTag.UPLOAD
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.drivelink.domain.usecase.UseSdkForUpload
 import me.proton.core.drive.linkupload.domain.entity.UploadFileLink
@@ -70,8 +72,8 @@ class ObservabilityUploadErrorHandler @Inject constructor(
     override suspend fun onError(uploadError: UploadErrorManager.Error) {
         coRunCatching {
             val uploadedBySdk = useSdkForUpload(uploadError.uploadFileLink.parentLinkId)
-                .getOrDefault(false)
-            if (uploadedBySdk) {
+                .getOrNull(UPLOAD, "Cannot check for sdk usage")
+            if (uploadedBySdk == true) {
                 CoreLogger.d(
                     tag = uploadError.uploadFileLink.logTag(),
                     message = "Skipping observability upload error for file uploaded by SDK",

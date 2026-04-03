@@ -78,6 +78,7 @@
   <string name="common_add_to_albums_action">Lägg till i album</string>
   <string name="common_tag_photo_action">Skanna foto efter taggar</string>
   <string name="common_save_as_action">Spara som</string>
+  <string name="common_open_action">Öppna</string>
   <!-- endregion -->
   <!-- region Common file types -->
   <string name="common_type_audio">Ljud</string>

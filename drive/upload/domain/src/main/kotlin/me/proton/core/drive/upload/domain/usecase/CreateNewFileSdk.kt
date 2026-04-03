@@ -20,22 +20,31 @@ package me.proton.core.drive.upload.domain.usecase
 
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import me.proton.core.drive.base.domain.entity.Bytes
 import me.proton.core.drive.base.domain.entity.TimestampS
 import me.proton.core.drive.base.domain.entity.toTimestampS
+import me.proton.core.drive.base.domain.extension.toInstant
+import me.proton.core.drive.base.domain.extension.toResult
 import me.proton.core.drive.base.domain.provider.ConfigurationProvider
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.crypto.domain.usecase.file.GetFileName
+import me.proton.core.drive.link.domain.extension.toSdkPhotoTag
 import me.proton.core.drive.linkupload.domain.entity.UploadFileLink
 import me.proton.core.drive.linkupload.domain.entity.UploadState
+import me.proton.core.drive.linkupload.domain.usecase.GetPhotoTags
 import me.proton.core.drive.linkupload.domain.usecase.UpdateUploadFileCreationTime
 import me.proton.core.drive.linkupload.domain.usecase.UpdateUploadState
+import me.proton.core.drive.share.domain.entity.Share
+import me.proton.core.drive.share.domain.usecase.GetShare
 import me.proton.core.drive.upload.domain.manager.UploadSdkManager
 import me.proton.drive.sdk.Uid
 import me.proton.drive.sdk.entity.FileUploaderRequest
+import me.proton.drive.sdk.entity.PhotosUploaderRequest
 import me.proton.drive.sdk.uploader
+import java.time.Instant
 import javax.inject.Inject
 
 class CreateNewFileSdk @Inject constructor(
@@ -46,6 +55,9 @@ class CreateNewFileSdk @Inject constructor(
     private val getFileName: GetFileName,
     private val updateUploadFileCreationTime: UpdateUploadFileCreationTime,
     private val configurationProvider: ConfigurationProvider,
+    private val getPhotoTags: GetPhotoTags,
+    private val getShare: GetShare,
+    private val photoAdditionalMetadata: PhotoAdditionalMetadata,
 ) {
 
     suspend operator fun invoke(
@@ -64,14 +76,22 @@ class CreateNewFileSdk @Inject constructor(
                 val size = requireNotNull(getUploadFileSize(uriString)) {
                     "Cannot get size of $uriString"
                 }
-                val lastModified = requireNotNull(getUploadFileLastModified(uriString)) {
-                    "Cannot get last modified of $uriString"
-                }.toTimestampS()
-                uploadFileLink.enqueue(
-                    name = fileName,
-                    size = size,
-                    lastModified = lastModified,
-                )
+                val lastModified = getUploadFileLastModified(uriString)?.toInstant()
+                if (uploadFileLink.isPhoto()) {
+                    uploadFileLink.enqueuePhoto(
+                        name = fileName,
+                        size = size,
+                        lastModified = lastModified,
+                    )
+                } else {
+                    uploadFileLink.enqueue(
+                        name = fileName,
+                        size = size,
+                        lastModified = requireNotNull(lastModified) {
+                            "Cannot get last modified of $uriString"
+                        },
+                    )
+                }
             } finally {
                 if (!isActive) {
                     withContext(NonCancellable) {
@@ -85,7 +105,7 @@ class CreateNewFileSdk @Inject constructor(
     private suspend fun UploadFileLink.enqueue(
         name: String,
         size: Bytes,
-        lastModified: TimestampS,
+        lastModified: Instant,
     ) = uploadSdkManager.enqueue(this@enqueue) { client ->
         client.uploader(
             request = FileUploaderRequest(
@@ -96,10 +116,37 @@ class CreateNewFileSdk @Inject constructor(
                 name = name,
                 mediaType = mimeType,
                 fileSize = size.value,
-                lastModificationTime = lastModified.value,
+                lastModificationTime = lastModified,
                 overrideExistingDraftByOtherClient = false,
             ),
             timeout = configurationProvider.sdkQueueTimeout,
         )
+    }
+
+    private suspend fun UploadFileLink.enqueuePhoto(
+        name: String,
+        size: Bytes,
+        lastModified: Instant?,
+    ) = uploadSdkManager.enqueuePhoto(this@enqueuePhoto) { client ->
+        val tags = getPhotoTags(this@enqueuePhoto.id).getOrThrow()
+        client.uploader(
+            request = PhotosUploaderRequest(
+                name = name,
+                mediaType = mimeType,
+                fileSize = size.value,
+                lastModificationTime = lastModified,
+                captureTime = fileCreationDateTime?.toInstant(),
+                mainPhotoUid = null,
+                overrideExistingDraftByOtherClient = false,
+                additionalMetadata = photoAdditionalMetadata(this),
+                tags = tags.map { photoTag -> photoTag.toSdkPhotoTag() },
+            ),
+            timeout = configurationProvider.sdkQueueTimeout,
+        )
+    }
+
+    private suspend fun UploadFileLink.isPhoto(): Boolean {
+        val share = getShare(shareId, flowOf(false)).toResult().getOrThrow()
+        return share.type == Share.Type.PHOTO
     }
 }

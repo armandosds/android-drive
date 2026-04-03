@@ -22,7 +22,6 @@ import me.proton.core.drive.base.domain.extension.getOrNull
 import me.proton.core.drive.base.domain.extension.requireIsInstance
 import me.proton.core.drive.base.domain.extension.toResult
 import me.proton.core.drive.base.domain.log.LogTag.DOWNLOAD
-import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.crypto.domain.usecase.file.DecryptFiles
 import me.proton.core.drive.crypto.domain.usecase.file.VerifyManifestSignature
@@ -61,7 +60,7 @@ class DecryptLinkContent @Inject constructor(
         val downloadState = requireIsInstance<DownloadState.Downloaded>(
             getDownloadState(driveLink.id).toResult().getOrThrow()
         ) {
-            "File ${driveLink.id.id.logId()} is not downloaded"
+            "File ${driveLink.id.id} is not downloaded"
         }
         val encryptedFileBlocks = getDownloadBlocks(link).getOrThrow().also { blocks ->
             blocks.requireSortedAscending()

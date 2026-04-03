@@ -32,6 +32,7 @@ import me.proton.core.network.data.ProtonErrorException
 import me.proton.core.network.domain.ApiException
 import me.proton.core.network.domain.ApiResult
 import me.proton.core.network.domain.isRetryable
+import me.proton.drive.sdk.OperationAbortedException
 import me.proton.drive.sdk.ProtonDriveSdkException
 import me.proton.drive.sdk.ProtonSdkError.ErrorDomain
 import retrofit2.HttpException
@@ -67,6 +68,7 @@ fun Throwable.getDefaultMessage(
         }
 
         is ProtonDriveSdkException -> getDefaultMessage(context)
+        is OperationAbortedException -> getDefaultMessage(context)
         else -> unhandled
     }
 }
@@ -92,6 +94,7 @@ fun Throwable.log(
         is SecurityException -> log(tag, message, level)
         is RuntimeException -> log(tag, message, level)
         is ProtonDriveSdkException -> log(tag, message, level)
+        is OperationAbortedException -> log(tag, message, level)
         else -> level.log(tag, this, message)
     }
 }

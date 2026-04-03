@@ -204,8 +204,6 @@
   <string name="error_share_locked">Спільний доступ обмежено.</string>
   <string name="error_main_share_not_found">Основний спільний елемент не знайдено</string>
   <string name="error_share_not_found">Спільний доступ не знайдено.</string>
-  <string name="error_creating_photo_share_not_allowed">Резервне копіювання фотографій тимчасово вимкнено.</string>
-  <string name="error_creating_share_not_allowed">Створення спільного доступу тимчасово вимкнено.</string>
   <string name="error_camera_permission">Потрібен дозвіл на використання камери.</string>
   <string name="operation_open_document">відкрити документ</string>
   <string name="operation_create_document">створити документ</string>

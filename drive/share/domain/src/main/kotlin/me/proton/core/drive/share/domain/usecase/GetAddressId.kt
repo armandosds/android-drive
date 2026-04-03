@@ -28,7 +28,6 @@ import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.share.domain.entity.Share
 import me.proton.core.drive.share.domain.entity.ShareId
 import me.proton.core.drive.volume.domain.entity.VolumeId
-import me.proton.core.drive.volume.domain.usecase.GetOldestActiveVolume
 import me.proton.core.drive.volume.domain.usecase.GetVolume
 import me.proton.core.user.domain.entity.AddressId
 import javax.inject.Inject

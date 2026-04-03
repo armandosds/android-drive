@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Proton AG.
+ * Copyright (c) 2024-2026 Proton AG.
  * This file is part of Proton Core.
  *
  * Proton Core is free software: you can redistribute it and/or modify
@@ -21,6 +21,7 @@ package me.proton.core.drive.base.domain.extension
 import me.proton.core.drive.base.domain.entity.TimestampMs
 import me.proton.core.drive.base.domain.entity.TimestampS
 import me.proton.core.drive.base.domain.entity.toTimestampMs
+import java.time.Instant
 import kotlin.time.Duration
 
 fun TimestampMs?.isOlderThen(duration: Duration): Boolean = this?.let { timestamp ->
@@ -30,3 +31,6 @@ fun TimestampMs?.isOlderThen(duration: Duration): Boolean = this?.let { timestam
 fun TimestampS?.isOlderThen(duration: Duration): Boolean = this?.toTimestampMs().isOlderThen(duration)
 
 val TimestampS?.orNow get() = TimestampS()
+
+fun TimestampMs.toInstant() = Instant.ofEpochMilli(value)
+fun TimestampS.toInstant() = Instant.ofEpochSecond(value)

@@ -194,8 +194,6 @@
   <string name="error_share_locked">Deling er låst.</string>
   <string name="error_main_share_not_found">Den primære deling er ikke fundet.</string>
   <string name="error_share_not_found">Deling ikke fundet.</string>
-  <string name="error_creating_photo_share_not_allowed">Sikkerhedskopiering af fotos er midlertidigt deaktiveret.</string>
-  <string name="error_creating_share_not_allowed">Oprettelse af deling er midlertidigt deaktiveret.</string>
   <string name="error_camera_permission">Kameratilladelse er påkrævet.</string>
   <string name="operation_open_document">åbn et dokument</string>
   <string name="operation_create_document">opret et dokument</string>

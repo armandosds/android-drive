@@ -19,8 +19,10 @@
 package me.proton.core.drive.drivelink.download.data.handler
 
 import me.proton.core.drive.base.data.extension.log
+import me.proton.core.drive.base.domain.extension.getOrNull
 import me.proton.core.drive.base.domain.extension.toResult
 import me.proton.core.drive.base.domain.log.LogTag
+import me.proton.core.drive.base.domain.log.LogTag.DOWNLOAD
 import me.proton.core.drive.base.domain.log.logId
 import me.proton.core.drive.base.domain.util.coRunCatching
 import me.proton.core.drive.drivelink.domain.usecase.UseSdkForDownload
@@ -59,8 +61,8 @@ class ObservabilityDownloadErrorHandler @Inject constructor(
     override suspend fun onError(downloadError: DownloadErrorManager.Error) {
         coRunCatching {
             val downloadedBySdk = useSdkForDownload(downloadError.fileId)
-                .getOrDefault(false)
-            if (downloadedBySdk) {
+                .getOrNull(DOWNLOAD, "Cannot check sdk usage")
+            if (downloadedBySdk == true) {
                 CoreLogger.d(
                     tag = downloadError.logTag,
                     message = "Skipping observability download error for file downloaded by SDK",
@@ -73,7 +75,7 @@ class ObservabilityDownloadErrorHandler @Inject constructor(
         }.onFailure { error ->
             error.log(
                 tag = downloadError.logTag,
-                message = "Cannot handle error for: ${downloadError.fileId.id.logId()}",
+                message = "Cannot handle error for: ${downloadError.fileId.id}",
             )
         }
     }
